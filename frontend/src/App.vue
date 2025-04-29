@@ -1,85 +1,83 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="bg-cover bg-center" :style="{ backgroundImage: `url(${bgImage})` }">
+    <!-- Navbar -->
+    <Navbar @scroll-to="scrollToSection" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <!-- Hero Section -->
+    <section id="home" ref="home"><Home /></section>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+    <!-- Search Books Section -->
+    <section id="search" ref="search"><SearchBooks /></section>
 
-  <RouterView />
+    <!-- Publishers Section -->
+    <section id="publishers" ref="publishers"><Publishers /></section>
+
+    <!-- All Books Section -->
+    <section id="allBooks" ref="allBooks"><AllBooks /></section>
+
+    <!-- Why Shop Section -->
+    <section id="whyShop" ref="whyShop"><WhyShop /></section>
+
+    <!-- Footer -->
+    <<footer class="bg-blue-800 text-white py-6 text-center">
+      <p>&copy; 2025 Book Request. All rights reserved.</p>
+    </footer>>
+  </div>
 </template>
 
+<script setup>
+import { ref } from 'vue'
+import Navbar from './components/Navbar.vue'
+import Home from './components/Hero.vue'
+import SearchBooks from './components/SearchBooks.vue'
+import Publishers from './components/Publishers.vue'
+import AllBooks from './components/AllBooks.vue'
+import WhyShop from './components/WhyShop.vue'
+import Footer from './components/Footer.vue'
+
+import bgImage from '@/image/Background.png' // ใส่รูปพื้นหลังที่ต้องการ
+
+const home = ref(null)
+const search = ref(null)
+const publishers = ref(null)
+const allBooks = ref(null)
+const whyShop = ref(null)
+
+// Function to scroll to specific section
+const scrollToSection = (section) => {
+  const el = {
+    home,
+    search,
+    publishers,
+    allBooks,
+    whyShop
+  }[section]
+  el?.value?.scrollIntoView({ behavior: 'smooth' })
+}
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+/* Section Styles */
+section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.9); /* ทำให้พื้นหลังโปร่งใสเล็กน้อยเพื่อให้ดูสวย */
+  border-radius: 8px; /* ให้มุมของ section ดูโค้งมน */
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
+/* Footer style */
+footer {
+  background-color: #616161;
+  color: white;
   text-align: center;
-  margin-top: 2rem;
+  padding: 1rem;
+  margin-top: 3rem;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+/* Responsive design (adjust for smaller screens) */
+@media (max-width: 768px) {
+  section {
+    padding: 1rem;  /* ลดขนาด padding สำหรับหน้าจอเล็ก */
   }
 }
 </style>
