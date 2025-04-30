@@ -5,7 +5,6 @@ import Publishers from '@/pages/Publishers.vue'
 import SearchBooks from '@/pages/SearchBooks.vue'
 import WhyShop from '@/pages/WhyShop.vue'
 import Navbar from '@/pages/Navbar.vue'
-import Footer from '@/pages/Footer.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

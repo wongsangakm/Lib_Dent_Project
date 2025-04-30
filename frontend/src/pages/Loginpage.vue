@@ -44,8 +44,8 @@
 
 <script setup>
 import { reactive } from 'vue';
-import Logo from '@/components/Logo.vue';
-import Footer from '@/components/Footer.vue';
+import Logo from '@/component/Logo.vue';
+import Footer from '@/component/Footer.vue';
 
 // Reactive object for form data to be sent to backend
 const formData = reactive({

@@ -1,29 +1,12 @@
 <template>
-  <div>
-    <!-- Hero Section -->
-    <section id = hero>
-      <div class="text-center text-white">
-        <h2 class="text-4xl font-bold">Welcome to Book Request</h2>
-        <p class="mt-4 text-lg">Find and request books easily from our extensive collection.</p>
-      </div>
-    </section>
-</div>
+  <div class="w-full min-h-screen flex items-center justify-center text-white text-center px-4">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="bg-red-400 text-4xl font-bold">Welcome to Book Request</h2>
+      <p class="mt-4 text-lg">Find and request books easily from our extensive collection.</p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
-
-/* Responsive design for smaller screens */
-@media (max-width: 768px) {
-  #hero h2 {
-    font-size: 2rem; /* Adjust font size for smaller screens */
-  }
-  
-  #hero p {
-    font-size: 1rem; /* Adjust text size for smaller screens */
-  }
-}
-section {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-}
+/* คุณอาจเพิ่มพื้นหลังสีเพื่อ debug ได้ */
 </style>
