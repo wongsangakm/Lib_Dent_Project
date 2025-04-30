@@ -7,6 +7,7 @@ import WhyShop from '@/pages/WhyShop.vue'
 import Navbar from '@/pages/Navbar.vue'
 import Footer from '@/pages/Footer.vue'
 import Loginpage from '@/pages/Loginpage.vue'
+import BookDetail from '@/pages/BookDetail.vue' 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,9 +38,14 @@ const router = createRouter({
     //   component: Home // จะใช้ component เดียวกับหน้า Home
     // }
     {
+      path: '/BookDetail',
+      name: 'BookDetail',
+      component: BookDetail
+    },
+    {
       path: '/Login',
       name: 'Loginpage',
-      component: Loginpage 
+      component: Loginpage
     }
   ]
 })

@@ -14,7 +14,7 @@ import AllBooks from "./pages/AllBooks.vue";
 import WhyShop from "./pages/WhyShop.vue";
 import Footer from "./pages/Footer.vue";
 import Loginpage from "./pages/Loginpage.vue";
-
+import bookdetail from "./pages/BookDetail.vue";
 import bgImage from "@/image/Background.png"; // ใส่รูปพื้นหลังที่ต้องการ
 
 const home = ref(null);

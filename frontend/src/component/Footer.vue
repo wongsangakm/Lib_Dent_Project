@@ -1,5 +1,5 @@
 <template>
-  <footer class="w-full bg-transparent text-sm text-gray-600">
+  <footer class="bg-white/30 w-full bg-transparent text-sm text-gray-600 pt-10">
     <div
       class=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 pl-5"
     >
@@ -53,7 +53,7 @@
       </div>
 
     </div>
-    <p class="text-center mt-10">All Right Reserved. Copyright © 2024</p>
+    <p class="text-center mt-2">All Right Reserved. Copyright © 2024</p>
   </footer>
 </template>
 
