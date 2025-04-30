@@ -1,7 +1,16 @@
 <template>
-  <img :src="logoSrc" alt="Faculty Logo" class="w-24 h-24 mx-auto" />
+   <img
+    src="@/assets/faculty.svg"
+    alt="Faculty Logo"
+    :class="`${size}`"
+  />
 </template>
 
 <script setup>
-const logoSrc = new URL('@/assets/faculty.svg', import.meta.url).href;
+defineProps({
+  size: {
+    type: String,
+    default: 'w-24 h-24'
+  }
+})
 </script>
