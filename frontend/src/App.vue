@@ -27,13 +27,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import Navbar from './components/Navbar.vue'
-import Home from './components/Hero.vue'
-import SearchBooks from './components/SearchBooks.vue'
-import Publishers from './components/Publishers.vue'
-import AllBooks from './components/AllBooks.vue'
-import WhyShop from './components/WhyShop.vue'
-import Footer from './components/Footer.vue'
+import Navbar from './pages/Navbar.vue'
+import Home from './pages/Hero.vue'
+import SearchBooks from './pages/SearchBooks.vue'
+import Publishers from './pages/Publishers.vue'
+import AllBooks from './pages/AllBooks.vue'
+import WhyShop from './pages/WhyShop.vue'
+import Footer from './pages/Footer.vue'
 
 import bgImage from '@/image/Background.png' // ใส่รูปพื้นหลังที่ต้องการ
 

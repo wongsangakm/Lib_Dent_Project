@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../components/Hero.vue'
-import AllBooks from '@/components/AllBooks.vue'
-import Publishers from '@/components/Publishers.vue'
-import SearchBooks from '@/components/SearchBooks.vue'
-import WhyShop from '@/components/WhyShop.vue'
-import Navbar from '@/components/Navbar.vue'
-import Footer from '@/components/Footer.vue'
+import Home from '../pages/Hero.vue'
+import AllBooks from '@/pages/AllBooks.vue'
+import Publishers from '@/pages/Publishers.vue'
+import SearchBooks from '@/pages/SearchBooks.vue'
+import WhyShop from '@/pages/WhyShop.vue'
+import Navbar from '@/pages/Navbar.vue'
+import Footer from '@/pages/Footer.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
