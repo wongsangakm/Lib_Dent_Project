@@ -65,44 +65,27 @@ import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 
-const formData = reactive({
-  username: "",
-  password: "",
-});
-
-const handleSubmit = async () => {
-  if (!formData.username || !formData.password) {
-    alert("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
-    return;
-  }
-
-  const payload = {
-    username: formData.username,
-    password: formData.password,
-  };
-
+async function loginUser(username, password) {
   try {
-    const response = await fetch("https://your-backend-api.com/login", {
+    const response = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ username, password })
     });
 
-    const result = await response.json();
+    const result = await response.text();
 
     if (response.ok) {
-      // Login สำเร็จ
-      console.log("Login success:", result);
-      // localStorage.setItem("token", result.token); // ถ้ามี token
-      // redirect เช่น: window.location.href = "/dashboard";
+      alert("✅ " + result);
+      // Redirect to dashboard หรือหน้าหลัก
     } else {
-      alert(result.message || "Login failed");
+      alert("❌ Login failed: " + result);
     }
-  } catch (error) {
-    console.error("Submission error:", error);
-    alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+
+  } catch (err) {
+    alert("❌ Error: " + err.message);
   }
-};
+}
 </script>
 
 

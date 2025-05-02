@@ -12,7 +12,7 @@ import SearchBooks from "./pages/SearchBooks.vue";
 import Publishers from "./pages/Publishers.vue";
 import AllBooks from "./pages/AllBooks.vue";
 import WhyShop from "./pages/WhyShop.vue";
-import Footer from "./pages/Footer.vue";
+import Footer from "./component/Footer.vue";
 import Loginpage from "./pages/Loginpage.vue";
 import bookdetail from "./pages/BookDetail.vue";
 import bgImage from "@/image/Background.png"; // ใส่รูปพื้นหลังที่ต้องการ

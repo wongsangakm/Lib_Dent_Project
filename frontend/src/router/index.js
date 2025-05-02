@@ -5,7 +5,7 @@ import Publishers from '@/pages/Publishers.vue'
 import SearchBooks from '@/pages/SearchBooks.vue'
 import WhyShop from '@/pages/WhyShop.vue'
 import Navbar from '@/pages/Navbar.vue'
-import Footer from '@/pages/Footer.vue'
+import Footer from '@/component/Footer.vue'
 import Loginpage from '@/pages/Loginpage.vue'
 import BookDetail from '@/pages/BookDetail.vue' 
 
