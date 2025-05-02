@@ -7,11 +7,11 @@
 <script setup>
 import { ref } from "vue";
 import Navbar from "./pages/Navbar.vue";
-import Home from "./pages/Hero.vue";
+import Home from "./pages/Profile.vue";
 import SearchBooks from "./pages/SearchBooks.vue";
 import Publishers from "./pages/Publishers.vue";
 import AllBooks from "./pages/AllBooks.vue";
-import WhyShop from "./pages/WhyShop.vue";
+import WhyShop from "./pages/System.vue";
 import Footer from "./component/Footer.vue";
 import Loginpage from "./pages/Loginpage.vue";
 import bookdetail from "./pages/BookDetail.vue";

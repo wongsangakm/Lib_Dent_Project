@@ -374,6 +374,7 @@ import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 import dentdesign from "@/assets/dentdesign.svg";
 
+
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {

@@ -61,32 +61,49 @@
 
 <script setup>
 import { reactive } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 
-async function loginUser(username, password) {
+const router = useRouter();
+const authStore = useAuthStore();
+
+const formData = reactive({
+  username: "",
+  password: ""
+});
+
+async function handleSubmit() {
   try {
     const response = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify(formData)
     });
 
-    const result = await response.text();
-
     if (response.ok) {
-      alert("✅ " + result);
-      // Redirect to dashboard หรือหน้าหลัก
-    } else {
-      alert("❌ Login failed: " + result);
-    }
+      const data = await response.json(); // รับ JSON ที่มี username และ role
+      authStore.login(data.username, data.role); // เซ็ต authStore
 
+      // ตรวจสอบ role และทำการเปลี่ยนเส้นทาง
+      if (data.role === 'ADMIN') {
+        router.push("/system"); // ไปหน้า system ถ้า role เป็น ADMIN
+      } else if (data.role === 'MEMBER') {
+        router.push("/Home"); // ไปหน้า Home ถ้า role เป็น MEMBER
+      }
+    } else {
+      alert("❌ Username หรือ Password ไม่ถูกต้อง");
+    }
   } catch (err) {
-    alert("❌ Error: " + err.message);
+    alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message);
   }
 }
 </script>
+
+
 
 
 <style>

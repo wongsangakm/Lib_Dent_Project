@@ -1,5 +1,7 @@
 package com.example.project.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +26,16 @@ public class AuthenticationController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        Optional<User> user = userService.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
-
-        if (user.isPresent()) {
-            return ResponseEntity.ok("Login Success");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
+public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
+    if (user.isPresent()) {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Login success");
+        response.put("username", user.get().getUsername());
+        response.put("role", user.get().getRole()); // 👈 ส่ง role
+        return ResponseEntity.ok(response);
     }
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+}
+
 }
