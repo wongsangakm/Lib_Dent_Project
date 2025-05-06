@@ -1,59 +1,82 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../pages/Hero.vue'
-import AllBooks from '@/pages/AllBooks.vue'
-import Publishers from '@/pages/Publishers.vue'
-import SearchBooks from '@/pages/SearchBooks.vue'
-import WhyShop from '@/pages/WhyShop.vue'
-import Navbar from '@/pages/Navbar.vue'
-import Footer from '@/pages/Footer.vue'
-import Loginpage from '@/pages/Loginpage.vue'
-import BookDetail from '@/pages/BookDetail.vue' 
-
+import { createRouter, createWebHistory } from "vue-router";
+import Loginpage from "@/pages/Loginpage.vue";
+import BookDetail from "@/pages/BookDetail.vue";
+import Homepage from "@/pages/Homepage.vue";
+import Favbooks from "@/pages/Favbooks.vue";
+import AdminDashboard from "@/pages/AdminDashboard.vue";
+import AdminAllbooks from "@/pages/AdminAllbooks.vue";
+import AdminBookDetail from "@/pages/AdminBookDetail.vue";
+import AdminAddBook from "@/pages/AdminAddBook.vue";
+import AdminRequestTable from "@/pages/AdminRequestTable.vue";
+import AdminRequestDetail from "@/pages/AdminRequestDetail.vue";
+import AdminRoundExport from "@/pages/AdminRoundExport.vue";
+import AdminLayout from "@/pages/AdminLayout.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/#home',
-    //   name: 'home',
-    //   component: Home // จะใช้ component เดียวกับหน้า Home
-    // },
-    // {
-    //   path: '/#search',
-    //   name: 'search',
-    //   component: Home // จะใช้ component เดียวกับหน้า Home
-    // },
-    // {
-    //   path: '/#allbooks',
-    //   name: 'allbooks',
-    //   component: Home // จะใช้ component เดียวกับหน้า Home
-    // },
-    // {
-    //   path: '/#publishers',
-    //   name: 'publisehers',
-    //   component: Home // จะใช้ component เดียวกับหน้า Home
-    // },
-    // {
-    //   path: '/#whyShop',
-    //   name: 'whyShop',
-    //   component: Home // จะใช้ component เดียวกับหน้า Home
-    // }
     {
-      path: '/BookDetail',
-      name: 'BookDetail',
-      component: BookDetail
+      path: "/book/:id",
+      component: BookDetail,
     },
     {
-      path: '/Login',
-      name: 'Loginpage',
-      component: Loginpage
+      path: "/Login",
+      name: "Loginpage",
+      component: Loginpage,
+    },
+    {
+      path: "/",
+      name: "Homepage",
+      component: Homepage,
+    },
+    {
+      path: "/favbooks",
+      name: "Favbooks",
+      component: Favbooks,
+    },
+    {
+      path: "/dashboard",
+      name: "AdminDashboard",
+      component: AdminDashboard,
+    },    
+    {
+      path: "/adminallbooks",
+      name: "AdminAllbooks",
+      component: AdminAllbooks
+    },
+    {
+      path: '/RequestTable',
+      name: 'AdminRequestTable',
+      component: AdminRequestTable
+    },
+    {
+      path: '/AdminRoundExport',
+      name: 'AdminRoundExport',
+      component: AdminRoundExport
+    }    ,
+    {
+      path: '/admin',
+      component: AdminLayout,
+      children: [
+        { path: 'dashboard', component: AdminDashboard },
+        { path: 'allbooks', component: AdminAllbooks },
+        { path: 'allbooks/add-book', component: AdminAddBook }, // moved here
+        { path: 'request-table', component: AdminRequestTable },
+        { path: 'request/:id', component: AdminRequestDetail }, // moved here
+        { path: 'adminbookdetail/:id', component: AdminBookDetail }, // moved here
+        { path: 'round-export', component: AdminRoundExport },
+        { path: '', redirect: '/admin/dashboard' }
+    ],
     }
-  ]
-})
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: "smooth",
+      };
+    }
+    return { top: 0 };
+  },
+});
 
-
-
-
-
-
-
-export default router
+export default router;

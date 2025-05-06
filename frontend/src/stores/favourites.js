@@ -49,6 +49,7 @@ const mockBooks = [
     publisher: "Wiley",
     isFavorited: false,
     isLoading: false,
+    description: "During dental/orthodontic imaging, the CBCT scanner rotates around the patient's head, obtaining up to nearly 600 distinct images. For interventional radiology, the patient is positioned offset to the table so that the region of interest is centered in the field of view for the cone beam. A single 200 degree rotation over the region of interest acquires a volumetric data set. The scanning software collects the data and reconstructs it, producing what is termed a digital volume composed of three-dimensional voxels of anatomical data that can then be manipulated and visualized with specialized software.[2][3] CBCT shares many similarities with traditional (fan beam) CT however there are important differences, particularly for reconstruction. CBCT has been described as the gold standard for imaging the oral and maxillofacial area."
   },
   {
     id: 102,
