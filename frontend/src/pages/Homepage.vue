@@ -1,5 +1,4 @@
 <template>
-
   <div
     class="min-h-screen flex flex-col bg-gray-100 items-center"
     :style="{
@@ -9,22 +8,16 @@
       backgroundRepeat: 'no-repeat',
     }"
   >
-  <Header />
+    <Header />
     <!-- Hero Section -->
     <section class="pt-28">
-      <div
-        class="container mx-auto px-4 flex flex-col md:flex-row items-center"
-      >
+      <div class="container mx-auto px-4 flex flex-col md:flex-row items-center">
         <div class="md:w-1/2 flex justify-end">
           <img :src="dentdesign" class="w-64 h-64 object-cover" />
         </div>
         <div class="md:w-1/2 text-center md:text-left">
-          <h1 class="text-5xl font-bold text-gray-800 mb-2 text-center">
-            BOOK
-          </h1>
-          <h1 class="text-4xl font-bold text-gray-800 mb-4 text-center">
-            REQUEST
-          </h1>
+          <h1 class="text-5xl font-bold text-gray-800 mb-2 text-center">BOOK</h1>
+          <h1 class="text-4xl font-bold text-gray-800 mb-4 text-center">REQUEST</h1>
           <div class="">
             <p class="text-gray-600 text-center">
               You can suggest books you'd like the dental library kku to acquire
@@ -77,11 +70,7 @@
         <!-- Search Results -->
         <div v-if="filteredBooks.length > 0" class="mt-6">
           <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <div
-              v-for="book in filteredBooks"
-              :key="book.id"
-              class="text-center"
-            >
+            <div v-for="book in filteredBooks" :key="book.id" class="text-center">
               <div class="relative">
                 <router-link :to="`/book/${book.id}`">
                   <img
@@ -96,21 +85,15 @@
                   class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-2 rounded-full shadow-lg"
                   :class="{
                     'text-red-500': book.isFavorited,
-                    'text-gray-400 hover:text-red-300':
-                      !book.isFavorited && !book.isLoading,
-                    'opacity-50 cursor-not-allowed':
-                      book.isLoading || book.isFavorited,
+                    'text-gray-400 hover:text-red-300': !book.isFavorited && !book.isLoading,
+                    'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
                   }"
                 >
-                  <i
-                    :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"
-                  ></i>
+                  <i :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"></i>
                 </button>
               </div>
               <router-link :to="`/book/${book.id}`" class="block">
-                <p class="mt-2 text-gray-600 text-sm truncate">
-                  {{ book.title }}
-                </p>
+                <p class="mt-2 text-gray-600 text-sm truncate">{{ book.title }}</p>
                 <p class="text-gray-500 text-xs">{{ book.price }}</p>
               </router-link>
 
@@ -120,16 +103,12 @@
                   :disabled="book.isFavorited || book.isLoading"
                   class="px-4 py-1 bg-purple-800 text-white rounded-full flex items-center transition-all duration-200"
                   :class="{
-                    'bg-purple-600 hover:bg-purple-700':
-                      !book.isFavorited && !book.isLoading,
+                    'bg-purple-600 hover:bg-purple-700': !book.isFavorited && !book.isLoading,
                     'bg-gray-400': book.isFavorited,
-                    'opacity-50 cursor-not-allowed':
-                      book.isLoading || book.isFavorited,
+                    'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
                   }"
                 >
-                  <span class="text-sm">{{
-                    book.isFavorited ? "Added to Favorite" : "Add to Favorite"
-                  }}</span>
+                  <span class="text-sm">{{ book.isFavorited ? "Added to Favorite" : "Add to Favorite" }}</span>
                   <svg
                     class="ml-2 w-6 h-6"
                     fill="none"
@@ -149,21 +128,16 @@
             </div>
           </div>
         </div>
-        <div
-          v-else-if="hasSearched && searchQuery && filteredBooks.length === 0"
-          class="mt-6 text-center"
-        >
+        <div v-else-if="hasSearched && searchQuery && filteredBooks.length === 0" class="mt-6 text-center">
           <p class="text-gray-600">No books found for "{{ searchQuery }}".</p>
         </div>
       </div>
     </section>
 
     <!-- Favourite by Publisher -->
-    <section id="Favbypub" class="py-6 scroll-mt-24">
+    <section id="Favbypub" class="py-6 pt-5">
       <div class="container mx-auto px-4">
-        <h2 class="text-xl font-bold text-gray-800 mb-4">
-          Favourite by Publisher
-        </h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Favourite by Publisher</h2>
         <div class="flex items-center space-x-2">
           <!-- Left Arrow -->
           <button
@@ -198,10 +172,8 @@
               @click="selectPublisher(publisher.name)"
               class="flex items-center px-4 py-2 rounded-lg shadow-md transition-colors whitespace-nowrap"
               :class="{
-                'bg-purple-600 text-white':
-                  selectedPublisher === publisher.name,
-                'bg-white text-gray-600 hover:bg-gray-100':
-                  selectedPublisher !== publisher.name,
+                'bg-purple-600 text-white': selectedPublisher === publisher.name,
+                'bg-white text-gray-600 hover:bg-gray-100': selectedPublisher !== publisher.name,
               }"
             >
               <svg
@@ -219,9 +191,7 @@
                 ></path>
               </svg>
               <span>{{ publisher.name }}</span>
-              <span class="ml-2 text-xs opacity-75"
-                >{{ publisher.items }} Items</span
-              >
+              <span class="ml-2 text-xs opacity-75">{{ publisher.items }} Items</span>
             </button>
           </div>
           <!-- Right Arrow -->
@@ -253,47 +223,34 @@
     <section id="all-books" class="py-12">
       <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-gray-800 mb-8">
-          {{
-            selectedPublisher === "All Books" ? "All Books" : selectedPublisher
-          }}
+          {{ selectedPublisher === "All Books" ? "All Books" : selectedPublisher }}
         </h2>
-        <div
-          v-if="filteredBooksByPublisher.length > 0"
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6"
-        >
-          <div
-            v-for="book in filteredBooksByPublisher"
-            :key="book.id"
-            class="text-center"
-          >
+        <div v-if="filteredBooksByPublisher.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+          <div v-for="book in filteredBooksByPublisher" :key="book.id" class="text-center">
             <div class="relative">
               <router-link :to="`/book/${book.id}`">
                 <img
                   :src="book.coverImage"
                   alt="Book Cover"
-                  class="w-[150px] h-[220px] rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                  class="max-w-[150px] mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
                 />
               </router-link>
               <!-- Heart Button -->
               <button
                 @click="addToFavorite(book.id)"
                 :disabled="book.isFavorited || book.isLoading"
-                class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-2 rounded-full shadow-lg"
+                class="absolute top-2 right-12 bg-white bg-opacity-80 text-l p-2 rounded-full shadow-lg"
                 :class="{
                   'text-red-500': book.isFavorited,
-                  'text-gray-400 hover:text-red-300':
-                    !book.isFavorited && !book.isLoading,
-                  'opacity-50 cursor-not-allowed':
-                    book.isLoading || book.isFavorited,
+                  'text-gray-400 hover:text-red-300': !book.isFavorited && !book.isLoading,
+                  'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
                 }"
               >
                 <i :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"></i>
               </button>
             </div>
             <router-link :to="`/book/${book.id}`" class="block">
-              <p class="mt-2 text-gray-600 text-sm truncate">
-                {{ book.title }}
-              </p>
+              <p class="mt-2 text-gray-600 text-sm truncate">{{ book.title }}</p>
               <p class="text-gray-500 text-xs">{{ book.price }}</p>
             </router-link>
             <!-- Add to Favorite Button -->
@@ -303,16 +260,12 @@
                 :disabled="book.isFavorited || book.isLoading"
                 class="px-4 py-1 bg-purple-800 text-white rounded-full flex items-center transition-all duration-200"
                 :class="{
-                  'bg-purple-600 hover:bg-purple-700':
-                    !book.isFavorited && !book.isLoading,
+                  'bg-purple-600 hover:bg-purple-700': !book.isFavorited && !book.isLoading,
                   'bg-gray-400': book.isFavorited,
-                  'opacity-50 cursor-not-allowed':
-                    book.isLoading || book.isFavorited,
+                  'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
                 }"
               >
-                <span class="text-xs">{{
-                  book.isFavorited ? "Added to Favorite" : "Add to Favorite"
-                }}</span>
+                <span class="text-xs">{{ book.isFavorited ? "Added to Favorite" : "Add to Favorite" }}</span>
                 <svg
                   class="ml-2 w-4 h-4"
                   fill="none"
@@ -338,10 +291,8 @@
     </section>
 
     <!-- Why Shop with Us? Section -->
-    <section id="why" class="py-12 bg-purple-100 w-screen h-[400px] ">
-      <div
-        class="container mx-auto px-4 h-full flex flex-col md:flex-row items-center justify-center"
-      >
+    <section id="why" class="py-12 bg-purple-100 w-screen h-[400px]">
+      <div class="container mx-auto px-4 h-full flex flex-col md:flex-row items-center justify-center">
         <div class="md:w-1/2 mb-6 md:mb-0">
           <img
             src="https://via.placeholder.com/500x300"
@@ -350,9 +301,7 @@
           />
         </div>
         <div class="md:w-1/2 md:pl-8 justify-en">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">
-            Why Shop with Us?
-          </h2>
+          <h2 class="text-3xl font-bold text-gray-800 mb-4">Why Shop with Us?</h2>
           <p class="text-gray-600 mb-4 flex d">
             We offer a wide selection of books from bestselling authors,
             competitive prices, and fast shipping. Discover your next favorite
@@ -373,6 +322,10 @@ import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 import dentdesign from "@/assets/dentdesign.svg";
+import { useFavouritesStore } from "@/stores/favourites";
+
+
+const favouritesStore = useFavouritesStore(); // Initialize Pinia store
 
 
 const scrollToSection = (sectionId) => {
@@ -410,8 +363,7 @@ const updateScrollPosition = () => {
   if (publisherContainer.value) {
     scrollPosition.value = publisherContainer.value.scrollLeft;
     const maxScroll =
-      publisherContainer.value.scrollWidth -
-      publisherContainer.value.clientWidth;
+      publisherContainer.value.scrollWidth - publisherContainer.value.clientWidth;
     showLeftArrow.value = scrollPosition.value > 0;
     showRightArrow.value = scrollPosition.value < maxScroll - 1; // -1 for small buffer
   }
@@ -431,215 +383,9 @@ const scrollRight = () => {
 
 const searchQuery = ref("");
 const hasSearched = ref(false);
-const books = ref([
-  {
-    id: 1,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Cone Beam CT In aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    price: "150.00 $",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 2,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Wild Woman’s Way",
-    price: "150.00 $",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 3,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "In The Garden",
-    price: "150.00 $",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 4,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Cone Beam CT In ...",
-    price: "150.00 $",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 5,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Cone Beam CT In ...",
-    price: "150.00 $",
-    isFavorited: false,
-    isLoading: false,
-  },
-]);
 
-// Women's Murder Series (Assign publisher)
-const womensMurderBooks = ref([
-  {
-    id: 101,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Women's Murder 1",
-    price: "$10.00",
-    publisher: "Wiley",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 102,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Women's Murder 2",
-    price: "$10.00",
-    publisher: "Wiley",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 103,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Women's Murder 3",
-    price: "$10.00",
-    publisher: "Wiley",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 104,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Women's Murder 4",
-    price: "$10.00",
-    publisher: "Wiley",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 105,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Women's Murder 5",
-    price: "$10.00",
-    publisher: "Wiley",
-    isFavorited: false,
-    isLoading: false,
-  },
-]);
-
-// The Garden Series (Assign publisher)
-const theGardenBooks = ref([
-  {
-    id: 201,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "The Garden 1",
-    price: "$12.00",
-    publisher: "Elsevier",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 202,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "The Garden 2",
-    price: "$12.00",
-    publisher: "Elsevier",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 203,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "The Garden 3",
-    price: "$12.00",
-    publisher: "Elsevier",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 204,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "The Garden 4",
-    price: "$12.00",
-    publisher: "Elsevier",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 205,
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "The Garden 5",
-    price: "$12.00",
-    publisher: "Elsevier",
-    isFavorited: false,
-    isLoading: false,
-  },
-]);
-
-// Fugitive Series (Assign publisher)
-const fugitiveBooks = ref([
-  {
-    id: 301,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Fugitive 1",
-    price: "$15.00",
-    publisher: "CRC Press",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 302,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Fugitive 2",
-    price: "$15.00",
-    publisher: "CRC Press",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 303,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Fugitive 3",
-    price: "$15.00",
-    publisher: "CRC Press",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 304,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Fugitive 4",
-    price: "$15.00",
-    publisher: "CRC Press",
-    isFavorited: false,
-    isLoading: false,
-  },
-  {
-    id: 305,
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Fugitive 5",
-    price: "$15.00",
-    publisher: "CRC Press",
-    isFavorited: false,
-    isLoading: false,
-  },
-]);
-
-// Combine all books into a single array
-const allBooks = ref([
-  ...womensMurderBooks.value,
-  ...theGardenBooks.value,
-  ...fugitiveBooks.value,
-]);
+// Use allBooks from Pinia Store
+const allBooks = computed(() => favouritesStore.allBooks);
 
 // Update publisher items count based on allBooks
 onMounted(() => {
@@ -648,76 +394,43 @@ onMounted(() => {
     items:
       publisher.name === "All Books"
         ? allBooks.value.length
-        : allBooks.value.filter((book) => book.publisher === publisher.name)
-            .length,
+        : allBooks.value.filter((book) => book.publisher === publisher.name).length,
   }));
   updateScrollPosition();
+  // Fetch initial favourite status using Pinia
+  favouritesStore.fetchFavourites();
 });
 
 // Computed property to filter books by selected publisher
 const filteredBooksByPublisher = computed(() => {
+  if (!allBooks.value) return [];
   if (selectedPublisher.value === "All Books") {
     return allBooks.value;
   }
-  return allBooks.value.filter(
-    (book) => book.publisher === selectedPublisher.value
-  );
+  return allBooks.value.filter((book) => book.publisher === selectedPublisher.value);
 });
 
-const filteredBooks = ref([]);
-const favourites = ref([]);
-
-onMounted(async () => {
-  // Combine all books for fetching favorite status
-  const allBooksForFetch = [...books.value, ...allBooks.value];
-
-  // Fetch initial favorite status for all books
-  for (const book of allBooksForFetch) {
-    try {
-      const response = await fetch(`/api/favorites/${book.id}`);
-      const data = await response.json();
-      book.isFavorited = data.isFavorited;
-      if (book.isFavorited) {
-        favourites.value.push({ ...book });
-      }
-    } catch (error) {
-      console.error(
-        `Error fetching favorite status for book ${book.id}:`,
-        error
-      );
-    }
-  }
+// Computed property for search results
+const filteredBooks = computed(() => {
+  if (!allBooks.value) return [];
+  if (!searchQuery.value.trim()) return [];
+  return allBooks.value.filter((book) =>
+    book.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
 });
 
 const searchBooks = () => {
   hasSearched.value = true;
-
-  if (!searchQuery.value.trim()) {
-    hasSearched.value = false;
-    filteredBooks.value = [];
-    return;
-  }
-  hasSearched.value = true;
-  filteredBooks.value = books.value.filter((book) =>
-    book.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
 };
 
 const addToFavorite = async (bookId) => {
-  const allBooksForUpdate = [
-    ...books.value,
-    ...womensMurderBooks.value,
-    ...theGardenBooks.value,
-    ...fugitiveBooks.value,
-  ];
-  const book = allBooksForUpdate.find((b) => b.id === bookId);
+  const book = allBooks.value.find((b) => b.id === bookId);
   if (book && !book.isFavorited) {
     book.isLoading = true;
     try {
-      const response = await updateFavoriteStatus(bookId);
+      const response = await favouritesStore.addFavourite(bookId);
       if (response.success) {
         book.isFavorited = true;
-        favourites.value.push({ ...book, isLoading: false });
       }
     } catch (error) {
       console.error(`Error adding book ${bookId} to favorites:`, error);
@@ -725,15 +438,6 @@ const addToFavorite = async (bookId) => {
       book.isLoading = false;
     }
   }
-};
-
-const updateFavoriteStatus = async (bookId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`Adding book ${bookId} to favorites`);
-      resolve({ success: true });
-    }, 500);
-  });
 };
 
 const addToCart = (bookId) => {

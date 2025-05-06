@@ -1,7 +1,7 @@
 <template>
   <!-- กล่องพื้นหลัง -->
   <div
-    class="min-h-screen flex flex-col bg-gray-100"
+    class="scroll-mt-24 min-h-screen flex flex-col justify-between bg-gradient-to-br from-white to-purple-50"
     :style="{
       backgroundImage: `url(${bgImage})`,
       backgroundPosition: '0% 6%',
@@ -10,7 +10,7 @@
     }"
   >
     <!-- กล่องฟอร์ม login -->
-    <div class="flex-grow flex justify-center items-center px-10 pt-10 pb-10">
+    <div class="mt-auto mb-auto flex items-center justify-center px-4 py-12">
       <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg">
         <div class="flex justify-center">
           <Logo :size="'w-28 h-28'" />
@@ -20,9 +20,9 @@
           Sign In To Book Request
         </h2>
 
-        <form @submit.prevent="handleSubmit" class="space-y-2">
+        <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
-            <label class="block mb-2 text-gray-700 text-sm">Username</label>
+            <label class="block mb-1 text-gray-700 text-sm">Username</label>
             <input
               type="text"
               v-model="formData.username"
@@ -31,7 +31,7 @@
             />
           </div>
           <div>
-            <label class="block mb-2 text-gray-700 text-sm">Password</label>
+            <label class="block mb-1 text-gray-700 text-sm">Password</label>
             <input
               type="password"
               v-model="formData.password"
@@ -39,14 +39,12 @@
               placeholder="Enter your password"
             />
           </div>
-          <div class="pt-4">
-            <button
-              type="submit"
-              class="w-full py-3 bg-purple-500 text-white rounded-lg font-semibold hover:bg-purple-600 transition duration-200"
-            >
-              Sign In
-            </button>
-          </div>
+          <button
+            type="submit"
+            class="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition duration-200"
+          >
+            Sign In
+          </button>
           <p class="text-center text-gray-500 text-sm pt-2">
             <a href="#" class="text-purple-600 hover:underline">Forgot Password</a>
           </p>
@@ -54,7 +52,7 @@
       </div>
     </div>
 
-    <!-- Footer ด้านล่าง -->
+    <!-- Footer -->
     <Footer class="mt-8" />
   </div>
 </template>
