@@ -57,34 +57,17 @@ const router = createRouter({
       component: AdminRequestTable,
     },
     {
-      path: "/AdminRoundExport",
-      name: "AdminRoundExport",
-      component: AdminRoundExport,
-    },
-    {
-      path: "/admin",
-      component: AdminLayout,
-      children: [
-        { path: "dashboard", component: AdminDashboard },
-        { path: "allbooks", component: AdminAllbooks },
-        { path: "allbooks/add-book", component: AdminAddBook }, // moved here
-        { path: "request-table", component: AdminRequestTable },
-        { path: "request/:id", component: AdminRequestDetail }, // moved here
-        { path: "adminbookdetail/:id", component: AdminBookDetail }, // moved here
-        { path: "round-export", component: AdminRoundExport },
-        { path: "", redirect: "/admin/dashboard" },
-      ],
-    },
-  ],
-  scrollBehavior(to, from, savedPosition) {
-    if (to.hash) {
-      return {
-        el: to.hash,
-        behavior: "smooth",
-      };
+      path: '/Login',
+      name: 'Loginpage',
+      component: Loginpage
     }
-    return { top: 0 };
-  },
-});
+  ]
+})
+
+
+
+
+
+
 
 export default router;
