@@ -63,7 +63,6 @@
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
@@ -78,33 +77,41 @@ const formData = reactive({
 
 async function handleSubmit() {
   try {
+    const form = new URLSearchParams();
+    form.append("username", formData.username);
+    form.append("password", formData.password);
+
     const response = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: form,
+      credentials: "include" // ⚠️ สำคัญมาก: บอกให้ fetch ส่ง cookie (JSESSIONID)
     });
 
     if (response.ok) {
-      const data = await response.json(); // รับ JSON ที่มี username และ role
-      authStore.login(data.username, data.role); // เซ็ต authStore
+      // 🔄 ดึงข้อมูลผู้ใช้หลังจาก login สำเร็จ
+      const res = await fetch("http://localhost:8080/api/auth/me", {
+        credentials: "include"
+      });
+      const data = await res.json();
+      authStore.login(data.username, data.role);
 
-      // ตรวจสอบ role และทำการเปลี่ยนเส้นทาง
-      if (data.role === 'ADMIN') {
-        router.push("/system"); // ไปหน้า system ถ้า role เป็น ADMIN
-      } else if (data.role === 'MEMBER') {
-        router.push("/Home"); // ไปหน้า Home ถ้า role เป็น MEMBER
+      // 🧭 เปลี่ยนเส้นทาง
+      if (data.role === "ADMIN") {
+        router.push("/system");
+      } else {
+        router.push("/Home");
       }
     } else {
       alert("❌ Username หรือ Password ไม่ถูกต้อง");
     }
   } catch (err) {
-    alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: " + err.message);
+    alert("❌ เกิดข้อผิดพลาด: " + err.message);
   }
 }
 </script>
-
-
-
 
 <style>
 @import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";

@@ -16,6 +16,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByAuthorContainingIgnoreCase(String author);
 
     // ฟังก์ชันสำหรับค้นหาหนังสือทั้งหมด
+    @SuppressWarnings("null")
     List<Book> findAll();
 
     // ฟังก์ชันสำหรับค้นหาหนังสือที่มี ID ตามที่ระบุ
