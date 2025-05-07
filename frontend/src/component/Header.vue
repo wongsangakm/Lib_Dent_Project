@@ -165,15 +165,4 @@ const handleLogout = () => {
   showDropdown.value = false
   router.push("/login")
 }
-import Logo from "./Logo.vue";
-import { useFavouritesStore } from "@/stores/favourites";
-const scrollToSection = (id) => {
-  const target = document.getElementById(id);
-  const offset = 100; // ความสูงของ header
-
-  if (target) {
-    const top = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: "smooth" });
-  }
-};
 </script>

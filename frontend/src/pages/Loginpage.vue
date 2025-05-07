@@ -80,13 +80,17 @@ async function handleSubmit() {
     form.append("password", formData.password);
 
     const response = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: form,
-      credentials: "include" // ⚠️ สำคัญมาก: บอกให้ fetch ส่ง cookie (JSESSIONID)
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password
+        }),
+        credentials: "include"
     });
+
 
     if (response.ok) {
       // 🔄 ดึงข้อมูลผู้ใช้หลังจาก login สำเร็จ
@@ -98,9 +102,9 @@ async function handleSubmit() {
 
       // 🧭 เปลี่ยนเส้นทาง
       if (data.role === "ADMIN") {
-        router.push("/system");
+        router.push("/dashboard");
       } else {
-        router.push("/Home");
+        router.push("/Homepage");
       }
     } else {
       alert("❌ Username หรือ Password ไม่ถูกต้อง");
