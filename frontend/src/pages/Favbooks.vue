@@ -1,5 +1,5 @@
 <template>
-     <div
+  <div
     class="min-h-screen flex flex-col bg-gray-100 items-center"
     :style="{
       backgroundImage: `url(${bgImage})`,

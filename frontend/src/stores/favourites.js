@@ -1,6 +1,9 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
+import { defineStore } from "pinia";
+import axios from "axios";
+
 export const useFavouritesStore = defineStore("favourites", {
   state: () => ({
     allBooks: [],
@@ -52,24 +55,16 @@ export const useFavouritesStore = defineStore("favourites", {
         return { success: false };
       } catch (error) {
         console.error("Error adding favourite:", error.message);
-        return { success: false };
       }
     }
     
     ,
     async removeFavourite(bookId) {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const book = this.allBooks.find((b) => b.id === bookId);
-        if (book) {
-          book.isFavorited = false;
-          this.favourites = this.favourites.filter((fav) => fav.id !== bookId);
-          return { success: true };
-        }
-        return { success: false };
+        await axios.post(`/api/actions/unfav/${bookId}`, {}, { withCredentials: true });
+        await this.fetchFavourites(); // รีเฟรชรายการ
       } catch (error) {
         console.error("Error removing favourite:", error.message);
-        return { success: false };
       }
     },
   },

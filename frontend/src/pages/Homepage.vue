@@ -404,7 +404,6 @@ const scrollToSection = (sectionId) => {
   }
 };
 
-// Publishers list (initially with items set to 0, will be updated)
 const publishers = ref([
   { name: "All Books", items: 0 },
   { name: "Springer", items: 0 },
@@ -415,14 +414,12 @@ const publishers = ref([
   { name: "Jones & Bartlett Learning", items: 0 },
 ]);
 
-// Selected publisher
 const selectedPublisher = ref("All Books");
 
 const selectPublisher = (publisherName) => {
   selectedPublisher.value = publisherName;
 };
 
-// Scroll handling for publisher buttons
 const publisherContainer = ref(null);
 const scrollPosition = ref(0);
 const showLeftArrow = ref(false);
@@ -435,7 +432,7 @@ const updateScrollPosition = () => {
       publisherContainer.value.scrollWidth -
       publisherContainer.value.clientWidth;
     showLeftArrow.value = scrollPosition.value > 0;
-    showRightArrow.value = scrollPosition.value < maxScroll - 1; // -1 for small buffer
+    showRightArrow.value = scrollPosition.value < maxScroll - 1;
   }
 };
 
@@ -492,8 +489,9 @@ const updatePublisherCounts = () => {
 const fetchFavoriteStatus = async (book) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/favorites/${book.id}`
-    );
+      `http://localhost:8080/api/favorites/${book.id}`{
+      credentials: "include"
+    });
     if (!response.ok) throw new Error("Failed to fetch favorite status");
 
     const data = await response.json();
@@ -571,6 +569,7 @@ function validCoverImage(url) {
   return url;
 }
 </script>
+
 
 <style scoped>
 /* Hide scrollbar but keep functionality */
