@@ -14,7 +14,7 @@
       <div class="container mx-auto px-4 mb-6">
         <router-link
           to="/"
-          class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-colors"
+          class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-colors mt-12"
         >
           <svg
             class="w-5 h-5 mr-2"
@@ -42,17 +42,18 @@
       <!-- Book Details -->
       <div v-else-if="bookData" class="">
         <div
-          class="flex flex-col md:flex-row max-w-4xl bg-white rounded-lg shadow-lg p-6 bg-white/50"
+          class="flex flex-col md:flex-row max-w-5xl bg-white rounded-lg shadow-lg p-6 bg-white/40"
         >
           <!-- Book Cover -->
           <div class="md:w-1/3 flex justify-center relative">
             <!-- Heart Button -->
+            <!-- หัวใจบนปก -->
             <button
               @click="addToFavorite"
-              :disabled="isFavorited || isLoading"
+              :disabled="isLoading || isFavorited"
               class="absolute top-3 right-12 bg-white bg-opacity-80 text-l p-2 rounded-full transition-all duration-200 shadow-lg"
               :class="{
-                'text-red-500': isFavorited,
+                'text-red-500 bg-red-200': isFavorited,
                 'text-gray-400 hover:text-red-300': !isFavorited && !isLoading,
                 'opacity-50 cursor-not-allowed': isLoading || isFavorited,
               }"
@@ -64,39 +65,49 @@
             <img
               :src="bookData.coverImage"
               alt="Book Cover"
-              class="w-48 h-72 object-cover rounded"
+              class="w-[260px] h-[380px] object-cover rounded"
             />
           </div>
 
           <!-- Book Details -->
           <div class="md:w-2/3 mt-4 md:mt-0 md:ml-6">
-            <h1 class="text-2xl font-bold text-gray-800">{{ bookData.title }}</h1>
+            <h1 class="text-3xl font-bold text-gray-800">
+              {{ bookData.bookTitle }}
+            </h1>
 
             <!-- Book Info -->
             <div
               class="border-b border-gray-300 mr-4 pb-4 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 text-sm text-gray-600"
             >
               <span>
-                <p class="text-gray-400">Author</p>
-                <strong class="text-black text-justify">{{ bookData.author }}</strong>
+                <p class="text-gray-400 text-sm">Author</p>
+                <strong class="text-black text-justify text-base">{{
+                  bookData.author
+                }}</strong>
               </span>
               <span>
-                <p class="text-gray-400">Publisher</p>
-                <strong class="text-black">{{ bookData.publisher }}</strong>
+                <p class="text-gray-400 text-sm">Publisher</p>
+                <strong class="text-black text-base">{{
+                  bookData.publisher
+                }}</strong>
               </span>
               <span>
-                <p class="text-gray-400">Publisher Date</p>
-                <strong class="text-black">{{ bookData.publishDate }}</strong>
+                <p class="text-gray-400 text-sm">Year</p>
+                <strong class="text-black text-base">{{
+                  bookData.year
+                }}</strong>
               </span>
               <span>
-                <p class="text-gray-400">Price</p>
-                <strong class="text-black">{{ bookData.price }}</strong>
+                <p class="text-gray-400 text-sm">Price</p>
+                <strong class="text-black text-base"
+                  >{{ bookData.price.toLocaleString() }} THB</strong
+                >
               </span>
             </div>
 
             <!-- Description -->
             <p
-              class="mt-4 text-gray-600 text-sm leading-relaxed max-h-40 overflow-y-auto tracking-wide indent-6 text-justify"
+              class="mt-4 text-gray-600 text-base leading-relaxed max-h-40 overflow-y-auto tracking-wide indent-6 text-justify"
             >
               {{ bookData.description }}
             </p>
@@ -105,15 +116,18 @@
             <div class="flex justify-end mt-6">
               <button
                 @click="addToFavorite"
-                :disabled="isFavorited || isLoading"
-                class="px-4 py-2 bg-purple-600 text-white rounded-full flex items-center transition-all duration-200"
-                :class="{
-                  'bg-purple-600 hover:bg-purple-700': !isFavorited && !isLoading,
-                  'bg-gray-400': isFavorited,
-                  'opacity-50 cursor-not-allowed': isLoading || isFavorited,
-                }"
+                :disabled="isLoading || isFavorited"
+                class="px-4 py-2 text-white rounded-full flex items-center transition-all duration-200"
+                :class="[
+                  isFavorited
+                    ? 'bg-gray-400'
+                    : 'bg-purple-800 hover:bg-purple-700',
+                  (isLoading || isFavorited) && 'opacity-50 cursor-not-allowed',
+                ]"
               >
-                <span>{{ isFavorited ? 'Added to Favorite' : 'Add to Favorite' }}</span>
+                <span>{{
+                  isFavorited ? "Added to Favorite" : "Add to Favorite"
+                }}</span>
                 <svg
                   class="ml-2 w-5 h-5"
                   fill="none"
@@ -176,147 +190,101 @@ import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 
-// Mock data for testing
-const mockBooks = {
-  "12345": {
-    id: "12345",
-    coverImage:
-      "https://media.springernature.com/full/springer-static/cover-hires/book/978-3-031-25480-2?as=webp",
-    title: "Cone Beam CT in Dentists and Medical Radiologists, 1 ed",
-    author: "Suk",
-    publisher: "Springer",
-    publishDate: "2023",
-    price: "150.00 $",
-    description:
-      "The superbly illustrated book is a comprehensive introduction to CBCT and its use for diagnosis of dental conditions and treatment planning in the dental practice. After an introductory chapter on the basics of CBCT scans, detailed description is provided on dental anatomic structures and their appearance on CBCT. Various common dental disorders are shown and discussed, as well as signs of malignancy. The book will arm the reader with fundamental knowledge of the radiological appearance of dento-alveolar anatomy and provide guidance on the interpretation of artefacts, disease and some well-known anatomical variations. While it is intended primarily for dentists, this book will be of high value for multiple other health care professionals including medical radiologists. Videos via app: download the SN More Media app for free, scan a link with play button and access videos directly on your smartphone or tablet.",
-  },
-  "101": {
-    id: "101",
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Women's Murder 1",
-    author: "Jane Doe",
-    publisher: "Mystery Press",
-    publishDate: "2022",
-    price: "$10.00",
-    description: "A thrilling mystery novel in the Women's Murder series.",
-  },
-  "201": {
-    id: "201",
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "The Garden 1",
-    author: "John Smith",
-    publisher: "Nature Books",
-    publishDate: "2021",
-    price: "$12.00",
-    description: "A beautiful story set in a magical garden.",
-  },
-  "301": {
-    id: "301",
-    coverImage: "https://via.placeholder.com/150x200",
-    title: "Fugitive 1",
-    author: "Alex Brown",
-    publisher: "Thriller House",
-    publishDate: "2020",
-    price: "$15.00",
-    description: "This superbly illustrated book gives a comprehensive introduction to CBCT and its use for diagnosis of dental conditions and treatment planning in the dental practice. After an introductory chapter on the basics of CBCT scans, detailed description is provided on dental anatomic structures and their appearance on CBCT. Various common dental diseases are shown and discussed, as well as signs of malignancy. The book will arm the reader with fundamental knowledge of the radiological appearance of dento-alveolar anatomy and provide guidance on the interpretation of artefacts, disease and some well-known anatomical variations. While it is intended primarily for dentists, this book will be of high value for multiple other health care professionals including medical radiologists.",
-  },
-};
-
 const route = useRoute();
 const bookData = ref(null);
+const isLoading = ref(false); // Changed initial value to false
 const isFavorited = ref(false);
-const isLoading = ref(false);
 const isLoadingData = ref(true);
 
 onMounted(async () => {
-  const bookId = route.params.id; // Get bookId from URL
+  const bookId = route.params.id;
   if (!bookId) {
     isLoadingData.value = false;
     return;
   }
-  await fetchBookData(bookId);
-  await fetchFavoriteStatus(bookId);
-  isLoadingData.value = false;
+
+  try {
+    // Fetch book data
+    await fetchBookData(bookId);
+
+    // Check favorite status
+    await fetchFavoriteStatus(bookId);
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  } finally {
+    isLoadingData.value = false;
+  }
 });
 
 const fetchBookData = async (bookId) => {
   try {
-    // Simulate fetching book data from backend
-    // const response = await fetch(`/api/books/${bookId}`);
-    // const data = await response.json();
-    // bookData.value = data;
-
-    // Mock data for testing
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const book = mockBooks[bookId];
-        if (book) {
-          bookData.value = book;
-        } else {
-          bookData.value = null;
-        }
-        resolve();
-      }, 500);
-    });
+    const response = await fetch(`http://localhost:8080/api/books/${bookId}`);
+    if (!response.ok) throw new Error("Failed to fetch book data");
+    bookData.value = await response.json();
+    console.log("✅ Book data fetched:", bookData.value);
   } catch (error) {
-    console.error("Error fetching book data:", error);
-    bookData.value = null; // Set to null if error occurs
+    console.error("❌ Error fetching book data:", error);
+    bookData.value = null;
+  }
+};
+
+const addToFavorite = async () => {
+  console.log("🔥 CLICK: AddToFavorite");
+  console.log("🧪 BEFORE isFavorited:", isFavorited.value);
+  console.log("🧪 isLoading:", isLoading.value);
+
+  // Return early if already favorited or loading
+  if (isFavorited.value || isLoading.value) return;
+
+  isLoading.value = true;
+  try {
+    const response = await fetch(`http://localhost:8080/api/favorites`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookId: bookData.value.id }),
+    });
+
+    if (!response.ok) throw new Error("Failed to add favorite");
+
+    const result = await response.json();
+    console.log("✅ Favorite added response:", result);
+
+    if (result.success) {
+      isFavorited.value = true;
+    }
+  } catch (error) {
+    console.error("❌ Error adding to favorites:", error);
+  } finally {
+    console.log("🧹 Setting isLoading = false");
+    isLoading.value = false;
   }
 };
 
 const fetchFavoriteStatus = async (bookId) => {
   try {
-    const response = await fetch(`/api/favorites/${bookId}`);
+    const response = await fetch(
+      `http://localhost:8080/api/favorites/${bookId}`
+    );
+
+    if (!response.ok) throw new Error("Failed to fetch favorite status");
+
     const data = await response.json();
-    isFavorited.value = data.isFavorited;
+    console.log("✅ Favorite status:", data);
+    isFavorited.value = data?.isFavorited === true;
   } catch (error) {
-    console.error("Error fetching favorite status:", error);
+    console.error("❌ Error fetching favorite status:", error);
+    isFavorited.value = false;
   }
-};
-
-const addToFavorite = async () => {
-  if (isFavorited.value) return; // Prevent further action if already favorited
-
-  isLoading.value = true;
-  try {
-    const response = await updateFavoriteStatus(bookData.value.id);
-    if (response.success) {
-      isFavorited.value = true;
-    }
-  } catch (error) {
-    console.error("Error adding to favorites:", error);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const updateFavoriteStatus = async (bookId) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log(`Adding book ${bookId} to favorites`);
-      resolve({ success: true });
-    }, 500);
-  });
-
-  /*
-  try {
-    const response = await fetch('/api/favorites', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ bookId }),
-    });
-    return await response.json();
-  } catch (error) {
-    throw new Error('Failed to add to favorites');
-  }
-  */
 };
 </script>
 
 <style scoped>
 .container {
   max-width: 1200px;
+}
+
+/* Add explicit cursor styles for favorite buttons */
+button:disabled {
+  cursor: not-allowed !important;
 }
 </style>

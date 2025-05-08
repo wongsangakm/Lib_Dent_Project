@@ -46,7 +46,9 @@
             Sign In
           </button>
           <p class="text-center text-gray-500 text-sm pt-2">
-            <a href="#" class="text-purple-600 hover:underline">Forgot Password</a>
+            <a href="#" class="text-purple-600 hover:underline"
+              >Forgot Password</a
+            >
           </p>
         </form>
       </div>
@@ -60,7 +62,7 @@
 <script setup>
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
@@ -71,7 +73,7 @@ const authStore = useAuthStore();
 
 const formData = reactive({
   username: "",
-  password: ""
+  password: "",
 });
 
 async function handleSubmit() {
@@ -79,7 +81,7 @@ async function handleSubmit() {
     const response = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(formData),
     });
 
     if (response.ok) {
@@ -87,10 +89,10 @@ async function handleSubmit() {
       authStore.login(data.username, data.role); // เซ็ต authStore
 
       // ตรวจสอบ role และทำการเปลี่ยนเส้นทาง
-      if (data.role === 'ADMIN') {
-        router.push("/system"); // ไปหน้า system ถ้า role เป็น ADMIN
-      } else if (data.role === 'MEMBER') {
-        router.push("/Home"); // ไปหน้า Home ถ้า role เป็น MEMBER
+      if (data.role === "ADMIN") {
+        router.push("/admin"); // ไปหน้า system ถ้า role เป็น ADMIN
+      } else if (data.role === "MEMBER") {
+        router.push("/"); // ไปหน้า Home ถ้า role เป็น MEMBER
       }
     } else {
       alert("❌ Username หรือ Password ไม่ถูกต้อง");
@@ -100,9 +102,6 @@ async function handleSubmit() {
   }
 }
 </script>
-
-
-
 
 <style>
 @import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";

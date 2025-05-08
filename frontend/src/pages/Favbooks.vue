@@ -34,7 +34,7 @@
   
             <!-- Info -->
             <div class="ml-4 flex-1">
-              <h3 class="text-lg font-semibold text-gray-800">{{ book.title }}</h3>
+              <h3 class="text-lg font-semibold text-gray-800">{{ book.bookTitle }}</h3>
               <p class="text-sm text-gray-500">{{ book.author || 'Unknown' }}</p>
             </div>
   
