@@ -1,8 +1,10 @@
 package com.example.project.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ArrayList;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -28,16 +30,17 @@ public class AuthenticationController {
     @Autowired
     private UserService userService;
 
-    // Login method
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
         Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
         if (user.isPresent()) {
-            // Set user details in session
             session.setAttribute("username", user.get().getUsername());
             session.setAttribute("role", user.get().getRole());
 
-            // Create response
+            if (session.getAttribute("favBooks") == null) {
+                session.setAttribute("favBooks", new ArrayList<String>());
+            }
+
             Map<String, String> response = new HashMap<>();
             response.put("message", "Login success");
             response.put("username", user.get().getUsername());
@@ -47,7 +50,6 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 
-    // Endpoint to get current logged-in user
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpSession session) {
         String username = (String) session.getAttribute("username");
@@ -61,5 +63,26 @@ public class AuthenticationController {
         response.put("username", username);
         response.put("role", role);
         return ResponseEntity.ok(response);
+    }
+
+    @SuppressWarnings("unchecked")
+    @GetMapping("/favbooks")
+    public List<String> getFavBooks(HttpSession session) {
+        List<String> favBooks = (List<String>) session.getAttribute("favBooks");
+        return (favBooks != null) ? favBooks : new ArrayList<>();
+    }
+
+    @SuppressWarnings("unchecked")
+    @PostMapping("/favbooks/add")
+    public String addFavBook(@RequestBody Map<String, String> request, HttpSession session) {
+        List<String> favBooks = (List<String>) session.getAttribute("favBooks");
+
+        if (favBooks == null) {
+            favBooks = new ArrayList<>();
+        }
+
+        favBooks.add(request.get("book"));
+        session.setAttribute("favBooks", favBooks);
+        return "Book added!";
     }
 }

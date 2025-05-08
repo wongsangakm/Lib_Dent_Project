@@ -81,4 +81,6 @@ const favourites = computed(() => favouritesStore.favourites || [])
 const removeFromFavourite = async (bookId) => {
   await favouritesStore.removeFavourite(bookId)
 }
+
+
 </script>

@@ -324,9 +324,7 @@ import bgImage from "@/image/Background.png";
 import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 
-
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
-
 
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
@@ -335,7 +333,6 @@ const scrollToSection = (sectionId) => {
   }
 };
 
-// Publishers list (initially with items set to 0, will be updated)
 const publishers = ref([
   { name: "All Books", items: 0 },
   { name: "Springer", items: 0 },
@@ -346,14 +343,12 @@ const publishers = ref([
   { name: "Jones & Bartlett Learning", items: 0 },
 ]);
 
-// Selected publisher
 const selectedPublisher = ref("All Books");
 
 const selectPublisher = (publisherName) => {
   selectedPublisher.value = publisherName;
 };
 
-// Scroll handling for publisher buttons
 const publisherContainer = ref(null);
 const scrollPosition = ref(0);
 const showLeftArrow = ref(false);
@@ -365,7 +360,7 @@ const updateScrollPosition = () => {
     const maxScroll =
       publisherContainer.value.scrollWidth - publisherContainer.value.clientWidth;
     showLeftArrow.value = scrollPosition.value > 0;
-    showRightArrow.value = scrollPosition.value < maxScroll - 1; // -1 for small buffer
+    showRightArrow.value = scrollPosition.value < maxScroll - 1;
   }
 };
 
@@ -384,21 +379,25 @@ const scrollRight = () => {
 const searchQuery = ref("");
 const hasSearched = ref(false);
 
-// Use allBooks from Pinia Store
-const allBooks = computed(() => favouritesStore.allBooks);
+// Use allBooks from Pinia Store with default fallback
+const allBooks = computed(() => favouritesStore.allBooks || []);
 
-// Update publisher items count based on allBooks
-onMounted(() => {
+onMounted(async () => {
+  await favouritesStore.fetchFavourites(); // Ensure data is loaded before usage
+
+  if (!allBooks.value) {
+    console.warn("allBooks is undefined, setting default empty array");
+  }
+
   publishers.value = publishers.value.map((publisher) => ({
     ...publisher,
     items:
       publisher.name === "All Books"
-        ? allBooks.value.length
+        ? (allBooks.value?.length || 0)
         : allBooks.value.filter((book) => book.publisher === publisher.name).length,
   }));
+
   updateScrollPosition();
-  // Fetch initial favourite status using Pinia
-  favouritesStore.fetchFavourites();
 });
 
 // Computed property to filter books by selected publisher
@@ -444,6 +443,7 @@ const addToCart = (bookId) => {
   console.log(`Adding book ${bookId} to cart`);
 };
 </script>
+
 
 <style scoped>
 /* Hide scrollbar but keep functionality */

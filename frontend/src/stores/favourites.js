@@ -1,4 +1,3 @@
-import { defineStore } from "pinia";
 
 const mockBooks = [
   {
@@ -224,55 +223,37 @@ const mockFavourites = [
 
   ];
 
+import { defineStore } from "pinia";
+import axios from "axios";
+
 export const useFavouritesStore = defineStore("favourites", {
   state: () => ({
-    allBooks: [...mockBooks],
-    favourites: [...mockFavourites],
-    userId: "1",
+    favourites: [],
   }),
   actions: {
     async fetchFavourites() {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const storedFavourites =
-          mockFavourites.length > 0
-            ? mockFavourites
-            : this.allBooks.filter((book) => book.isFavorited);
-        this.favourites = storedFavourites;
+        const response = await axios.get("/api/actions/favourites", { withCredentials: true });
+        this.favourites = response.data;
       } catch (error) {
         console.error("Error fetching favourites:", error.message);
       }
     },
     async addFavourite(bookId) {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const book = this.allBooks.find((b) => b.id === bookId);
-        if (book && !this.favourites.some((fav) => fav.id === bookId)) {
-          book.isFavorited = true;
-          this.favourites.push({ ...book });
-          return { success: true };
-        }
-        return { success: false };
+        await axios.post(`/api/actions/fav/${bookId}`, {}, { withCredentials: true });
+        await this.fetchFavourites(); // รีเฟรชรายการ
       } catch (error) {
         console.error("Error adding favourite:", error.message);
-        return { success: false };
       }
     },
     async removeFavourite(bookId) {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const book = this.allBooks.find((b) => b.id === bookId);
-        if (book) {
-          book.isFavorited = false;
-          this.favourites = this.favourites.filter((fav) => fav.id !== bookId);
-          return { success: true };
-        }
-        return { success: false };
+        await axios.post(`/api/actions/unfav/${bookId}`, {}, { withCredentials: true });
+        await this.fetchFavourites(); // รีเฟรชรายการ
       } catch (error) {
         console.error("Error removing favourite:", error.message);
-        return { success: false };
       }
     },
   },
 });
-

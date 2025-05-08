@@ -75,10 +75,6 @@ const formData = reactive({
 
 async function handleSubmit() {
   try {
-    const form = new URLSearchParams();
-    form.append("username", formData.username);
-    form.append("password", formData.password);
-
     const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: {
@@ -91,21 +87,16 @@ async function handleSubmit() {
         credentials: "include"
     });
 
-
     if (response.ok) {
-      // 🔄 ดึงข้อมูลผู้ใช้หลังจาก login สำเร็จ
-      const res = await fetch("http://localhost:8080/api/auth/me", {
-        credentials: "include"
-      });
+      const res = await fetch("http://localhost:8080/api/auth/me", { credentials: "include" });
       const data = await res.json();
       authStore.login(data.username, data.role);
 
-      // 🧭 เปลี่ยนเส้นทาง
-      if (data.role === "ADMIN") {
-        router.push("/dashboard");
-      } else {
-        router.push("/Homepage");
-      }
+      // 🔄 ดึง favBooks ของผู้ใช้
+      const favRes = await fetch("http://localhost:8080/api/auth/favbooks", { credentials: "include" });
+      authStore.setFavBooks(await favRes.json());
+
+      router.push({ name: data.role === "ADMIN" ? "AdminDashboard" : "Homepage" });
     } else {
       alert("❌ Username หรือ Password ไม่ถูกต้อง");
     }
@@ -114,6 +105,7 @@ async function handleSubmit() {
   }
 }
 </script>
+
 
 <style>
 @import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";
