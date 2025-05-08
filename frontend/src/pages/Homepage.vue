@@ -323,6 +323,7 @@ import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
+import { useAuthStore } from "@/stores/authStore";
 
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
 
@@ -381,6 +382,36 @@ const hasSearched = ref(false);
 
 // Use allBooks from Pinia Store with default fallback
 const allBooks = computed(() => favouritesStore.allBooks || []);
+
+const authStore = useAuthStore();
+onMounted(async () => {
+  // 🔄 1. โหลดข้อมูลผู้ใช้จาก session
+  try {
+    const res = await fetch("http://localhost:8080/api/auth/me", {
+      credentials: "include"
+    });
+    if (res.ok) {
+      const user = await res.json();
+      authStore.login(user.username, user.role); // ✅ ตั้งค่า user ใน store
+    }
+  } catch (e) {
+    console.warn("User not logged in or session expired");
+  }
+
+  // 📚 2. โหลด favBooks
+  await favouritesStore.fetchFavourites();
+
+  // 📊 3. ตั้งจำนวน publisher books
+  publishers.value = publishers.value.map((publisher) => ({
+    ...publisher,
+    items:
+      publisher.name === "All Books"
+        ? allBooks.value?.length || 0
+        : allBooks.value.filter((book) => book.publisher === publisher.name).length,
+  }));
+
+  updateScrollPosition();
+});
 
 onMounted(async () => {
   await favouritesStore.fetchFavourites(); // Ensure data is loaded before usage

@@ -31,7 +31,8 @@ public class AuthenticationController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+    try {
         Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
         if (user.isPresent()) {
             session.setAttribute("username", user.get().getUsername());
@@ -48,7 +49,13 @@ public class AuthenticationController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    } catch (Exception e) {
+        e.printStackTrace(); // ✅ log ไปที่ console
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
     }
+}
+
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpSession session) {
