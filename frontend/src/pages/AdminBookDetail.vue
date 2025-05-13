@@ -39,6 +39,27 @@
               type="text"
             />
           </label>
+          <label class="block">
+            <span class="text-gray-700">Author</span>
+            <input
+              v-model="editableBook.author"
+              class="w-full border rounded px-3 py-2 mt-1"
+              type="text"
+            />
+          </label>
+
+
+
+          <div class="flex felx-row gap-8">
+            <label class="block">
+              <span class="text-gray-700">ISBN</span>
+              <input v-model="editableBook.isbn" type="text" class="w-full border rounded px-3 py-2 mt-1" />
+            </label>
+            <label class="block">
+              <span class="text-gray-700">Year</span>
+              <input v-model="editableBook.year" type="text" class="w-full border rounded px-3 py-2 mt-1" />
+            </label>
+          </div>
 
           <label class="block">
             <span class="text-gray-700">Price</span>
