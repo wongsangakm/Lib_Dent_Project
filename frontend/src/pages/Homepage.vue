@@ -412,6 +412,7 @@ const publishers = ref([
   { name: "Elsevier", items: 0 },
   { name: "CRC Press", items: 0 },
   { name: "Jones & Bartlett Learning", items: 0 },
+  { name: "LAP Lambert Academic Publishing", items: 0 }
 ]);
 
 const selectedPublisher = ref("All Books");
@@ -479,8 +480,8 @@ const updatePublisherCounts = () => {
     items:
       publisher.name === "All Books"
         ? favouritesStore.allBooks.length
-        : favouritesStore.allBooks.filter(
-            (book) => book.publisher === publisher.name
+        : favouritesStore.allBooks.filter((book) =>
+            book.publisher?.toLowerCase().includes(publisher.name.toLowerCase())
           ).length,
   }));
 };
@@ -544,8 +545,10 @@ const filteredBooksByPublisher = computed(() => {
   if (selectedPublisher.value === "All Books") {
     return allBooks.value;
   }
-  return allBooks.value.filter(
-    (book) => book.publisher === selectedPublisher.value
+  return allBooks.value.filter((book) =>
+    book.publisher
+      ?.toLowerCase()
+      .includes(selectedPublisher.value.toLowerCase())
   );
 });
 

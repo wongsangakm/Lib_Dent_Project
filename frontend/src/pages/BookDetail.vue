@@ -10,37 +10,13 @@
         backgroundRepeat: 'no-repeat',
       }"
     >
-      <!-- Back Button -->
-      <div class="container mx-auto px-4 mb-6">
-        <router-link
-          to="/"
-          class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-colors mt-12"
-        >
-          <svg
-            class="w-5 h-5 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 19l-7-7 7-7"
-            ></path>
-          </svg>
-          Back to Home
-        </router-link>
-      </div>
-
       <!-- Loading State -->
       <div v-if="isLoadingData" class="text-center text-gray-600">
         <p>Loading book details...</p>
       </div>
 
       <!-- Book Details -->
-      <div v-else-if="bookData" class="">
+      <div v-else-if="bookData" class="mt-20">
         <div
           class="flex flex-col md:flex-row max-w-5xl bg-white rounded-lg shadow-lg p-6 bg-white/40"
         >
@@ -77,7 +53,8 @@
 
             <!-- Book Info -->
             <div
-              class="border-b border-gray-300 mr-4 pb-4 grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 text-sm text-gray-600"
+              class="border-b border-gray-300 mr-4 pb-4 grid gap-4 mt-6 text-sm text-gray-600"
+              style="grid-template-columns: 2fr 1fr 0.5fr 0.5fr 1fr"
             >
               <span>
                 <p class="text-gray-400 text-sm">Author</p>
@@ -89,6 +66,12 @@
                 <p class="text-gray-400 text-sm">Publisher</p>
                 <strong class="text-black text-base">{{
                   bookData.publisher
+                }}</strong>
+              </span>
+              <span>
+                <p class="text-gray-400 text-sm">Edition</p>
+                <strong class="text-black text-base">{{
+                  bookData.edition
                 }}</strong>
               </span>
               <span>

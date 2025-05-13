@@ -25,7 +25,7 @@
           <label class="block">
             <span class="text-gray-700">Title</span>
             <input
-              v-model="editableBook.title"
+              v-model="editableBook.bookTitle"
               class="w-full border rounded px-3 py-2 mt-1"
               type="text"
             />
@@ -39,6 +39,27 @@
               type="text"
             />
           </label>
+          <label class="block">
+            <span class="text-gray-700">Author</span>
+            <input
+              v-model="editableBook.author"
+              class="w-full border rounded px-3 py-2 mt-1"
+              type="text"
+            />
+          </label>
+
+
+
+          <div class="flex felx-row gap-8">
+            <label class="block">
+              <span class="text-gray-700">ISBN</span>
+              <input v-model="editableBook.isbn" type="text" class="w-full border rounded px-3 py-2 mt-1" />
+            </label>
+            <label class="block">
+              <span class="text-gray-700">Year</span>
+              <input v-model="editableBook.year" type="text" class="w-full border rounded px-3 py-2 mt-1" />
+            </label>
+          </div>
 
           <label class="block">
             <span class="text-gray-700">Price</span>
@@ -75,32 +96,50 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import { useFavouritesStore } from "@/stores/favourites";
 
 const route = useRoute();
-const favouritesStore = useFavouritesStore();
-
 const book = ref(null);
 const editableBook = ref({
-  title: "",
+  bookTitle: "",
   price: "",
   publisher: "",
   coverImage: "",
   description: "",
 });
 
-onMounted(() => {
-  const bookId = parseInt(route.params.id);
-  const found = favouritesStore.allBooks.find((b) => b.id === bookId);
-  if (found) {
-    book.value = found;
-    editableBook.value = { ...found }; // shallow copy
+// ✅ Load book by ID from backend
+const fetchBookById = async () => {
+  const bookId = route.params.id;
+  try {
+    const response = await fetch(`http://localhost:8080/api/books/${bookId}`);
+    const data = await response.json();
+    book.value = data;
+    editableBook.value = { ...data };
+  } catch (error) {
+    console.error("❌ Failed to load book:", error);
   }
-});
+};
 
-const saveChanges = () => {
-  // Mock update (replace with API call in real case)
-  Object.assign(book.value, editableBook.value);
-  alert("Book updated (mock only)");
+onMounted(fetchBookById);
+
+// ✅ Save changes to backend
+const saveChanges = async () => {
+  const bookId = route.params.id;
+  try {
+    const response = await fetch(`http://localhost:8080/api/books/${bookId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editableBook.value),
+    });
+
+    if (!response.ok) throw new Error("Failed to update");
+    const updated = await response.json();
+    book.value = updated;
+
+    alert("✅ Book updated successfully!");
+  } catch (error) {
+    console.error("❌ Failed to update book:", error);
+    alert("❌ Failed to update book.");
+  }
 };
 </script>

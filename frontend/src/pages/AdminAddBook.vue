@@ -1,32 +1,31 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-12 px-4">
-    
     <div class="mb-12 max-w-xl mx-auto mt-0 bg-white p-6 rounded-xl shadow-md">
-    <h2 class="text-xl font-bold text-purple-700 mb-4 text-center">
-      Upload Book Excel
-    </h2>
+      <h2 class="text-xl font-bold text-purple-700 mb-4 text-center">
+        Upload Book Excel
+      </h2>
 
-    <form @submit.prevent="uploadExcel" class="space-y-4">
-      <label class="block">
-        <span class="text-gray-700">Select .xlsx File</span>
-        <input
-          type="file"
-          accept=".xlsx"
-          @change="handleFile"
-          class="mt-1 block w-full text-sm text-gray-600"
-        />
-      </label>
+      <form @submit.prevent="uploadExcel" class="space-y-4">
+        <label class="block">
+          <span class="text-gray-700">Select .xlsx File</span>
+          <input
+            type="file"
+            accept=".xlsx"
+            @change="handleFile"
+            class="mt-1 block w-full text-sm text-gray-600"
+          />
+        </label>
 
-      <div class="text-right">
-        <button
-          type="submit"
-          class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
-        >
-          Upload File
-        </button>
-      </div>
-    </form>
-  </div>
+        <div class="text-right">
+          <button
+            type="submit"
+            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
+          >
+            Upload File
+          </button>
+        </div>
+      </form>
+    </div>
     <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md">
       <h1 class="text-2xl font-bold text-purple-700 mb-6 text-center">
         Add New Book
@@ -34,8 +33,22 @@
 
       <form @submit.prevent="saveBook" class="space-y-4">
         <label class="block">
+          <span class="text-gray-700">Cover Image URL</span>
+          <input v-model="book.coverImage" type="text" class="form-input" />
+        </label>
+        <label class="block">
           <span class="text-gray-700">Title</span>
-          <input v-model="book.title" type="text" required class="form-input" />
+          <input
+            v-model="book.bookTitle"
+            type="text"
+            required
+            class="form-input"
+          />
+        </label>
+
+        <label class="block">
+          <span class="text-gray-700">Author</span>
+          <input v-model="book.author" type="text" class="form-input" />
         </label>
 
         <label class="block">
@@ -43,14 +56,19 @@
           <input v-model="book.publisher" type="text" class="form-input" />
         </label>
 
+        <div class="flex felx-row gap-8">
+          <label class="block">
+            <span class="text-gray-700">ISBN</span>
+            <input v-model="book.isbn" type="text" class="form-input" />
+          </label>
+          <label class="block">
+            <span class="text-gray-700">Year</span>
+            <input v-model="book.year" type="text" class="form-input" />
+          </label>
+        </div>
         <label class="block">
           <span class="text-gray-700">Price</span>
           <input v-model="book.price" type="text" class="form-input" />
-        </label>
-
-        <label class="block">
-          <span class="text-gray-700">Cover Image URL</span>
-          <input v-model="book.coverImage" type="text" class="form-input" />
         </label>
 
         <label class="block">
@@ -85,20 +103,31 @@ const router = useRouter();
 const favouritesStore = useFavouritesStore();
 
 const book = ref({
-  id: Date.now(),
-  title: "",
+  bookTitle: "",
   publisher: "",
   price: "",
   coverImage: "",
   description: "",
-  isFavorited: false,
-  isLoading: false,
+  author: "",
+  isbn: "",
+  year: "",
 });
 
-const saveBook = () => {
-  favouritesStore.allBooks.push({ ...book.value });
-  alert("Book added (mock only)");
-  router.push("/adminallbooks"); // หรือ redirect ไปหน้า all-books
+const saveBook = async () => {
+  try {
+    const response = await axios.post(
+      "http://localhost:8080/api/books",
+      book.value
+    );
+    alert("✅ Book added successfully!");
+
+    // ดึงข้อมูลใหม่หลังเพิ่ม (optional)
+    await favouritesStore.fetchAllBooks();
+
+    router.push("/admin/allbooks");
+  } catch (error) {
+    alert("❌ Failed to add book: " + (error.response?.data || error.message));
+  }
 };
 
 const selectedFile = ref(null);
