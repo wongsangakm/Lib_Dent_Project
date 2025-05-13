@@ -19,9 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.*;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/books")
-@CrossOrigin(origins = "http://localhost:5173")
+
 public class BookController {
 
     private final DataFormatter formatter = new DataFormatter();
@@ -44,6 +45,12 @@ public class BookController {
     }
     
 
+    @PostMapping
+    public ResponseEntity<Book> createBook(@RequestBody Book newBook) {
+        Book savedBook = bookRepository.save(newBook);
+        return ResponseEntity.ok(savedBook);
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<?> uploadExcel(@RequestParam("file") MultipartFile file) {
         try (InputStream is = file.getInputStream(); Workbook workbook = new XSSFWorkbook(is)) {
@@ -57,13 +64,22 @@ public class BookController {
                 if (row == null) continue;
     
                 for (int j = 0; j < row.getLastCellNum(); j++) {
-                    String header = formatter.formatCellValue(row.getCell(j)).toLowerCase();
+                    String header = formatter.formatCellValue(row.getCell(j)).trim().toLowerCase();
+
+                    System.out.println("Header: [" + header + "]");
+
                     if (header.contains("isbn")) columnMap.put("isbn", j);
                     if (header.equals("title")) columnMap.put("title", j);
                     if (header.contains("author")) columnMap.put("author", j);
                     if (header.contains("year")|| header.contains("yr.")) columnMap.put("year", j);
                     if (header.contains("price")) columnMap.put("price", j);
                     if (header.contains("url")) columnMap.put("url", j);
+                    if (header.contains("publisher")) columnMap.put("publisher", j);
+                    if ((header.equalsIgnoreCase("edition") || header.equalsIgnoreCase("ed")) &&
+                    !header.contains("editor")) {
+                    columnMap.put("edition", j);
+                }
+                
                 }
     
                 if (!columnMap.isEmpty()) {
@@ -78,7 +94,8 @@ public class BookController {
     
                 Book book = new Book();
                 book.setQuantity(0); // ไม่อ่านจาก Excel
-                //book.setEdition(null); // หรือไม่ต้องใส่เลยก็ได้ ถ้าไม่ใช้
+                book.setEdition(getCell(row, columnMap, "edition"));
+                book.setPublisher(getCell(row, columnMap, "publisher"));
                 book.setIsbn(getCell(row, columnMap, "isbn"));
                 book.setBookTitle(getRawCell(row, columnMap, "title")); 
                 if (columnMap.containsKey("url")) {
@@ -152,9 +169,24 @@ public class BookController {
         bookRepository.save(book);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book updatedBook) {
+        Optional<Book> optionalBook = bookRepository.findById(id);
+        if (optionalBook.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
     
+        Book existingBook = optionalBook.get();
+        existingBook.setBookTitle(updatedBook.getBookTitle());
+        existingBook.setPublisher(updatedBook.getPublisher());
+        existingBook.setCoverImage(updatedBook.getCoverImage());
+        existingBook.setPrice(updatedBook.getPrice());
+        existingBook.setDescription(updatedBook.getDescription());
     
-    
+        Book savedBook = bookRepository.save(existingBook);
+        return ResponseEntity.ok(savedBook);
+    }
 
     private String getRawCell(Row row, Map<String, Integer> map, String key) {
         if (!map.containsKey(key)) return "";
