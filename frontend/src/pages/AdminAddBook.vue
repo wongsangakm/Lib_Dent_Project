@@ -60,6 +60,7 @@
           <label class="block">
             <span class="text-gray-700">ISBN</span>
             <input v-model="book.isbn" type="text" class="form-input" />
+          </label>
           <label class="block">
             <span class="text-gray-700">Year</span>
             <input v-model="book.year" type="text" class="form-input" />
