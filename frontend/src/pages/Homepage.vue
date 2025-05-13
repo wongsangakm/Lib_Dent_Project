@@ -489,7 +489,7 @@ const updatePublisherCounts = () => {
 const fetchFavoriteStatus = async (book) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/favorites/${book.id}`,{
+      `http://localhost:8080/api/auth/favorites/${book.id}`,{
       credentials: "include"
     });
     if (!response.ok) throw new Error("Failed to fetch favorite status");
@@ -516,8 +516,9 @@ const addToFavorite = async (book) => {
   book.isLoading = true;
 
   try {
-    const response = await fetch(`http://localhost:8080/api/favorites`, {
+    const response = await fetch(`http://localhost:8080/api/auth/favorites`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId: book.id }),
     });

@@ -67,24 +67,32 @@
     </div>
   </template>
   
-  <script setup>
-  import Header from '@/component/Header.vue'
-  import Footer from '@/component/Footer.vue'
-  import { useFavouritesStore } from '@/stores/favourites'
-  import { onMounted, computed } from 'vue'
-  import bgImage from "@/image/Background.png";
-  
-  const favouritesStore = useFavouritesStore()
-  
-  onMounted(() => {
+<script setup>
+import Header from '@/component/Header.vue';
+import Footer from '@/component/Footer.vue';
+import { useFavouritesStore } from '@/stores/favourites';
+import { onMounted, computed } from 'vue';
+import bgImage from "@/image/Background.png";
+
+const favouritesStore = useFavouritesStore();
+
+onMounted(async () => {
+  try {
     // เรียกใช้ mock หรือ API จริงในอนาคต
-    favouritesStore.fetchFavourites()
-  })
-  
-  const favourites = computed(() => favouritesStore.favourites)
-  
-  const removeFromFavourite = async (bookId) => {
-    await favouritesStore.removeFavourite(bookId)
+    await favouritesStore.fetchFavourites();
+  } catch (error) {
+    console.error("❌ Error fetching favourites:", error);
   }
-  </script>
-  
+});
+
+const favourites = computed(() => favouritesStore.favourites);
+
+const removeFromFavourite = async (bookId) => {
+  try {
+    await favouritesStore.removeFavourite(bookId);
+    console.log(`✅ Removed book ${bookId} from favourites`);
+  } catch (error) {
+    console.error(`❌ Error removing book ${bookId} from favourites:`, error);
+  }
+};
+</script>

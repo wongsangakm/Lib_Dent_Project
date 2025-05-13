@@ -38,6 +38,8 @@ public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession se
             session.setAttribute("username", user.get().getUsername());
             session.setAttribute("role", user.get().getRole());
 
+            session.setAttribute("user", user.get());
+
             if (session.getAttribute("favBooks") == null) {
                 session.setAttribute("favBooks", new ArrayList<String>());
             }
@@ -48,9 +50,11 @@ public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession se
             response.put("role", user.get().getRole());
             return ResponseEntity.ok(response);
         }
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+
     } catch (Exception e) {
-        e.printStackTrace(); // ✅ log ไปที่ console
+        e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
     }

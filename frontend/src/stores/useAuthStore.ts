@@ -2,40 +2,40 @@
 import { defineStore } from "pinia";
 
 export const useAuthStore = defineStore("auth", {
+  persist: true, // ให้จำค่าไว้ใน localStorage ด้วย
   state: () => ({
-    isAuthenticated: false, // True if user is logged in
-    username: "", // Current user's username
-    role: "", // Current user's role (e.g., ADMIN, USER)
+    isAuthenticated: false,
+    username: "",
+    role: "",
+    favBooks: [] // ✅ เพิ่ม favBooks
   }),
   actions: {
-    // Called when login is successful
-    login(username: string, role: string) {
+    login(username: string, role: string, favBooks: any[] = []) {
       this.isAuthenticated = true;
       this.username = username;
       this.role = role;
+      this.favBooks = favBooks;
 
-      // Save to localStorage so login state persists after refresh
       localStorage.setItem(
         "auth",
         JSON.stringify({
           isAuthenticated: true,
           username,
           role,
+          favBooks,
         })
       );
     },
 
-    // Clear all auth data
     logout() {
       this.isAuthenticated = false;
       this.username = "";
       this.role = "";
+      this.favBooks = [];
 
-      // Remove from localStorage
       localStorage.removeItem("auth");
     },
 
-    // Load auth state from localStorage when app starts
     loadFromStorage() {
       const saved = localStorage.getItem("auth");
       if (saved) {
@@ -43,6 +43,19 @@ export const useAuthStore = defineStore("auth", {
         this.isAuthenticated = data.isAuthenticated;
         this.username = data.username;
         this.role = data.role;
+        this.favBooks = data.favBooks || [];
+      }
+    },
+
+    setFavBooks(favBooks: any[]) {
+      this.favBooks = favBooks;
+
+      // อัปเดตใน localStorage ด้วย
+      const saved = localStorage.getItem("auth");
+      if (saved) {
+        const data = JSON.parse(saved);
+        data.favBooks = favBooks;
+        localStorage.setItem("auth", JSON.stringify(data));
       }
     },
   },

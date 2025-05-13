@@ -94,4 +94,3 @@ public class Book {
     public void setPrice(Double price) { this.price = price; }
 
 }
-

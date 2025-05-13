@@ -12,7 +12,7 @@ import com.example.project.repository.BookRepository;
 import com.example.project.service.UserActionService;
 
 @RestController
-@RequestMapping("/api/actions")
+@RequestMapping("/api/auth/actions")
 public class UserActionController {
     
     @Autowired

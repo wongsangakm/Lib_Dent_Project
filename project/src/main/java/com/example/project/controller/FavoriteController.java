@@ -8,16 +8,19 @@ import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/favorites")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/auth/favorites")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class FavoriteController {
 
     @Autowired
@@ -54,5 +57,19 @@ public class FavoriteController {
         response.put("isFavorited", favorited);
         return response;
     }
+
+    @GetMapping
+    public ResponseEntity<List<Book>> getFavorites(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(401).build(); // UNAUTHORIZED
+        }
+
+    List<BookFavorite> favs = favoriteRepository.findByUserId(user.getId());
+    List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
+
+    return ResponseEntity.ok(books); // ✅ ส่งกลับ List<Book>
+    }
+
 }
 

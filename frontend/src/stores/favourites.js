@@ -10,7 +10,9 @@ export const useFavouritesStore = defineStore("favourites", {
   actions: {
     async fetchAllBooks() {
       try {
-        const response = await axios.get("http://localhost:8080/api/books");
+        const response = await axios.get("http://localhost:8080/api/books", {
+          credentials: "include",
+        });
         this.allBooks = response.data.map((book) => ({
           ...book,
           isFavorited: false,
@@ -30,13 +32,13 @@ export const useFavouritesStore = defineStore("favourites", {
     },
     async fetchFavourites() {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        const storedFavourites = this.allBooks.filter(
-          (book) => book.isFavorited
-        );
-        this.favourites = storedFavourites;
+        const res = await fetch("http://localhost:8080/api/auth/favbooks", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to fetch favbooks");
+        this.favourites = await res.json();
       } catch (error) {
-        console.error("Error fetching favourites:", error.message);
+        console.error("❌ Error loading favourites:", error);
       }
     },
     async addFavourite(bookId) {
@@ -57,11 +59,14 @@ export const useFavouritesStore = defineStore("favourites", {
     
     ,
     async removeFavourite(bookId) {
-      try {
-        await axios.post(`/api/actions/unfav/${bookId}`, {}, { withCredentials: true });
-        await this.fetchFavourites(); // รีเฟรชรายการ
-      } catch (error) {
-        console.error("Error removing favourite:", error.message);
+      const res = await fetch(`http://localhost:8080/api/favorites/${bookId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        this.favourites = this.favourites.filter((b) => b.id !== bookId);
+      } else {
+        throw new Error("Failed to remove favourite");
       }
     },
   },

@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/api/auth/books")
 @CrossOrigin(origins = "http://localhost:5173")
 public class BookController {
 
@@ -213,6 +213,7 @@ public class BookController {
         return refRow.getCell(cellRef.getCol());
     }
 
+    @SuppressWarnings("unused")
     private String getByKey(Row row, Map<String, Integer> columnMap, String key) {
         if (!columnMap.containsKey(key)) return "";
         return getCellString(row.getCell(columnMap.get(key)));

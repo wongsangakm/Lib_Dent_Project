@@ -192,7 +192,7 @@ import bgImage from "@/image/Background.png";
 
 const route = useRoute();
 const bookData = ref(null);
-const isLoading = ref(false); // Changed initial value to false
+const isLoading = ref(false);
 const isFavorited = ref(false);
 const isLoadingData = ref(true);
 
@@ -204,10 +204,7 @@ onMounted(async () => {
   }
 
   try {
-    // Fetch book data
     await fetchBookData(bookId);
-
-    // Check favorite status
     await fetchFavoriteStatus(bookId);
   } catch (error) {
     console.error("Error during initialization:", error);
@@ -218,7 +215,7 @@ onMounted(async () => {
 
 const fetchBookData = async (bookId) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`);
+    const response = await fetch(`http://localhost:8080/api/auth/books/${bookId}`);
     if (!response.ok) throw new Error("Failed to fetch book data");
     bookData.value = await response.json();
     console.log("✅ Book data fetched:", bookData.value);
@@ -233,12 +230,11 @@ const addToFavorite = async () => {
   console.log("🧪 BEFORE isFavorited:", isFavorited.value);
   console.log("🧪 isLoading:", isLoading.value);
 
-  // Return early if already favorited or loading
   if (isFavorited.value || isLoading.value) return;
 
   isLoading.value = true;
   try {
-    const response = await fetch(`http://localhost:8080/api/favorites`, {
+    const response = await fetch(`http://localhost:8080/api/auth/favorites`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId: bookData.value.id }),
@@ -263,7 +259,7 @@ const addToFavorite = async () => {
 const fetchFavoriteStatus = async (bookId) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/favorites/${bookId}`
+      `http://localhost:8080/api/auth/favorites/${bookId}`
     );
 
     if (!response.ok) throw new Error("Failed to fetch favorite status");
@@ -277,6 +273,7 @@ const fetchFavoriteStatus = async (bookId) => {
   }
 };
 </script>
+
 
 <style scoped>
 .container {

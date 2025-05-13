@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/session")
+@RequestMapping("/api/auth/session")
 public class SessionController {
 
     @GetMapping("/check")

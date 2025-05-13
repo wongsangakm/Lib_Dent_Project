@@ -62,7 +62,7 @@
 <script setup>
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
@@ -95,7 +95,7 @@ async function handleSubmit() {
       authStore.login(data.username, data.role);
 
       // 🔄 ดึง favBooks ของผู้ใช้
-      const favRes = await fetch("http://localhost:8080/api/auth/favbooks", { credentials: "include" });
+      const favRes = await fetch("http://localhost:8080/api/auth/favorites", {method: 'GET', credentials: "include" });
       authStore.setFavBooks(await favRes.json());
 
       if (data.role === "ADMIN") {
