@@ -2,13 +2,16 @@
 import { defineStore } from "pinia";
 
 export const useAuthStore = defineStore("auth", {
-  persist: true, // ให้จำค่าไว้ใน localStorage ด้วย
+  persist: true,
   state: () => ({
     isAuthenticated: false,
     username: "",
     role: "",
-    favBooks: [] // ✅ เพิ่ม favBooks
+    favBooks: [],
   }),
+  getters: {
+    isLoggedIn: (state) => state.isAuthenticated, // ✅ ใช้ใน router guard
+  },
   actions: {
     login(username: string, role: string, favBooks: any[] = []) {
       this.isAuthenticated = true;
@@ -50,7 +53,6 @@ export const useAuthStore = defineStore("auth", {
     setFavBooks(favBooks: any[]) {
       this.favBooks = favBooks;
 
-      // อัปเดตใน localStorage ด้วย
       const saved = localStorage.getItem("auth");
       if (saved) {
         const data = JSON.parse(saved);

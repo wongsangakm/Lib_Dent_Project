@@ -217,12 +217,13 @@ const addToFavorite = async () => {
 
   isLoading.value = true;
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/favbooks`, {
+    const response = await fetch("http://localhost:8080/api/favorites/favbooks", {
       method: "POST",
-      credentials: 'include',
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookId: bookData.value.id }),
+      body: JSON.stringify({ bookId: book.id }),
     });
+
 
     if (!response.ok) throw new Error("Failed to add favorite");
 
@@ -243,7 +244,7 @@ const addToFavorite = async () => {
 const fetchFavoriteStatus = async (bookId) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favbooks/${bookId}`,{credentials: 'include'}
+      `http://localhost:8080/api/favorites/favbooks/${bookId}`,{credentials: 'include'}
     );
 
     if (!response.ok) throw new Error("Failed to fetch favorite status");

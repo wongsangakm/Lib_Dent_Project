@@ -26,52 +26,48 @@ import com.example.project.service.UserService;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthenticationController {
+  @Autowired
+  private UserService userService;
 
-    @Autowired
-    private UserService userService;
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
-        try {
-            Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
-            if (user.isPresent()) {
-                session.setAttribute("username", user.get().getUsername());
-                session.setAttribute("role", user.get().getRole());
-                session.setAttribute("user", user.get());
-
-                if (session.getAttribute("favBooks") == null) {
-                    session.setAttribute("favBooks", new ArrayList<String>());
-                }
-
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Login success");
-                response.put("username", user.get().getUsername());
-                response.put("role", user.get().getRole());
-                return ResponseEntity.ok(response);
-            }
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
+  @PostMapping("/login")
+  public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+    try {
+      Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
+      if (user.isPresent()) {
+        session.setAttribute("username", user.get().getUsername());
+        session.setAttribute("role", user.get().getRole());
+        session.setAttribute("user", user.get());
+        System.out.println("🔐 Logged in user: " + session.getAttribute("user"));
+        if (session.getAttribute("favBooks") == null) {
+          session.setAttribute("favBooks", new ArrayList<String>());
         }
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(HttpSession session) {
-        String username = (String) session.getAttribute("username");
-        String role = (String) session.getAttribute("role");
-
-        if (username == null || role == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
         Map<String, String> response = new HashMap<>();
-        response.put("username", username);
-        response.put("role", role);
+        response.put("message", "Login success");
+        response.put("username", user.get().getUsername());
+        response.put("role", user.get().getRole());
         return ResponseEntity.ok(response);
+      }
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
     }
+  }
+
+  @GetMapping("/me")
+public ResponseEntity<?> getCurrentUser(HttpSession session) {
+    String username = (String) session.getAttribute("username");
+    String role = (String) session.getAttribute("role");
+
+    if (username == null || role == null) {
+        // 🔁 เดิมอาจใช้ .build() → ไม่มี body
+        // ✅ แก้ให้มี body ที่เป็น JSON
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(Map.of("error", "Unauthorized"));
+    }
+
+    return ResponseEntity.ok(Map.of("username", username, "role", role));
 }
 
+}

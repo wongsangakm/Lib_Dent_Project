@@ -78,30 +78,35 @@ const formData = reactive({
 async function handleSubmit() {
   try {
     const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
-        }),
-        credentials: "include"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: formData.username,
+        password: formData.password
+      }),
+      credentials: "include"
     });
-
+    
     if (response.ok) {
-      const res = await fetch("http://localhost:8080/api/auth/me", { credentials: "include" });
-      const data = await res.json();
-      authStore.login(data.username, data.role);
+      const res = await fetch("http://localhost:8080/api/auth/me", {credentials: "include",});
 
-      // 🔄 ดึง favBooks ของผู้ใช้
-      const favRes = await fetch("http://localhost:8080/api/auth/favbooks", {method: 'GET', credentials: "include" });
+      if (!res.ok) {
+  // 🔴 ยังไม่ login หรือ session หมดอายุ
+        console.warn("Session expired or unauthorized");
+        return;
+      }
+
+      const data = await res.json(); // ✅ ทำได้ถ้า response ok
+      
+      // ดึง favBooks ของผู้ใช้
+      const favRes = await fetch("http://localhost:8080/api/favorites/favbooks", { method: 'GET', credentials: "include" });
       if (favRes.ok) {
         authStore.setFavBooks(await favRes.json());
       } else {
         alert("❌ ไม่สามารถดึง favBooks ได้: " + favRes.statusText);
       }
-
       if (data.role === "ADMIN") {
         router.push("/admin"); // ไปหน้า system ถ้า role เป็น ADMIN
       } else if (data.role === "MEMBER") {

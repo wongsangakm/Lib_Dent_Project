@@ -13,10 +13,11 @@ public class SessionConfig {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setCookieName("SESSIONID");  // กำหนดชื่อ Cookie
+        serializer.setCookieName("SESSIONID");
         serializer.setCookiePath("/");
-        serializer.setDomainName("localhost"); // หาก deploy ต้องเปลี่ยนเป็น domain จริง
-        serializer.setUseSecureCookie(false); // เปลี่ยนเป็น true ถ้าใช้ HTTPS
+        serializer.setSameSite("None");                  // ✅ สำคัญมาก
+        serializer.setUseSecureCookie(false);            // ✅ ถ้าใช้ HTTPS เปลี่ยนเป็น true
         return serializer;
     }
+
 }

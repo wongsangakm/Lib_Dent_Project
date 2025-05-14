@@ -393,7 +393,6 @@ import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
-import axios from "axios";
 
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
 
@@ -489,10 +488,7 @@ const updatePublisherCounts = () => {
 // Fetch favorite status for a book
 const fetchFavoriteStatus = async (book) => {
   try {
-    const response = await fetch(
-      `http://localhost:8080/api/auth/favbooks/${book.id}`,{
-      credentials: "include"
-    });
+    const response = await fetch(`http://localhost:8080/api/favorites/favbooks/${book.id}`,{credentials: "include"});
     if (!response.ok) throw new Error("Failed to fetch favorite status");
 
     const data = await response.json();
@@ -512,9 +508,7 @@ const fetchFavoriteStatus = async (book) => {
 const addToFavorite = async (book) => {
   // ตรวจสอบสถานะการล็อกอินก่อนทำการเพิ่มไปใน favorites
   try {
-    const checkLoginResponse = await fetch('http://localhost:8080/api/auth/me', {
-      credentials: 'include',
-    });
+    const checkLoginResponse = await fetch('http://localhost:8080/api/auth/me', {credentials: 'include',});
 
     if (!checkLoginResponse.ok) {
       alert('กรุณาล็อกอินก่อนที่จะเพิ่มรายการโปรด');
@@ -526,12 +520,13 @@ const addToFavorite = async (book) => {
     if (book.isFavorited || book.isLoading) return; // ถ้าเป็นรายการโปรดแล้วหรือกำลังโหลดอยู่
     book.isLoading = true;
 
-    const response = await fetch(`http://localhost:8080/api/auth/favbooks`, {
+    const response = await fetch("http://localhost:8080/api/favorites/favbooks", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId: book.id }),
     });
+
 
     if (!response.ok) throw new Error("Failed to add favorite");
 

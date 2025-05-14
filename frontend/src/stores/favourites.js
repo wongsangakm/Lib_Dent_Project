@@ -32,7 +32,7 @@ export const useFavouritesStore = defineStore("favourites", {
     },
     async fetchFavourites() {
       try {
-        const res = await fetch("http://localhost:8080/api/auth/favbooks", {
+        const res = await fetch("http://localhost:8080/api/favorites/favbooks", {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch favbooks");
@@ -59,7 +59,7 @@ export const useFavouritesStore = defineStore("favourites", {
     
     ,
     async removeFavourite(bookId) {
-      const res = await fetch(`http://localhost:8080/api/auth/favbooks/${bookId}`, {
+      const res = await fetch(`http://localhost:8080/api/favorites/favbooks/${bookId}`, {
         method: "DELETE",
         credentials: "include",
       });

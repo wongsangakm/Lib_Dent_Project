@@ -78,6 +78,23 @@ const favouritesStore = useFavouritesStore();
 
 onMounted(async () => {
   try {
+    const checkLogin = await fetch("http://localhost:8080/api/auth/me", {
+      credentials: "include"
+    });
+    if (!checkLogin.ok) {
+      alert("กรุณาล็อกอินก่อนดูรายการโปรด");
+      window.location.href = "/login";
+      return;
+    }
+
+    await favouritesStore.fetchFavourites(); // ดึง favbooks
+  } catch (error) {
+    console.error("❌ Error fetching favourites:", error);
+  }
+});
+
+onMounted(async () => {
+  try {
     // เรียกใช้ mock หรือ API จริงในอนาคต
     await favouritesStore.fetchFavourites();
   } catch (error) {
