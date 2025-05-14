@@ -107,15 +107,16 @@
 
 <script setup>
 import Logo from "./Logo.vue";
-import { ref , computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useFavouritesStore } from "@/stores/favourites";
+
+const authStore = useAuthStore();
 const favouritesStore = useFavouritesStore();
+const router = useRouter();
 
 const favouritesCount = computed(() => favouritesStore.favourites.length);
-const authStore = useAuthStore();
-const router = useRouter();
 const showDropdown = ref(false);
 
 const toggleDropdown = () => {
@@ -149,5 +150,11 @@ const goToFavourites = () => {
   }
 };
 
-
+// ✅ โหลดรายการโปรดเมื่อ mount ถ้าผู้ใช้ล็อกอินแล้ว
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    favouritesStore.fetchFavourites();
+  }
+});
 </script>
+

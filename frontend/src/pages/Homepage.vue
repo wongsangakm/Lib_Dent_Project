@@ -521,7 +521,9 @@ const addToFavorite = async (book) => {
   if (!isLoggedIn.value) {
     alert("กรุณาเข้าสู่ระบบก่อนกด Favorite");
     return;
-  }
+  }if (authStore.isAuthenticated) {
+    favouritesStore.addFavourite(book); // ✅ ค่าใน header จะเปลี่ยนทันที
+  } 
   // Return early if already favorited or loading
   if (book.isFavorited || book.isLoading) return;
 
@@ -585,6 +587,8 @@ function validCoverImage(url) {
   }
   return url;
 }
+
+
 </script>
 
 <style scoped>
