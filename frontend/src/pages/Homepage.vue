@@ -394,7 +394,10 @@ import bgImage from "@/image/Background.png";
 import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
+import { useAuthStore } from "@/stores/useAuthStore";
 
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
 
 const scrollToSection = (sectionId) => {
@@ -412,7 +415,7 @@ const publishers = ref([
   { name: "Elsevier", items: 0 },
   { name: "CRC Press", items: 0 },
   { name: "Jones & Bartlett Learning", items: 0 },
-  { name: "LAP Lambert Academic Publishing", items: 0 }
+  { name: "LAP Lambert Academic Publishing", items: 0 },
 ]);
 
 const selectedPublisher = ref("All Books");
@@ -461,9 +464,8 @@ onMounted(async () => {
     // Fetch all books
     await favouritesStore.fetchAllBooks();
 
-    // Check favorite status for each book
-    for (const book of favouritesStore.allBooks) {
-      await fetchFavoriteStatus(book);
+    if (authStore.isAuthenticated) {
+      await fetchAllFavoriteStatuses();
     }
 
     // Update publisher counts
@@ -487,29 +489,39 @@ const updatePublisherCounts = () => {
 };
 
 // Fetch favorite status for a book
-const fetchFavoriteStatus = async (book) => {
+const fetchAllFavoriteStatuses = async () => {
   try {
-    const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${book.id}`,{
-      credentials: "include"
+    const res = await fetch("http://localhost:8080/api/auth/favorites/ids", {
+      credentials: "include",
     });
-    if (!response.ok) throw new Error("Failed to fetch favorite status");
 
-    const data = await response.json();
-    book.isFavorited = data?.isFavorited === true;
-    book.isLoading = false;
+    // กรณีเกิด 403 หรือ response ไม่ใช่ 200
+    if (!res.ok) {
+      console.error(`❌ Failed to fetch: ${res.status} ${res.statusText}`);
+      return;
+    }
 
-    return data;
-  } catch (error) {
-    console.error(`Error fetching favorite status for book ${book.id}:`, error);
-    book.isFavorited = false;
-    book.isLoading = false;
-    return { isFavorited: false };
+    const favBookIds = await res.json();
+
+    if (!Array.isArray(favBookIds)) {
+      console.error("❌ favBookIds is not an array:", favBookIds);
+      return;
+    }
+
+    favouritesStore.allBooks.forEach((book) => {
+      book.isFavorited = favBookIds.includes(book.id);
+    });
+  } catch (err) {
+    console.error("❌ Failed to load favorite status list:", err);
   }
 };
 
 // Add book to favorites
 const addToFavorite = async (book) => {
+  if (!isLoggedIn.value) {
+    alert("กรุณาเข้าสู่ระบบก่อนกด Favorite");
+    return;
+  }
   // Return early if already favorited or loading
   if (book.isFavorited || book.isLoading) return;
 
@@ -517,12 +529,13 @@ const addToFavorite = async (book) => {
   book.isLoading = true;
 
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/favorites`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookId: book.id }),
-    });
+    const response = await fetch(
+      `http://localhost:8080/api/auth/favorites/${book.id}`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
 
     if (!response.ok) throw new Error("Failed to add favorite");
 
@@ -573,7 +586,6 @@ function validCoverImage(url) {
   return url;
 }
 </script>
-
 
 <style scoped>
 /* Hide scrollbar but keep functionality */

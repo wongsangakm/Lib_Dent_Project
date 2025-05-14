@@ -53,8 +53,8 @@
 
             <!-- Book Info -->
             <div
-              class="border-b border-gray-300 mr-4 pb-4 grid gap-4 mt-6 text-sm text-gray-600"
-              style="grid-template-columns: 2fr 1fr 0.5fr 0.5fr 1fr"
+              class="border-b border-gray-300 pb-4 grid gap-4 mt-6 text-sm text-gray-600"
+              style="grid-template-columns: 1fr 0.5fr 0.5fr 0.5fr 0.5fr 0.7fr"
             >
               <span>
                 <p class="text-gray-400 text-sm">Author</p>
@@ -66,6 +66,12 @@
                 <p class="text-gray-400 text-sm">Publisher</p>
                 <strong class="text-black text-base">{{
                   bookData.publisher
+                }}</strong>
+              </span>
+              <span>
+                <p class="text-gray-400 text-sm">ISBN</p>
+                <strong class="text-black text-sm mt-1">{{
+                  bookData.isbn
                 }}</strong>
               </span>
               <span>
@@ -198,57 +204,56 @@ onMounted(async () => {
 
 const fetchBookData = async (bookId) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/books/${bookId}`);
+    const response = await fetch(`http://localhost:8080/api/books/${bookId}`, {
+      credentials: "include",
+    });
     if (!response.ok) throw new Error("Failed to fetch book data");
-    bookData.value = await response.json();
+    const data = await response.json();
+    bookData.value = data; // ✅ ใส่ตรงนี้
+    isFavorited.value = data?.isFavorited === true;
     console.log("✅ Book data fetched:", bookData.value);
   } catch (error) {
     console.error("❌ Error fetching book data:", error);
     bookData.value = null;
   }
 };
-
 const addToFavorite = async () => {
-  console.log("🔥 CLICK: AddToFavorite");
-  console.log("🧪 BEFORE isFavorited:", isFavorited.value);
-  console.log("🧪 isLoading:", isLoading.value);
-
   if (isFavorited.value || isLoading.value) return;
 
   isLoading.value = true;
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/favorites`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookId: bookData.value.id }),
-    });
-
-    if (!response.ok) throw new Error("Failed to add favorite");
+    const response = await fetch(
+      `http://localhost:8080/api/auth/favorites/${bookData.value.id}`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
 
     const result = await response.json();
     console.log("✅ Favorite added response:", result);
 
-    if (result.success) {
+    // ✅ ถ้า favorite อยู่แล้วก็ให้ตั้งสถานะไว้เลย
+    if (result.success || result.message === "Already favorited") {
       isFavorited.value = true;
     }
   } catch (error) {
     console.error("❌ Error adding to favorites:", error);
   } finally {
-    console.log("🧹 Setting isLoading = false");
     isLoading.value = false;
   }
 };
-
 const fetchFavoriteStatus = async (bookId) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${bookId}`
+      `http://localhost:8080/api/auth/favorites/${bookId}`,
+      {
+        credentials: "include",
+      }
     );
-
     if (!response.ok) throw new Error("Failed to fetch favorite status");
 
     const data = await response.json();
-    console.log("✅ Favorite status:", data);
     isFavorited.value = data?.isFavorited === true;
   } catch (error) {
     console.error("❌ Error fetching favorite status:", error);
@@ -256,7 +261,6 @@ const fetchFavoriteStatus = async (bookId) => {
   }
 };
 </script>
-
 
 <style scoped>
 .container {

@@ -11,7 +11,7 @@ export const useFavouritesStore = defineStore("favourites", {
     async fetchAllBooks() {
       try {
         const response = await axios.get("http://localhost:8080/api/books", {
-          credentials: "include",
+          withCredentials: true,
         });
         this.allBooks = response.data.map((book) => ({
           ...book,
@@ -32,7 +32,7 @@ export const useFavouritesStore = defineStore("favourites", {
     },
     async fetchFavourites() {
       try {
-        const res = await fetch("http://localhost:8080/api/auth/favbooks", {
+        const res = await fetch("http://localhost:8080/api/auth/favorites", {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch favbooks");
@@ -43,30 +43,28 @@ export const useFavouritesStore = defineStore("favourites", {
     },
     async addFavourite(bookId) {
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        const res = await fetch(
+          `http://localhost:8080/api/auth/favorites/${bookId}`,
+          {
+            method: "POST",
+            credentials: "include", // ✅ สำคัญ เพื่อส่ง session cookie ไปด้วย
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to add favorite");
+        }
+
         const book = this.allBooks.find((b) => b.id === bookId);
-        console.log("✅ Book in store", book); // เช็คค่าจริง
-        if (book && !this.favourites.some((fav) => fav.id === bookId)) {
+        if (book) {
           book.isFavorited = true;
           this.favourites.push({ ...book });
-          return { success: true };
         }
-        return { success: false };
+
+        return { success: true };
       } catch (error) {
-        console.error("Error adding favourite:", error.message);
-      }
-    }
-    
-    ,
-    async removeFavourite(bookId) {
-      const res = await fetch(`http://localhost:8080/api/favorites/${bookId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        this.favourites = this.favourites.filter((b) => b.id !== bookId);
-      } else {
-        throw new Error("Failed to remove favourite");
+        console.error("❌ Error adding to favorites:", error.message);
+        return { success: false };
       }
     },
   },

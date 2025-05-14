@@ -90,6 +90,7 @@ async function handleSubmit() {
     });
 
     if (response.ok) {
+      await response.text(); 
       const res = await fetch("http://localhost:8080/api/auth/me", { credentials: "include" });
       const data = await res.json();
       authStore.login(data.username, data.role);
