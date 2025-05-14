@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -64,8 +64,6 @@ public class BookController {
     
                 for (int j = 0; j < row.getLastCellNum(); j++) {
                     String header = formatter.formatCellValue(row.getCell(j)).trim().toLowerCase();
-
-                    System.out.println("Header: [" + header + "]");
 
                     if (header.contains("isbn")) columnMap.put("isbn", j);
                     if (header.equals("title")) columnMap.put("title", j);

@@ -13,7 +13,7 @@ public class UserService {
     private UserRepository userRepository;
 
     public Optional<User> authenticate(String username, String password) {
-        return userRepository.findByUsername(username)
+        return userRepository.findByUsernameIgnoreCase(username)
             .filter(user -> user.getPassword().equals(password));
     }
 }

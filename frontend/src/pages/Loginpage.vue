@@ -90,23 +90,15 @@ async function handleSubmit() {
     });
     
     if (response.ok) {
-      const res = await fetch("http://localhost:8080/api/auth/me", {credentials: "include",});
+      await response.text(); 
+      const res = await fetch("http://localhost:8080/api/auth/me", { credentials: "include" });
+      const data = await res.json();
+      authStore.login(data.username, data.role);
 
-      if (!res.ok) {
-  // 🔴 ยังไม่ login หรือ session หมดอายุ
-        console.warn("Session expired or unauthorized");
-        return;
-      }
+      // 🔄 ดึง favBooks ของผู้ใช้
+      const favRes = await fetch("http://localhost:8080/api/auth/favorites", {method: 'GET', credentials: "include" });
+      authStore.setFavBooks(await favRes.json());
 
-      const data = await res.json(); // ✅ ทำได้ถ้า response ok
-      
-      // ดึง favBooks ของผู้ใช้
-      const favRes = await fetch("http://localhost:8080/api/favorites/favbooks", { method: 'GET', credentials: "include" });
-      if (favRes.ok) {
-        authStore.setFavBooks(await favRes.json());
-      } else {
-        alert("❌ ไม่สามารถดึง favBooks ได้: " + favRes.statusText);
-      }
       if (data.role === "ADMIN") {
         router.push("/admin"); // ไปหน้า system ถ้า role เป็น ADMIN
       } else if (data.role === "MEMBER") {

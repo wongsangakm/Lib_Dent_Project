@@ -1,34 +1,46 @@
 package com.example.project.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
-
+import static org.springframework.security.config.Customizer.withDefaults;
+import com.example.project.security.SessionUserFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-      .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-      .csrf(csrf -> csrf.disable())
-      .httpBasic(httpBasic -> httpBasic.disable())
-      .formLogin(form -> form.disable())
-      .authorizeHttpRequests(auth -> auth
-        // .anyRequest().permitAll()
-        .requestMatchers("/api/auth/login", "/api/auth/me").permitAll()
-        .requestMatchers("/api/books", "/api/books/**").permitAll()
-        .requestMatchers("/api/favorites/**").authenticated()
-        .anyRequest().authenticated()
-      );
-    return http.build();
-  }
+
+    @Autowired
+    private SessionUserFilter sessionUserFilter;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .addFilterBefore(sessionUserFilter, UsernamePasswordAuthenticationFilter.class) // ✅ เพิ่มตรงนี้
+            .cors().and()
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/books/**").permitAll()
+                .requestMatchers("/api/auth/favorites/**").authenticated()
+                .requestMatchers("/api/auth/**").permitAll()
+                .anyRequest().permitAll()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            );
+
+        return http.build();
+    }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {

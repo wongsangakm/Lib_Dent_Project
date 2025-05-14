@@ -3,66 +3,94 @@ package com.example.project.controller;
 import com.example.project.model.Book;
 import com.example.project.model.BookFavorite;
 import com.example.project.model.User;
-import com.example.project.payload.request.FavoriteRequest;
 import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
-
+import com.example.project.repository.UserRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@RestController
-@RequestMapping("/api/favorites")
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@RestController
+@RequestMapping("/api/auth/favorites")
+
 public class FavoriteController {
   @Autowired
   private FavoriteRepository favoriteRepository;
   @Autowired
   private BookRepository bookRepository;
 
-  @PostMapping("/favbooks")
-  public ResponseEntity<?> addFavorite(@RequestBody FavoriteRequest request, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-        .body("กรุณาล็อกอินก่อนที่จะเพิ่มรายการโปรด");
+    @Autowired
+    private UserRepository userRepository;
+
+    // ✅ เพิ่ม favorite (หากยังไม่เคยกด)
+  @PostMapping("/{bookId}")
+    public ResponseEntity<?> addFavorite(@PathVariable Long bookId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+            System.out.println("💡 userId from session = " + userId);
+        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+
+        if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) {
+            return ResponseEntity.ok(Map.of("message", "Already favorited"));
+        }
+
+        User user = userRepository.findById(userId).orElseThrow();
+        Book book = bookRepository.findById(bookId).orElseThrow();
+
+        BookFavorite favorite = new BookFavorite();
+        favorite.setUser(user);
+        favorite.setBook(book);
+        favoriteRepository.save(favorite);
+
+        return ResponseEntity.ok(Map.of("success", true));
     }
-    Book book = bookRepository.findById(request.getBookId()).orElseThrow();
-    BookFavorite favorite = new BookFavorite();
-    favorite.setBook(book);
-    favorite.setUser(user);
-    favoriteRepository.save(favorite);
-    return ResponseEntity.ok(Map.of("success", true));
-  }
 
-  @GetMapping("/favbooks/{bookId}")
-  public ResponseEntity<Map<String, Object>> isFavorited(@PathVariable Long bookId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    System.out.println("📦 SESSIONID: " + session.getId());
-    System.out.println("👤 USER in session: " + user);
-
-    if (user == null) {
-        return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+    // ✅ ตรวจสอบว่า user เคย favorite หรือยัง
+    @GetMapping("/check/{bookId}")
+    public Map<String, Object> isFavorited(@PathVariable Long bookId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        boolean isFav = userId != null && favoriteRepository.existsByUserIdAndBookId(userId, bookId);
+        return Map.of("isFavorited", isFav);
     }
 
-    boolean favorited = favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId);
-    return ResponseEntity.ok(Map.of("isFavorited", favorited));
-  }
+    // ✅ ดูรายการหนังสือทั้งหมดที่ user คนนั้นเคยกด favorite
+    @GetMapping
+    public ResponseEntity<?> getUserFavorites(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
 
-  @GetMapping("/favbooks")
-  public ResponseEntity<List<Book>> getFavorites(HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(401).build();
+        List<BookFavorite> favs = favoriteRepository.findByUserId(userId);
+        List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
+
+        return ResponseEntity.ok(books);
     }
-    List<BookFavorite> favs = favoriteRepository.findByUserId(user.getId());
-    List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
-    return ResponseEntity.ok(books);
-  }
+
+    @GetMapping("/{bookId}")
+    public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+
+        boolean isFav = favoriteRepository.existsByUserIdAndBookId(userId, bookId);
+        return ResponseEntity.ok(Map.of("isFavorited", isFav));
+    }
+
+
+    @GetMapping("/ids")
+    public ResponseEntity<?> getFavoriteBookIds(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        List<Long> bookIds = favoriteRepository.findBookIdsByUserId(userId);
+        return ResponseEntity.ok(bookIds);
+    }
+
+    
 }
-
