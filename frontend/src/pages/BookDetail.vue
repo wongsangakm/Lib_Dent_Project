@@ -174,16 +174,19 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 
 const route = useRoute();
+const router = useRouter();
+
 const bookData = ref(null);
 const isLoading = ref(false);
 const isFavorited = ref(false);
 const isLoadingData = ref(true);
+const isAuthenticated = ref(false); // ✅ เพิ่ม
 
 onMounted(async () => {
   const bookId = route.params.id;
@@ -193,14 +196,29 @@ onMounted(async () => {
   }
 
   try {
+    await checkAuth(); // ✅ เช็คก่อน
     await fetchBookData(bookId);
-    await fetchFavoriteStatus(bookId);
+    if (isAuthenticated.value) {
+      await fetchFavoriteStatus(bookId);
+    }
   } catch (error) {
     console.error("Error during initialization:", error);
   } finally {
     isLoadingData.value = false;
   }
 });
+
+const checkAuth = async () => {
+  try {
+    const res = await fetch("http://localhost:8080/api/auth/check", {
+      credentials: "include",
+    });
+    isAuthenticated.value = res.ok;
+  } catch (error) {
+    console.error("❌ Error checking auth:", error);
+    isAuthenticated.value = false;
+  }
+};
 
 const fetchBookData = async (bookId) => {
   try {
@@ -209,15 +227,21 @@ const fetchBookData = async (bookId) => {
     });
     if (!response.ok) throw new Error("Failed to fetch book data");
     const data = await response.json();
-    bookData.value = data; // ✅ ใส่ตรงนี้
-    isFavorited.value = data?.isFavorited === true;
+    bookData.value = data;
     console.log("✅ Book data fetched:", bookData.value);
   } catch (error) {
     console.error("❌ Error fetching book data:", error);
     bookData.value = null;
   }
 };
+
 const addToFavorite = async () => {
+  if (!isAuthenticated.value) {
+    alert("กรุณาเข้าสู่ระบบเพื่อเพิ่มเข้ารายการโปรด");
+    router.push("/login");
+    return;
+  }
+
   if (isFavorited.value || isLoading.value) return;
 
   isLoading.value = true;
@@ -233,7 +257,6 @@ const addToFavorite = async () => {
     const result = await response.json();
     console.log("✅ Favorite added response:", result);
 
-    // ✅ ถ้า favorite อยู่แล้วก็ให้ตั้งสถานะไว้เลย
     if (result.success || result.message === "Already favorited") {
       isFavorited.value = true;
     }
@@ -243,6 +266,7 @@ const addToFavorite = async () => {
     isLoading.value = false;
   }
 };
+
 const fetchFavoriteStatus = async (bookId) => {
   try {
     const response = await fetch(
@@ -261,6 +285,7 @@ const fetchFavoriteStatus = async (bookId) => {
   }
 };
 </script>
+
 
 <style scoped>
 .container {

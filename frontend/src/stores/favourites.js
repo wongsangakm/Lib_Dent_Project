@@ -22,6 +22,7 @@ export const useFavouritesStore = defineStore("favourites", {
         console.error("Error fetching books:", error.message);
       }
     },
+
     setAllBooks(books) {
       this.allBooks = books.map((book) => ({
         ...book,
@@ -30,24 +31,33 @@ export const useFavouritesStore = defineStore("favourites", {
         isLoading: false,
       }));
     },
+
     async fetchFavourites() {
       try {
         const res = await fetch("http://localhost:8080/api/auth/favorites", {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Failed to fetch favbooks");
-        this.favourites = await res.json();
+        const data = await res.json();
+        this.favourites = data;
+
+        // ทำเครื่องหมายว่าเป็นรายการโปรดใน allBooks ด้วย
+        this.allBooks = this.allBooks.map((book) => ({
+          ...book,
+          isFavorited: data.some((fav) => fav.id === book.id),
+        }));
       } catch (error) {
         console.error("❌ Error loading favourites:", error);
       }
     },
+
     async addFavourite(bookId) {
       try {
         const res = await fetch(
           `http://localhost:8080/api/auth/favorites/${bookId}`,
           {
             method: "POST",
-            credentials: "include", // ✅ สำคัญ เพื่อส่ง session cookie ไปด้วย
+            credentials: "include",
           }
         );
 
@@ -56,9 +66,11 @@ export const useFavouritesStore = defineStore("favourites", {
         }
 
         const book = this.allBooks.find((b) => b.id === bookId);
-        if (book) {
+        if (book && !this.favourites.some((f) => f.id === bookId)) {
           book.isFavorited = true;
-          this.favourites.push({ ...book });
+
+          // ✅ สร้าง array ใหม่เพื่อ trigger reactivity
+          this.favourites = [...this.favourites, { ...book }];
         }
 
         return { success: true };
