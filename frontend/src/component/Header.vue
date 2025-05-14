@@ -32,31 +32,30 @@
           <router-link to="/favbooks">
             <!-- ปุ่มไอคอนหัวใจ -->
             <button
-              class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 relative"
+               @click="goToFavourites"
+                class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 relative"
             >
-              <svg
-                class="w-6 h-6 text-purple-600"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            </button>
+            <svg
+              class="w-6 h-6 text-purple-600"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            ><path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
 
-            <!-- Badge แสดงจำนวน -->
-            <span
-              v-if="favouritesCount > 0"
-              class="absolute top-1 right-[97px] transform translate-x-1/2 -translate-y-1/2 bg-indigo-300 text-yellow-300 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
-            >
-              {{ favouritesCount }}
-            </span>
+        <!-- Badge -->
+          <span
+            v-if="favouritesCount > 0"
+            class="absolute top-1 right-[97px] transform translate-x-1/2 -translate-y-1/2 bg-indigo-300 text-yellow-300 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+          >{{ favouritesCount }}
+          </span>
+
           </router-link>
 
           <!-- ปุ่ม Sign In หรือ Profile -->
@@ -140,4 +139,15 @@ const scrollToSection = (id) => {
     window.scrollTo({ top, behavior: "smooth" });
   }
 };
+
+const goToFavourites = () => {
+  if (authStore.isAuthenticated) {
+    router.push("/favbooks");
+  } else {
+    alert("กรุณาเข้าสู่ระบบก่อนดูรายการโปรด");
+    router.push("/login");
+  }
+};
+
+
 </script>

@@ -20,7 +20,7 @@ import AdminRoundExport from "./pages/AdminRoundExport.vue";
 import AdminLayout from "./pages/AdminLayout.vue";
 
 const authStore = useAuthStore();
-authStore.loadFromStorage();
+// authStore.loadFromStorage();
 </script>
 
 <style scoped></style>
