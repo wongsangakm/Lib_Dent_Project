@@ -21,8 +21,7 @@ import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
-@RequestMapping("/api/auth/books")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/books")
 public class BookController {
 
     private final DataFormatter formatter = new DataFormatter();

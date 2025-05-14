@@ -31,35 +31,33 @@ public class AuthenticationController {
     private UserService userService;
 
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
-    try {
-        Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
-        if (user.isPresent()) {
-            session.setAttribute("username", user.get().getUsername());
-            session.setAttribute("role", user.get().getRole());
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession session) {
+        try {
+            Optional<User> user = userService.authenticate(request.getUsername(), request.getPassword());
+            if (user.isPresent()) {
+                session.setAttribute("username", user.get().getUsername());
+                session.setAttribute("role", user.get().getRole());
+                session.setAttribute("user", user.get());
 
-            session.setAttribute("user", user.get());
+                if (session.getAttribute("favBooks") == null) {
+                    session.setAttribute("favBooks", new ArrayList<String>());
+                }
 
-            if (session.getAttribute("favBooks") == null) {
-                session.setAttribute("favBooks", new ArrayList<String>());
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Login success");
+                response.put("username", user.get().getUsername());
+                response.put("role", user.get().getRole());
+                return ResponseEntity.ok(response);
             }
 
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Login success");
-            response.put("username", user.get().getUsername());
-            response.put("role", user.get().getRole());
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
         }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
     }
-}
-
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpSession session) {
@@ -75,25 +73,5 @@ public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpSession se
         response.put("role", role);
         return ResponseEntity.ok(response);
     }
-
-    @SuppressWarnings("unchecked")
-    @GetMapping("/favbooks")
-    public List<String> getFavBooks(HttpSession session) {
-        List<String> favBooks = (List<String>) session.getAttribute("favBooks");
-        return (favBooks != null) ? favBooks : new ArrayList<>();
-    }
-
-    @SuppressWarnings("unchecked")
-    @PostMapping("/favbooks/add")
-    public String addFavBook(@RequestBody Map<String, String> request, HttpSession session) {
-        List<String> favBooks = (List<String>) session.getAttribute("favBooks");
-
-        if (favBooks == null) {
-            favBooks = new ArrayList<>();
-        }
-
-        favBooks.add(request.get("book"));
-        session.setAttribute("favBooks", favBooks);
-        return "Book added!";
-    }
 }
+

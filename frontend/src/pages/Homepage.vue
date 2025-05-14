@@ -490,7 +490,7 @@ const updatePublisherCounts = () => {
 const fetchFavoriteStatus = async (book) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${book.id}`,{
+      `http://localhost:8080/api/auth/favbooks/${book.id}`,{
       credentials: "include"
     });
     if (!response.ok) throw new Error("Failed to fetch favorite status");
@@ -510,14 +510,23 @@ const fetchFavoriteStatus = async (book) => {
 
 // Add book to favorites
 const addToFavorite = async (book) => {
-  // Return early if already favorited or loading
-  if (book.isFavorited || book.isLoading) return;
-
-  // Set loading state
-  book.isLoading = true;
-
+  // ตรวจสอบสถานะการล็อกอินก่อนทำการเพิ่มไปใน favorites
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/favorites`, {
+    const checkLoginResponse = await fetch('http://localhost:8080/api/auth/me', {
+      credentials: 'include',
+    });
+
+    if (!checkLoginResponse.ok) {
+      alert('กรุณาล็อกอินก่อนที่จะเพิ่มรายการโปรด');
+      window.location.href = '/login';  // เปลี่ยนเส้นทางไปหน้า login
+      return;
+    }
+
+    // ถ้าผู้ใช้ล็อกอินแล้วให้ดำเนินการเพิ่มไปในรายการโปรด
+    if (book.isFavorited || book.isLoading) return; // ถ้าเป็นรายการโปรดแล้วหรือกำลังโหลดอยู่
+    book.isLoading = true;
+
+    const response = await fetch(`http://localhost:8080/api/auth/favbooks`, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -538,6 +547,7 @@ const addToFavorite = async (book) => {
     book.isLoading = false;
   }
 };
+
 
 // Computed property to filter books by selected publisher
 const filteredBooksByPublisher = computed(() => {

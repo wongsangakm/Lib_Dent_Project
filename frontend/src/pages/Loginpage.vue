@@ -95,8 +95,12 @@ async function handleSubmit() {
       authStore.login(data.username, data.role);
 
       // 🔄 ดึง favBooks ของผู้ใช้
-      const favRes = await fetch("http://localhost:8080/api/auth/favorites", {method: 'GET', credentials: "include" });
-      authStore.setFavBooks(await favRes.json());
+      const favRes = await fetch("http://localhost:8080/api/auth/favbooks", {method: 'GET', credentials: "include" });
+      if (favRes.ok) {
+        authStore.setFavBooks(await favRes.json());
+      } else {
+        alert("❌ ไม่สามารถดึง favBooks ได้: " + favRes.statusText);
+      }
 
       if (data.role === "ADMIN") {
         router.push("/admin"); // ไปหน้า system ถ้า role เป็น ADMIN
@@ -110,6 +114,7 @@ async function handleSubmit() {
     alert("❌ เกิดข้อผิดพลาด: " + err.message);
   }
 }
+
 </script>
 
 

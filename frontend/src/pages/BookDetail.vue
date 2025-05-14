@@ -198,7 +198,7 @@ onMounted(async () => {
 
 const fetchBookData = async (bookId) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/books/${bookId}`);
+    const response = await fetch(`http://localhost:8080/api/books/${bookId}`,{credentials: 'include'});
     if (!response.ok) throw new Error("Failed to fetch book data");
     bookData.value = await response.json();
     console.log("✅ Book data fetched:", bookData.value);
@@ -217,8 +217,9 @@ const addToFavorite = async () => {
 
   isLoading.value = true;
   try {
-    const response = await fetch(`http://localhost:8080/api/auth/favorites`, {
+    const response = await fetch(`http://localhost:8080/api/auth/favbooks`, {
       method: "POST",
+      credentials: 'include',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId: bookData.value.id }),
     });
@@ -242,7 +243,7 @@ const addToFavorite = async () => {
 const fetchFavoriteStatus = async (bookId) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${bookId}`
+      `http://localhost:8080/api/auth/favbooks/${bookId}`,{credentials: 'include'}
     );
 
     if (!response.ok) throw new Error("Failed to fetch favorite status");

@@ -59,7 +59,7 @@ export const useFavouritesStore = defineStore("favourites", {
     
     ,
     async removeFavourite(bookId) {
-      const res = await fetch(`http://localhost:8080/api/favorites/${bookId}`, {
+      const res = await fetch(`http://localhost:8080/api/auth/favbooks/${bookId}`, {
         method: "DELETE",
         credentials: "include",
       });
