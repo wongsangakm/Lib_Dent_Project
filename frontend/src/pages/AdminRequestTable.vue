@@ -72,9 +72,12 @@
               {{ book.publisher }}
             </td>
             <td class="px-4 py-2 text-center">
-                <router-link :to="`request/${book.id}`" class="text-purple-600 hover:text-purple-800">
-                    <i class="fas fa-pen-to-square"></i>
-                </router-link>
+              <router-link
+                :to="`request/${book.id}`"
+                class="text-purple-600 hover:text-purple-800"
+              >
+                <i class="fas fa-pen-to-square"></i>
+              </router-link>
             </td>
           </tr>
         </tbody>
@@ -100,43 +103,49 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+
+const allRequests = ref([]);
 
 const filters = ref({
   search: "",
   status: "",
 });
 
-const allRequests = ref([
-  {
-    id: 1,
-    bookNo: 59217,
-    isbn: "59217342",
-    status: "No",
-    Favorites: 1,
-    name: "Cone Beam CT...",
-    publisher: "Springer",
-  },
-  {
-    id: 2,
-    bookNo: 59213,
-    isbn: "59217343",
-    status: "Yes",
-    Favorites: 2,
-    name: "Kristin Watson",
-    publisher: "Springer",
-  },
-  {
-    id: 3,
-    bookNo: 59219,
-    isbn: "59217344",
-    status: "Ordering",
-    Favorites: 44,
-    name: "Cameron Williamson",
-    publisher: "Springer",
-  },
-  // ... เพิ่ม mock data ตามต้องการ
-]);
+onMounted(async () => {
+  try {
+    const resBooks = await fetch("http://localhost:8080/api/books");
+    const books = await resBooks.json();
+
+    const resCounts = await fetch(
+      "http://localhost:8080/api/admin/favorite-counts",
+      { credentials: "include" }
+    );
+    if (!resCounts.ok) throw new Error("Favorite counts not found");
+    const counts = await resCounts.json();
+
+    const booksWithFav = books
+      .map((book) => {
+        const match = counts.find((c) => c.bookId === book.id);
+        return match
+          ? {
+              id: book.id,
+              bookNo: book.id,
+              isbn: book.isbn,
+              name: book.bookTitle,
+              publisher: book.publisher,
+              Favorites: match.favoriteCount,
+              status: book.status || "No",
+            }
+          : null;
+      })
+      .filter(Boolean); // ตัด null ทิ้ง
+
+    allRequests.value = booksWithFav;
+  } catch (error) {
+    console.error("❌ Failed to load admin fav data:", error);
+  }
+});
 
 const currentPage = ref(1);
 const pageSize = 10;
