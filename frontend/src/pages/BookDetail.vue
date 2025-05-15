@@ -285,15 +285,12 @@ const fetchFavoriteStatus = async (bookId) => {
   }
 };
 </script>
-
-
-<style scoped>
+<!-- <style scoped>
 .container {
   max-width: 1200px;
 }
-
 /* Add explicit cursor styles for favorite buttons */
 button:disabled {
   cursor: not-allowed !important;
 }
-</style>
+</style> -->
