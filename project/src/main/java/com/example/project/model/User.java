@@ -24,6 +24,7 @@ public class User implements Serializable{
     private String username;
     private String password;
     private String role;
+    private String email;
     @ElementCollection
     private List<Long> favBooks;
 }

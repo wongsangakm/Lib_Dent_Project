@@ -6,6 +6,8 @@ import com.example.project.model.User;
 import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
+import com.example.project.service.EmailService;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import jakarta.servlet.http.HttpSession;
@@ -30,6 +32,10 @@ public class FavoriteController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
+
     // ✅ เพิ่ม favorite (หากยังไม่เคยกด)
   @PostMapping("/{bookId}")
     public ResponseEntity<?> addFavorite(@PathVariable Long bookId, HttpSession session) {
@@ -48,6 +54,8 @@ public class FavoriteController {
         favorite.setUser(user);
         favorite.setBook(book);
         favoriteRepository.save(favorite);
+
+        emailService.sendNotificationToAdmin(book.getBookTitle(), user.getEmail());
 
         return ResponseEntity.ok(Map.of("success", true));
     }
