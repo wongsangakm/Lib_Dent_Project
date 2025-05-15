@@ -175,6 +175,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { ElMessageBox } from 'element-plus'
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
@@ -241,8 +242,16 @@ const addToFavorite = async () => {
     router.push("/login");
     return;
   }
-
   if (isFavorited.value || isLoading.value) return;
+
+  /* ✅ NEW — ยืนยันก่อน */
+  const confirmed = await ElMessageBox.confirm(
+    `ต้องการเพิ่ม “${bookData.value.bookTitle}” เข้ารายการโปรดใช่หรือไม่?`,
+    'ยืนยันการเพิ่มรายการโปรด',
+    { confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', type: 'warning' }
+  ).then(() => true).catch(() => false);
+
+  if (!confirmed) return;
 
   isLoading.value = true;
   try {

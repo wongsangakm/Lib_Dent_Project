@@ -388,6 +388,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { ElMessageBox } from 'element-plus'
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
@@ -521,11 +522,17 @@ const addToFavorite = async (book) => {
   if (!isLoggedIn.value) {
     alert("กรุณาเข้าสู่ระบบก่อนกด Favorite");
     return;
-  }if (authStore.isAuthenticated) {
-    favouritesStore.addFavourite(book); // ✅ ค่าใน header จะเปลี่ยนทันที
-  } 
-  // Return early if already favorited or loading
+  }
   if (book.isFavorited || book.isLoading) return;
+
+  /* ✅ NEW — กล่องยืนยัน */
+  const confirmed = await ElMessageBox.confirm(
+    `ต้องการเพิ่ม “${book.bookTitle}” เข้ารายการโปรดใช่หรือไม่?`,
+    'ยืนยันการเพิ่มรายการโปรด',
+    { confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', type: 'warning' }
+  ).then(() => true).catch(() => false);
+
+  if (!confirmed) return;
 
   // Set loading state
   book.isLoading = true;
