@@ -1,6 +1,9 @@
 package com.example.project.model;
 import jakarta.persistence.*;
-
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 @Entity
 public class Book {
     @Id
@@ -16,6 +19,8 @@ public class Book {
     private Double price;
     public String getIsbn() { return isbn; }
     public void setIsbn(String isbn) { this.isbn = isbn; }
+    @Column(nullable = true)
+    private String status;
 
     /**
      *

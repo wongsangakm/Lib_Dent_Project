@@ -112,6 +112,23 @@ const filters = ref({
   status: "",
 });
 
+const handleStatusChange = async (book) => {
+  try {
+    const res = await fetch(`http://localhost:8080/api/books/${book.id}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: book.status }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update status");
+    console.log("✅ Status updated:", book.bookTitle, "->", book.status);
+  } catch (err) {
+    console.error("❌ Error updating status:", err);
+    alert("Error saving status. Please try again.");
+  }
+};
+
+
 onMounted(async () => {
   try {
     const resBooks = await fetch("http://localhost:8080/api/books");

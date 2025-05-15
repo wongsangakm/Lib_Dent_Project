@@ -28,62 +28,126 @@
 
         <!-- Export Button Group -->
         <div class="flex gap-2">
-            <button @click="exportToExcel(round)" class="bg-green-600 text-white px-3 py-1 rounded">Excel</button>
-            <button @click="exportToPDF(round)" class="bg-red-600 text-white px-3 py-1 rounded">PDF</button>
+          <button
+            @click="exportToExcel(round)"
+            class="bg-green-600 text-white px-3 py-1 rounded"
+          >
+            Excel
+          </button>
+          <button
+            @click="exportToPDF(round)"
+            class="bg-red-600 text-white px-3 py-1 rounded"
+          >
+            PDF
+          </button>
         </div>
-
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+
 const exportRounds = [
-  { id: 1, month: "ธันวาคม", deadline: "30 ธันวาคม" },
-  { id: 2, month: "กุมภาพันธ์", deadline: "28 กุมภาพันธ์" },
-  { id: 3, month: "เมษายน", deadline: "30 เมษายน" },
+  { id: 1, name: "รอบที่ 1", deadline: "30 ธันวาคม", label: "May–December" },
+  {
+    id: 2,
+    name: "รอบที่ 2",
+    deadline: "28 กุมภาพันธ์",
+    label: "January–Febuary",
+  },
+  { id: 3, name: "รอบที่ 3", deadline: "30 เมษายน", label: "March–April" },
 ];
 
-const exportData = (round) => {
-  // 📝 ตรงนี้คือ mock logic ในอนาคตคุณจะเชื่อม API สำหรับ export
-  alert(`Export ข้อมูลรอบที่ ${round.id} เดือน${round.month} สำเร็จ (mock)`);
+const exportToExcel = async (round) => {
+  try {
+    const year = new Date().getFullYear();
+    const res = await fetch(
+      `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
+
+    // ✅ สร้างใหม่ทุกครั้ง
+    const sheetData = data.map((book, index) => ({
+      "No.": index + 1,
+      ISBN: book.isbn || " ",
+      ชื่อหนังสือ: book.title || " ",
+      ราคา: book.price || " ",
+      ปีที่พิมพ์: book.year || " ",
+      สำนักพิมพ์: book.publisher || " ",
+      "จำนวน Fav": book.favorites || 0,
+      Edition: book.edition || " ",
+    }));
+
+    // ✅ สร้าง workbook/sheet ใหม่ทุกครั้ง
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+
+    worksheet["!cols"] = [
+      { wch: 5 },
+      { wch: 15 },
+      { wch: 40 },
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 10 },
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Export`);
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(blob, `BookExport_Round${round.id}_${year}.xlsx`);
+  } catch (error) {
+    console.error("❌ Failed to export Excel:", error);
+    alert("เกิดข้อผิดพลาดในการ export Excel");
+  }
 };
 
-import * as XLSX from 'xlsx'
-import { saveAs } from 'file-saver'
+// ฟังก์ชันสำหรับ export ข้อมูลเป็น PDF
+const exportToPDF = async (round) => {
+  try {
+    const year = new Date().getFullYear();
+    const res = await fetch(
+      `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
+      { credentials: "include" }
+    );
+    const data = await res.json();
 
-const exportToExcel = (round) => {
-  const data = [
-    { ID: 1, Name: 'Cone Beam CT', Favorites: 44 },
-    { ID: 2, Name: 'Wild Woman’s Way', Favorites: 21 },
-    // สมมุติข้อมูลที่ export จริง
-  ]
+    const doc = new jsPDF();
+    doc.text(`Book Export  Round ${round.id} (${round.label} ${year})`, 20, 20);
 
-  const worksheet = XLSX.utils.json_to_sheet(data)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, `Round-${round.id}`)
+    let y = 30;
+    data.forEach((book, index) => {
+      doc.setFontSize(14);
+      doc.text(`${index + 1}.  ISBN: ${book.isbn}`, 16, y);
+      y += 7;
 
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
-  const blob = new Blob([excelBuffer], { type: 'application/octet-stream' })
-  saveAs(blob, `BookExport_Round${round.id}.xlsx`)
-}
-import jsPDF from 'jspdf'
+      doc.text(`  Title: ${book.title}`, 20, y);
+      y += 7;
+      doc.text(`   Price: ${book.price} THB | year: ${book.year}`, 20, y);
+      y += 7;
+      doc.text(`   Publisher: ${book.publisher}`, 20, y);
+      y += 7;
+      doc.text(`   Favorites: ${book.favorites}`, 20, y);
+      y += 7;
+      doc.text(`   Edition: ${book.edition}`, 20, y);
+      y += 10;
+    });
 
-const exportToPDF = (round) => {
-  const doc = new jsPDF()
-  doc.text(`Book Export - Round ${round.id}`, 20, 20)
-
-  const mockBooks = [
-    'Cone Beam CT in Dentists and Medical Radiologists',
-    'Wild Woman’s Way',
-    'The Garden',
-  ]
-
-  mockBooks.forEach((book, index) => {
-    doc.text(`${index + 1}. ${book}`, 20, 30 + index * 10)
-  })
-
-  doc.save(`BookExport_Round${round.id}.pdf`)
-}
-
+    doc.save(`BookExport_Round${round.id}_${year}.pdf`);
+  } catch (error) {
+    console.error("❌ Failed to export PDF:", error);
+    alert("เกิดข้อผิดพลาดในการ export PDF");
+  }
+};
 </script>

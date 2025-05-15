@@ -248,4 +248,17 @@ public class BookController {
         return getCellString(row.getCell(columnMap.get(key)));
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateBookStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Optional<Book> bookOpt = bookRepository.findById(id);
+        if (bookOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Book book = bookOpt.get();
+        book.setStatus(body.get("status")); 
+        bookRepository.save(book);
+        return ResponseEntity.ok("Status updated.");
+    }
+
+
 }  

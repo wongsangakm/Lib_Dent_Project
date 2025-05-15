@@ -2,6 +2,7 @@ package com.example.project.repository;
 
 import com.example.project.model.BookFavorite;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,9 +21,12 @@ public interface FavoriteRepository extends JpaRepository<BookFavorite, Long> {
     FROM BookFavorite f
     GROUP BY f.book.id, f.book.bookTitle
     HAVING COUNT(f) > 0
-""")
-List<Object[]> countFavoritesByBook();
+    """)
+    List<Object[]> countFavoritesByBook();
+    List<BookFavorite> findByCreatedAtBefore(LocalDateTime cutoff);
 
+    @Query("SELECT f FROM BookFavorite f WHERE f.createdAt <= :cutoff")
+    List<BookFavorite> findAllBefore(@Param("cutoff") LocalDateTime cutoff);
 
     
 }
