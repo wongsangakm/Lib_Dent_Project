@@ -29,7 +29,7 @@ public class EmailService {
         helper.setSubject(subject);
         helper.setText(text, true); // true = HTML
         helper.setFrom("libdent.bookrequest@gmail.com", "LibDent Book Request");
-        helper.setReplyTo("kunyakon.p@kkumail.com");
+        helper.setReplyTo("libdent.bookrequest@gmail.com");
 
         mailSender.send(message);
         System.out.println("✅ Email sent successfully");
