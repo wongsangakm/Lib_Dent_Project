@@ -190,6 +190,7 @@ import { useRoute } from "vue-router";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+import { ElMessageBox } from 'element-plus'
 
 const route = useRoute();
 const bookData = ref(null);
@@ -247,6 +248,14 @@ const fetchBookData = async (bookId) => {
 
 const addToFavorite = async () => {
   if (isFavorited.value || isLoading.value) return;
+
+  const confirmed = await ElMessageBox.confirm(
+    `ต้องการเพิ่ม “${bookData.value.bookTitle}” เข้ารายการโปรดใช่หรือไม่?`,
+    'ยืนยันการเพิ่มรายการโปรด',
+    { confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', type: 'warning' }
+  ).then(() => true).catch(() => false);
+
+  if (!confirmed) return;
 
   isLoading.value = true;
   try {

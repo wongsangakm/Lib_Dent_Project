@@ -55,7 +55,7 @@ public class FavoriteController {
         favorite.setBook(book);
         favoriteRepository.save(favorite);
 
-        emailService.sendNotificationToAdmin(book.getBookTitle(), user.getEmail());
+        emailService.sendNotificationToAdmin(book.getBookTitle(), user);
 
         return ResponseEntity.ok(Map.of("success", true));
     }
