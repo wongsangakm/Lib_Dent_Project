@@ -8,8 +8,7 @@ import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.EmailService;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
