@@ -50,7 +50,7 @@
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
-
+import autoTable from "jspdf-autotable";
 const exportRounds = [
   { id: 1, name: "รอบที่ 1", deadline: "30 ธันวาคม", label: "May–December" },
   {
@@ -113,10 +113,9 @@ const exportToExcel = async (round) => {
   }
 };
 
-// ฟังก์ชันสำหรับ export ข้อมูลเป็น PDF
 const exportToPDF = async (round) => {
   try {
-    const year = new Date().getFullYear();
+    const year = new Date().getFullYear(); // ✅ ดึง year จาก system
     const res = await fetch(
       `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
       { credentials: "include" }
@@ -124,24 +123,43 @@ const exportToPDF = async (round) => {
     const data = await res.json();
 
     const doc = new jsPDF();
-    doc.text(`Book Export  Round ${round.id} (${round.label} ${year})`, 20, 20);
 
-    let y = 30;
-    data.forEach((book, index) => {
-      doc.setFontSize(14);
-      doc.text(`${index + 1}.  ISBN: ${book.isbn}`, 16, y);
-      y += 7;
+    doc.setFontSize(14);
+    doc.text(
+      `Book Export - Round ${round.id} (${round.deadline} ${year})`,
+      20,
+      20
+    );
 
-      doc.text(`  Title: ${book.title}`, 20, y);
-      y += 7;
-      doc.text(`   Price: ${book.price} THB | year: ${book.year}`, 20, y);
-      y += 7;
-      doc.text(`   Publisher: ${book.publisher}`, 20, y);
-      y += 7;
-      doc.text(`   Favorites: ${book.favorites}`, 20, y);
-      y += 7;
-      doc.text(`   Edition: ${book.edition}`, 20, y);
-      y += 10;
+    const tableData = data.map((book, i) => [
+      i + 1,
+      book.isbn || "-",
+      book.title || "-",
+      `${book.price?.toLocaleString() || "-"} THB`,
+      book.year || "-",
+      book.publisher || "-",
+      book.favorites || 0,
+      book.edition || "-",
+    ]);
+
+    autoTable(doc, {
+      head: [
+        [
+          "No.",
+          "ISBN",
+          "Title",
+          "Price",
+          "Year",
+          "Publisher",
+          "Favorites",
+          "Edition",
+        ],
+      ],
+      body: tableData,
+      startY: 30,
+      styles: { fontSize: 10 },
+      theme: "striped",
+      headStyles: { fillColor: [128, 90, 213] },
     });
 
     doc.save(`BookExport_Round${round.id}_${year}.pdf`);

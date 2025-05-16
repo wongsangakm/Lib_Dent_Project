@@ -5,33 +5,33 @@
       backgroundImage: `url(${bgImage})`,
     }"
   >
-    <div>
+    <div class="w-full">
       <div
         class="absolute top-[500px] bottom-0 left-0 right-0 bg-repeat-y"
         style="background-image: url('/images/bg_repeat.png')"
       ></div>
       <Header />
       <!-- Hero Section -->
-      <section class="pt-28">
+      <section class="pt-16 md:pt-28">
         <div
-          class="container mx-auto px-4 flex flex-col md:flex-row items-center"
+          class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-6"
         >
-          <div class="md:w-1/2 flex justify-end">
-            <img :src="dentdesign" class="w-64 h-64 object-cover" />
+          <div class="w-full md:w-1/2 flex justify-center md:justify-end order-2 md:order-1">
+            <img :src="dentdesign" class="w-48 h-48 md:w-64 md:h-64 object-cover" />
           </div>
-          <div class="md:w-1/2 text-center md:text-left">
-            <h1 class="text-5xl font-bold text-gray-800 mb-2 text-center">
+          <div class="w-full md:w-1/2 text-center md:text-left order-1 md:order-2">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2 text-center">
               BOOK
             </h1>
-            <h1 class="text-4xl font-bold text-gray-800 mb-4 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center">
               REQUEST
             </h1>
-            <div class="">
-              <p class="text-gray-600 text-center">
+            <div class="px-4">
+              <p class="text-sm md:text-base text-gray-600 text-center">
                 You can suggest books you'd like the dental library kku to
                 acquire
               </p>
-              <p class="text-gray-600 text-center">
+              <p class="text-sm md:text-base text-gray-600 text-center">
                 We welcome your recommendations and will consider them to
                 support your learning and research.
               </p>
@@ -45,7 +45,7 @@
         id="searchbook"
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
       >
-        <div class="p-12 max-w-lg mx-auto">
+        <div class="p-4 md:p-12 max-w-lg mx-auto">
           <!-- Search Bar -->
           <div class="flex w-full items-center space-x-2">
             <div class="relative w-full">
@@ -73,7 +73,7 @@
             </div>
             <button
               @click="searchBooks"
-              class="px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors"
+              class="px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
             >
               Search
             </button>
@@ -81,7 +81,7 @@
 
           <!-- Search Results -->
           <div v-if="filteredBooks.length > 0" class="mt-6">
-            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               <div
                 v-for="book in filteredBooks"
                 :key="book.id"
@@ -92,13 +92,13 @@
                     <img
                       :src="validCoverImage(book.coverImage)"
                       alt="Book Cover"
-                      class="w-[150px] h-[200px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                      class="w-[120px] h-[170px] md:w-[150px] md:h-[200px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
                     />
                   </router-link>
                   <button
                     @click="addToFavorite(book)"
                     :disabled="book.isFavorited || book.isLoading"
-                    class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-2 rounded-full shadow-lg"
+                    class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
                     :class="{
                       'text-red-500': book.isFavorited,
                       'text-gray-400 hover:text-red-300':
@@ -116,7 +116,7 @@
                   <p class="text-gray-500 text-xs italic truncate mt-2">
                     By {{ book.author }}
                   </p>
-                  <p class="mt-0 text-black-600 text-base font-bold truncate">
+                  <p class="mt-0 text-black-600 text-sm md:text-base font-bold truncate">
                     {{ book.bookTitle }}
                   </p>
                   <p class="text-gray-500 italic truncate text-xs">
@@ -128,7 +128,7 @@
                   <button
                     @click="addToFavorite(book)"
                     :disabled="book.isFavorited || book.isLoading"
-                    class="px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
+                    class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
                     :class="{
                       'bg-purple-600 hover:bg-purple-700':
                         !book.isFavorited && !book.isLoading,
@@ -137,11 +137,11 @@
                         book.isLoading || book.isFavorited,
                     }"
                   >
-                    <span class="text-sm">{{
-                      book.isFavorited ? "Added to Favorite" : "Add to Favorite"
+                    <span class="text-xs md:text-sm">{{
+                      book.isFavorited ? "Added" : "Add to Favorite"
                     }}</span>
                     <svg
-                      class="ml-2 w-6 h-6"
+                      class="ml-1 md:ml-2 w-4 h-4 md:w-6 md:h-6"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -168,9 +168,9 @@
         </div>
       </section>
       <!-- Favourite by Publisher -->
-      <section id="Favbypub" class="py-6 pt-5">
+      <section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
         <div class="container mx-auto px-4">
-          <h2 class="text-3xl mt-8 mb-4 font-bold text-gray-800 mb-4">
+          <h2 class="text-2xl md:text-3xl mt-4 md:mt-8 mb-2 md:mb-4 font-bold text-gray-800">
             Favourite by Publisher
           </h2>
           <div class="flex items-center space-x-2">
@@ -178,10 +178,10 @@
             <button
               v-if="showLeftArrow"
               @click="scrollLeft"
-              class="relative z-10 bg-purple-600 text-white rounded-full p-2 hover:bg-purple-700 transition-colors"
+              class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
             >
               <svg
-                class="w-5 h-5"
+                class="w-4 h-4 md:w-5 md:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -198,14 +198,14 @@
             <!-- Publisher Buttons -->
             <div
               ref="publisherContainer"
-              class="flex-1 flex space-x-3 overflow-x-auto pb-2 scroll-smooth"
+              class="flex-1 flex space-x-2 md:space-x-3 overflow-x-auto pb-2 scroll-smooth"
               @scroll="updateScrollPosition"
             >
               <button
                 v-for="publisher in publishers"
                 :key="publisher.name"
                 @click="selectPublisher(publisher.name)"
-                class="relative z-10 flex items-center px-4 py-2 rounded-lg shadow-md transition-colors whitespace-nowrap"
+                class="relative z-10 flex items-center px-2 md:px-4 py-1 md:py-2 rounded-lg shadow-md transition-colors whitespace-nowrap text-xs md:text-base"
                 :class="{
                   'bg-purple-600 text-white':
                     selectedPublisher === publisher.name,
@@ -214,7 +214,7 @@
                 }"
               >
                 <svg
-                  class="w-5 h-5 mr-2"
+                  class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -228,8 +228,8 @@
                   ></path>
                 </svg>
                 <span>{{ publisher.name }}</span>
-                <span class="ml-2 text-xs opacity-75"
-                  >{{ publisher.items }} Items</span
+                <span class="ml-1 md:ml-2 text-xs opacity-75"
+                  >{{ publisher.items }}</span
                 >
               </button>
             </div>
@@ -237,10 +237,10 @@
             <button
               v-if="showRightArrow"
               @click="scrollRight"
-              class="relative z-10 bg-purple-600 text-white rounded-full p-2 hover:bg-purple-700 transition-colors"
+              class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
             >
               <svg
-                class="w-5 h-5"
+                class="w-4 h-4 md:w-5 md:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -259,9 +259,9 @@
       </section>
 
       <!-- All Books Section -->
-      <section id="all-books" class="py-12">
+      <section id="all-books" class="py-6 md:py-12">
         <div class="container mx-auto px-4">
-          <h2 class="text-3xl font-bold text-gray-800 mb-8">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-8">
             {{
               selectedPublisher === "All Books"
                 ? "All Books"
@@ -270,7 +270,7 @@
           </h2>
           <div
             v-if="filteredBooksByPublisher.length > 0"
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6"
+            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
           >
             <div
               v-for="book in filteredBooksByPublisher"
@@ -282,14 +282,14 @@
                   <img
                     :src="validCoverImage(book.coverImage)"
                     alt="Book Cover"
-                    class="w-[160px] h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                    class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
                   />
                 </router-link>
                 <!-- Heart Button -->
                 <button
                   @click="addToFavorite(book)"
                   :disabled="book.isFavorited || book.isLoading"
-                  class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-2 rounded-full shadow-lg"
+                  class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
                   :class="{
                     'text-red-500': book.isFavorited,
                     'text-gray-400 hover:text-red-300':
@@ -307,7 +307,7 @@
                 <p class="text-gray-500 text-xs italic truncate mt-2">
                   By {{ book.author }}
                 </p>
-                <p class="mt-0 text-black-600 text-base font-bold truncate">
+                <p class="mt-0 text-black-600 text-xs md:text-base font-bold truncate">
                   {{ book.bookTitle }}
                 </p>
                 <p class="text-gray-500 italic truncate text-xs">
@@ -319,7 +319,7 @@
                 <button
                   @click="addToFavorite(book)"
                   :disabled="book.isFavorited || book.isLoading"
-                  class="px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
+                  class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
                   :class="{
                     'bg-purple-600 hover:bg-purple-700':
                       !book.isFavorited && !book.isLoading,
@@ -329,10 +329,10 @@
                   }"
                 >
                   <span class="text-xs">{{
-                    book.isFavorited ? "Added to Favorite" : "Add to Favorite"
+                    book.isFavorited ? "Added" : "Add to Favorite"
                   }}</span>
                   <svg
-                    class="ml-2 w-4 h-4"
+                    class="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -356,22 +356,22 @@
       </section>
 
       <!-- Why Shop with Us? Section -->
-      <section id="why" class="py-12 bg-purple-100 w-screen h-[400px]">
+      <section id="why" class="py-8 md:py-12 bg-purple-100 w-full">
         <div
-          class="container mx-auto px-4 h-full flex flex-col md:flex-row items-center justify-center"
+          class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6"
         >
-          <div class="md:w-1/2 mb-6 md:mb-0">
+          <div class="w-full md:w-1/2 mb-6 md:mb-0">
             <img
               src="https://via.placeholder.com/500x300"
               alt="Books"
-              class="rounded-lg shadow-lg"
+              class="rounded-lg shadow-lg w-full h-auto"
             />
           </div>
-          <div class="md:w-1/2 md:pl-8 justify-en">
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+          <div class="w-full md:w-1/2 md:pl-8">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
               Why Shop with Us?
             </h2>
-            <p class="text-gray-600 mb-4 flex d">
+            <p class="text-sm md:text-base text-gray-600 mb-4">
               We offer a wide selection of books from bestselling authors,
               competitive prices, and fast shipping. Discover your next favorite
               read with us!
@@ -600,5 +600,18 @@ function validCoverImage(url) {
 /* Add explicit cursor styles for favorite buttons */
 button:disabled {
   cursor: not-allowed !important;
+}
+
+/* Media query for smaller devices */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Ensure images don't overflow on small screens */
+img {
+  max-width: 100%;
 }
 </style>
