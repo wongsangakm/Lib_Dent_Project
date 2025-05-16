@@ -3,6 +3,7 @@ package com.example.project.model;
 import java.io.Serializable;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -27,5 +28,11 @@ public class User implements Serializable{
     private String email;
     @ElementCollection
     private List<Long> favBooks;
+    @Column(nullable = true)
+    private String firstName;
+
+    @Column(nullable = true)
+    private String lastName;
+
 }
 

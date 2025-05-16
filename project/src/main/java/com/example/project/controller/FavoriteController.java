@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 @RestController
@@ -89,6 +90,41 @@ public class FavoriteController {
         return ResponseEntity.ok(Map.of("isFavorited", isFav));
     }
 
+    @GetMapping("/popular")
+    public ResponseEntity<?> getMostFavoritedBooks() {
+        List<Object[]> result = favoriteRepository.countFavoritesByBook();
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Object[] row : result) {
+            Long bookId = (Long) row[0];
+            Long count = (Long) row[1];
+
+            bookRepository.findById(bookId).ifPresent(book -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("book", book);
+                map.put("count", count);
+                response.add(map);
+            });
+        }
+
+        return ResponseEntity.ok(response);
+    }
+    @GetMapping("/admin/favorite-counts")
+    public ResponseEntity<?> getFavoriteCountsForAdmin() {
+        List<Object[]> raw = favoriteRepository.countFavoritesByBook();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] row : raw) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("bookTitle", row[1]);
+            map.put("favoriteCount", row[2]);
+            result.add(map);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+
+
+
 
     @GetMapping("/ids")
     public ResponseEntity<?> getFavoriteBookIds(HttpSession session) {
@@ -100,6 +136,24 @@ public class FavoriteController {
         List<Long> bookIds = favoriteRepository.findBookIdsByUserId(userId);
         return ResponseEntity.ok(bookIds);
     }
+
+    @GetMapping("/book/{bookId}/users")
+    public ResponseEntity<?> getUsersWhoFavorited(@PathVariable Long bookId) {
+        List<BookFavorite> favs = favoriteRepository.findByBookId(bookId);
+        List<Map<String, Object>> users = favs.stream()
+            .map(fav -> {
+                User user = fav.getUser();
+                Map<String, Object> userMap = new HashMap<>();
+                userMap.put("id", user.getId());
+                userMap.put("name", user.getFirstName() + " " + user.getLastName());
+                return userMap;
+            })
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(users);
+    }
+
+
 
     
 }
