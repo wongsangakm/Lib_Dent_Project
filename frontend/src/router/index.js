@@ -46,9 +46,9 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore();
-
+  await new Promise(resolve => setTimeout(resolve, 0));
   // 1. ป้องกัน guest เข้า favbooks หรือ profile
   const mustLoginPages = ["/favbooks"];
   if (mustLoginPages.includes(to.path) && !auth.isAuthenticated) {
