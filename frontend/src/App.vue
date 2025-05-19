@@ -18,7 +18,7 @@ import AdminRequestTable from "./pages/AdminRequestTable.vue";
 import AdminRequestDetail from "./pages/AdminRequestDetail.vue";
 import AdminRoundExport from "./pages/AdminRoundExport.vue";
 import AdminLayout from "./pages/AdminLayout.vue";
-
+import AdminAddUser from "./pages/AdminAddUser.vue";
 const authStore = useAuthStore();
 // authStore.loadFromStorage();
 </script>

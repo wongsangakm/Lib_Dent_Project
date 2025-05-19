@@ -13,6 +13,7 @@ import AdminRequestTable from "@/pages/AdminRequestTable.vue";
 import AdminRequestDetail from "@/pages/AdminRequestDetail.vue";
 import AdminRoundExport from "@/pages/AdminRoundExport.vue";
 import AdminLayout from "@/pages/AdminLayout.vue";
+import AdminAddUser from "@/pages/AdminAddUser.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,6 +36,7 @@ const router = createRouter({
         { path: "adminbookdetail/:id", component: AdminBookDetail },
         { path: "round-export", component: AdminRoundExport },
         { path: "", redirect: "/admin/dashboard" },
+        { path: "AdminAddUser", component: AdminAddUser}
       ],
     },
   ],
