@@ -53,6 +53,7 @@ public class AdminFavoriteController {
 public ResponseEntity<?> exportByRound(
     @RequestParam int round,
     @RequestParam int year
+    
 ) {
     try {
         Set<Integer> months = switch (round) {
@@ -86,7 +87,19 @@ public ResponseEntity<?> exportByRound(
                 map.put("bookCover", book.getCoverImage());
                 map.put("publisher", book.getPublisher());
                 map.put("favorites", entry.getValue().size());
-                map.put("favourites",book.getEdition());
+                map.put("edition",book.getEdition());
+                List<String> userNames = entry.getValue().stream()
+                    .map(fav -> fav.getUser().getFirstName() + " " + fav.getUser().getLastName())
+                    .collect(Collectors.toList());
+
+                map.put("users", String.join(", ", userNames)); 
+                
+                List<String> userNamesEn = entry.getValue().stream()
+                    .map(fav -> fav.getUser().getFirstNameEn() + " " + fav.getUser().getLastNameEn())
+                    .collect(Collectors.toList());
+
+                map.put("usersEn", String.join(", ", userNamesEn)); 
+                
                 return map;
             })
             .toList();

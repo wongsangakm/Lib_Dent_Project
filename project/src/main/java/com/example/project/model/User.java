@@ -32,6 +32,13 @@ public class User implements Serializable{
 
     @Column(nullable = true)
     private String lastName;
+    
+    @Column(name = "first_name_en")
+    private String firstNameEn;
+
+    @Column(name = "last_name_en")
+    private String lastNameEn;
+
 
 }
 

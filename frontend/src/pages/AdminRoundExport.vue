@@ -51,15 +51,16 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
 const exportRounds = [
-  { id: 1, name: "รอบที่ 1", deadline: "30 ธันวาคม", label: "May–December" },
+  { id: 1, name: "รอบที่ 1", deadline: "30 December", label: "May–December" },
   {
     id: 2,
     name: "รอบที่ 2",
-    deadline: "28 กุมภาพันธ์",
+    deadline: "28 Febuary",
     label: "January–Febuary",
   },
-  { id: 3, name: "รอบที่ 3", deadline: "30 เมษายน", label: "March–April" },
+  { id: 3, name: "รอบที่ 3", deadline: "30 Aprill", label: "March–April" },
 ];
 
 const exportToExcel = async (round) => {
@@ -81,6 +82,8 @@ const exportToExcel = async (round) => {
       สำนักพิมพ์: book.publisher || " ",
       "จำนวน Fav": book.favorites || 0,
       Edition: book.edition || " ",
+      "รายชื่อผู้กด Favorite (TH)": book.users || "",
+      "รายชื่อผู้กด Favorite (EN)": book.usersEn || "",
     }));
 
     // ✅ สร้าง workbook/sheet ใหม่ทุกครั้ง
@@ -96,6 +99,8 @@ const exportToExcel = async (round) => {
       { wch: 20 },
       { wch: 12 },
       { wch: 10 },
+      { wch: 40 },
+      { wch: 40 },
     ];
 
     XLSX.utils.book_append_sheet(workbook, worksheet, `Export`);
@@ -140,6 +145,9 @@ const exportToPDF = async (round) => {
       book.publisher || "-",
       book.favorites || 0,
       book.edition || "-",
+      Array.isArray(book.usersEn)
+        ? book.usersEn.join(", ")
+        : book.usersEn || "-",
     ]);
 
     autoTable(doc, {
@@ -153,6 +161,7 @@ const exportToPDF = async (round) => {
           "Publisher",
           "Favorites",
           "Edition",
+          "Users",
         ],
       ],
       body: tableData,
