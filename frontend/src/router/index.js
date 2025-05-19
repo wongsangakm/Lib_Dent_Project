@@ -14,7 +14,7 @@ import AdminRequestDetail from "@/pages/AdminRequestDetail.vue";
 import AdminRoundExport from "@/pages/AdminRoundExport.vue";
 import AdminLayout from "@/pages/AdminLayout.vue";
 import AdminAddUser from "@/pages/AdminAddUser.vue";
-
+import ChangePassword from "@/pages/ChangePassword.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -23,7 +23,12 @@ const router = createRouter({
     { path: "/profile", name: "Profile", component: Profile },
     { path: "/book/:id", component: BookDetail },
     { path: "/favbooks", name: "Favbooks", component: Favbooks },
-
+    { path: "/favbooks", name: "Favbooks", component: Favbooks },
+    {
+      path: "/change-password",
+      name: "ChangePassword",
+      component: ChangePassword,
+    },
     {
       path: "/admin",
       component: AdminLayout,
@@ -36,7 +41,17 @@ const router = createRouter({
         { path: "adminbookdetail/:id", component: AdminBookDetail },
         { path: "round-export", component: AdminRoundExport },
         { path: "", redirect: "/admin/dashboard" },
-        { path: "AdminAddUser", component: AdminAddUser}
+        { path: "AdminAddUser", component: AdminAddUser },
+        {
+          path: "/admin/reset-password/:id",
+          name: "AdminResetPasswordDetail",
+          component: () => import("@/pages/AdminChangePassword.vue"),
+        },
+        {
+          path: "/admin/reset-password",
+          name: "AdminResetPasswordList",
+          component: () => import("@/pages/AdminResetPasswords.vue"),
+        },
       ],
     },
   ],
@@ -50,7 +65,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore();
-  await new Promise(resolve => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
   // 1. ป้องกัน guest เข้า favbooks หรือ profile
   const mustLoginPages = ["/favbooks"];
   if (mustLoginPages.includes(to.path) && !auth.isAuthenticated) {

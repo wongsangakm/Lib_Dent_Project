@@ -116,16 +116,22 @@
             </svg>
           </button>
 
-          <!-- Dropdown Logout -->
+          <!-- Dropdown Menu -->
           <div
             v-if="authStore.isAuthenticated && showDropdown"
-            class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-30"
+            class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-30"
           >
             <button
-              @click="handleLogout"
+              @click="goToChangePassword"
               class="w-full text-left px-4 py-2 text-gray-700 hover:bg-purple-100"
             >
-              Logout
+              Change Password
+            </button>
+            <button
+              @click="handleLogout"
+              class="w-full text-left px-4 py-2 text-red-700 hover:bg-purple-100"
+            >
+              Log out
             </button>
           </div>
         </div>
@@ -204,6 +210,10 @@ onMounted(() => {
   // Close the mobile menu when clicking outside
   document.addEventListener("click", handleClickOutside);
 });
+const goToChangePassword = () => {
+  showDropdown.value = false;
+  router.push("/change-password");
+};
 
 onUnmounted(() => {
   window.removeEventListener("resize", checkScreenSize);
@@ -251,7 +261,6 @@ onMounted(() => {
     favouritesStore.fetchFavourites();
   }
 });
-
 </script>
 
 <style scoped>
