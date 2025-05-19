@@ -185,14 +185,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox } from "element-plus";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const route = useRoute();
+const authStore = useAuthStore();
+const isLoggedIn = computed(() => authStore.isAuthenticated);
 const bookData = ref(null);
 const isLoading = ref(false);
 const isFavorited = ref(false);
@@ -222,7 +225,9 @@ onMounted(async () => {
 
   try {
     await fetchBookData(bookId);
-    await fetchFavoriteStatus(bookId);
+    if (isLoggedIn.value) {
+      await fetchFavoriteStatus(bookId);
+    }
   } catch (error) {
     console.error("Error during initialization:", error);
   } finally {
@@ -249,11 +254,19 @@ const fetchBookData = async (bookId) => {
 const addToFavorite = async () => {
   if (isFavorited.value || isLoading.value) return;
 
+  // Check if user is logged in
+  if (!isLoggedIn.value) {
+    alert("กรุณาเข้าสู่ระบบก่อนกด Favorite");
+    return;
+  }
+
   const confirmed = await ElMessageBox.confirm(
-    `ต้องการเพิ่ม “${bookData.value.bookTitle}” เข้ารายการโปรดใช่หรือไม่?`,
-    'ยืนยันการเพิ่มรายการโปรด',
-    { confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', type: 'warning' }
-  ).then(() => true).catch(() => false);
+    `ต้องการเพิ่ม "${bookData.value.bookTitle}" เข้ารายการโปรดใช่หรือไม่?`,
+    "ยืนยันการเพิ่มรายการโปรด",
+    { confirmButtonText: "ยืนยัน", cancelButtonText: "ยกเลิก", type: "warning" }
+  )
+    .then(() => true)
+    .catch(() => false);
 
   if (!confirmed) return;
 
@@ -281,6 +294,8 @@ const addToFavorite = async () => {
 };
 
 const fetchFavoriteStatus = async (bookId) => {
+  if (!isLoggedIn.value) return;
+
   try {
     const response = await fetch(
       `http://localhost:8080/api/auth/favorites/${bookId}`,
