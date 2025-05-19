@@ -10,7 +10,7 @@
         class="absolute top-[500px] bottom-0 left-0 right-0 bg-repeat-y z-0"
         style="background-image: url('/images/bg_repeat.png')"
       ></div>
-  <div class="min-h-screen bg-gray-50 py-12 px-4">
+  <div class="pt-16 md:pt-28">
     <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md relative z-10">
       <h1 class="text-2xl font-bold text-purple-700 mb-6 text-center">
         Additional Book Request
