@@ -169,94 +169,108 @@
       </section>
       <!-- Favourite by Publisher -->
       <section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
-        <div class="container mx-auto px-4">
-          <h2 class="text-2xl md:text-3xl mt-4 md:mt-8 mb-2 md:mb-4 font-bold text-gray-800">
-            Favourite by Publisher
-          </h2>
-          <div class="flex items-center space-x-2">
-            <!-- Left Arrow -->
-            <button
-              v-if="showLeftArrow"
-              @click="scrollLeft"
-              class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
-            >
-              <svg
-                class="w-4 h-4 md:w-5 md:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                ></path>
-              </svg>
-            </button>
-            <!-- Publisher Buttons -->
-            <div
-              ref="publisherContainer"
-              class="flex-1 flex space-x-2 md:space-x-3 overflow-x-auto pb-2 scroll-smooth"
-              @scroll="updateScrollPosition"
-            >
-              <button
-                v-for="publisher in publishers"
-                :key="publisher.name"
-                @click="selectPublisher(publisher.name)"
-                class="relative z-10 flex items-center px-2 md:px-4 py-1 md:py-2 rounded-lg shadow-md transition-colors whitespace-nowrap text-xs md:text-base"
-                :class="{
-                  'bg-purple-600 text-white':
-                    selectedPublisher === publisher.name,
-                  'bg-white text-gray-600 hover:bg-gray-100':
-                    selectedPublisher !== publisher.name,
-                }"
-              >
-                <svg
-                  class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"
-                  ></path>
-                </svg>
-                <span>{{ publisher.name }}</span>
-                <span class="ml-1 md:ml-2 text-xs opacity-75"
-                  >{{ publisher.items }}</span
-                >
-              </button>
-            </div>
-            <!-- Right Arrow -->
-            <button
-              v-if="showRightArrow"
-              @click="scrollRight"
-              class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
-            >
-              <svg
-                class="w-4 h-4 md:w-5 md:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                ></path>
-              </svg>
-            </button>
-          </div>
-        </div>
+  <div class="container mx-auto px-4">
+    <!-- หัวข้อ + ปุ่ม Additional Request -->
+    <div class="flex justify-between items-center mt-4 md:mt-8 mb-2 md:mb-4">
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+        Favourite by Publisher
+      </h2>
+      <button
+        @click="goToAdditionalRequest"
+        class="relative z-50 px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
+      >Additional Request
+      </button>
+
+    </div>
+
+    <!-- ลูกศร + ปุ่ม Publisher -->
+    <div class="flex items-center space-x-2">
+      <!-- Left Arrow -->
+      <button
+        v-if="showLeftArrow"
+        @click="scrollLeft"
+        class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
+      >
+        <svg
+          class="w-4 h-4 md:w-5 md:h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          ></path>
+        </svg>
+      </button>
+
+      <!-- Publisher Buttons -->
+      <div
+        ref="publisherContainer"
+        class="flex-1 flex space-x-2 md:space-x-3 overflow-x-auto pb-2 scroll-smooth"
+        @scroll="updateScrollPosition"
+      >
+        <button
+          v-for="publisher in publishers"
+          :key="publisher.name"
+          @click="selectPublisher(publisher.name)"
+          class="relative z-10 flex items-center px-2 md:px-4 py-1 md:py-2 rounded-lg shadow-md transition-colors whitespace-nowrap text-xs md:text-base"
+          :class="{
+            'bg-purple-600 text-white':
+              selectedPublisher === publisher.name,
+            'bg-white text-gray-600 hover:bg-gray-100':
+              selectedPublisher !== publisher.name,
+          }"
+        >
+          <svg
+            class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"
+            ></path>
+          </svg>
+          <span>{{ publisher.name }}</span>
+          <span class="ml-1 md:ml-2 text-xs opacity-75">
+            {{ publisher.items }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Right Arrow -->
+      <button
+        v-if="showRightArrow"
+        @click="scrollRight"
+        class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
+      >
+        <svg
+          class="w-4 h-4 md:w-5 md:h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
       </section>
+
 
       <!-- All Books Section -->
       <section id="all-books" class="py-6 md:py-12">
@@ -388,6 +402,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
@@ -397,6 +412,7 @@ import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 
+const router = useRouter()
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
@@ -407,6 +423,10 @@ const scrollToSection = (sectionId) => {
     element.scrollIntoView({ behavior: "smooth" });
   }
 };
+const goToAdditionalRequest = () => {
+  router.push('/additional');
+}
+
 
 const publishers = ref([
   { name: "All Books", items: 0 },

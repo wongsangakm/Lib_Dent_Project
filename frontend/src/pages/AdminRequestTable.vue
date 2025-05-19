@@ -7,7 +7,32 @@
     >
       All Book Requested
     </h1>
-
+<!-- Tabs -->
+<div class="flex justify-center mb-4">
+  <button
+    @click="activeTab = 'admin'"
+    :class="[
+      'px-4 py-2 rounded-t font-semibold',
+      activeTab === 'admin'
+        ? 'bg-purple-600 text-white'
+        : 'bg-gray-200 text-gray-700',
+    ]"
+  >
+    All Book Requested
+  </button>
+  <button
+    @click="activeTab = 'user'"
+    :class="[
+      'px-4 py-2 rounded-t font-semibold',
+      activeTab === 'user'
+        ? 'bg-purple-600 text-white'
+        : 'bg-gray-200 text-gray-700',
+    ]"
+  >
+    Additional Requests
+  </button>
+</div>
+<div v-if="activeTab === 'admin'">
     <div class="bg-white shadow-md rounded-xl overflow-hidden">
       <!-- Header Controls -->
       <div class="flex flex-col sm:flex-row justify-between gap-2 p-4 border-b">
@@ -151,17 +176,51 @@
       </div>
     </div>
   </div>
+</div>
+<div v-if="activeTab === 'user'" class="p-4 space-y-4">
+  <div v-if="userRequests.length === 0" class="text-center text-gray-500">
+    No additional requests yet.
+  </div>
+
+  <div
+    v-for="req in userRequests"
+    :key="req.id"
+    class="bg-white shadow rounded-xl p-4 border"
+  >
+    <div class="text-purple-800 font-bold mb-1">{{ req.bookTitle }}</div>
+    <div class="text-sm text-gray-600 mb-1">ISBN: {{ req.isbn || 'N/A' }}</div>
+    <div class="text-sm text-gray-600">Requested by: {{ req.userUsername }}</div>
+  </div>
+</div>
+
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 
+const activeTab = ref("admin"); 
+const userRequests = ref([]);  
 const allRequests = ref([]);
 const isMobile = ref(window.innerWidth <= 768);
 const filters = ref({
   search: "",
   status: "",
 });
+
+const loadUserRequests = async () => {
+  try {
+    const res = await fetch("http://localhost:8080/api/user-book-requests");
+    const data = await res.json();
+    userRequests.value = data;
+  } catch (err) {
+    console.error("❌ Failed to load user requests:", err);
+  }
+};
+
+watch(activeTab, (newTab) => {
+  if (newTab === "user") loadUserRequests();
+});
+
 
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth <= 768;
