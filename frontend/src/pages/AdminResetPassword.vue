@@ -3,8 +3,13 @@
   <div class="min-h-screen bg-white">
     <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <!-- Page Header -->
-      <div class="border-b border-gray-200 pb-5 mb-6">
+      <div class="border-b border-gray-200 pb-5 mb-6 ">
         <h2 class="text-2xl font-bold text-gray-800">รายการผู้ใช้งาน</h2>
+          <p class="text-purple-600 text-xs sm:text-sm mt-4">
+            <span class="text-red-500 font-bold mr-1">**</span>
+              รหัสผ่านจะรีเซ็ทเป็น 123456
+            <span class="text-red-500 font-bold ml-1">**</span>
+          </p>
       </div>
 
       <!-- Loading State -->
