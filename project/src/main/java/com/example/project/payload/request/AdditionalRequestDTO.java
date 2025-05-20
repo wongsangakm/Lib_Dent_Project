@@ -25,7 +25,7 @@ public class AdditionalRequestDTO {
     private Integer year;
 
     @NotNull
-    private Float price;
+    private double price;
 
     private String description;
 

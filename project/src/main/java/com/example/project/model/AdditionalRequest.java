@@ -16,16 +16,12 @@ public class AdditionalRequest {
     private String publisher;
     private Integer isbn;
     private Integer year;
-    private Float price;
+    private double price;
     
     @Column(length = 1000)
     private String description;
 
     @Column(length = 1000)
     private String reason;
-
-    public void setPrice(Float price2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPrice'");
-    }
+    
 }
