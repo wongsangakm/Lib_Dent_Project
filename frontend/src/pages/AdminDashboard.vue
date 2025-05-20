@@ -1,99 +1,115 @@
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-white to-purple-50 py-12 px-4"
-  >
-    <h1 class="text-2xl font-bold text-center text-gray-800 mb-8">
-      Book Interest Survey Report
+  <div class="bg-white p-8 rounded-xl shadow-md">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">
+      Book Interest Survey Dashboard
     </h1>
-    <div class="max-w-xl mx-auto">
-      <Pie :data="chartData" :options="chartOptions" />
+
+    <!-- Tab Navigation -->
+    <div class="mb-6 flex border-b">
+      <button
+        class="py-2 px-4 font-medium"
+        :class="
+          activeTab === 'overview'
+            ? 'text-blue-600 border-b-2 border-blue-600'
+            : 'text-gray-500'
+        "
+        @click="activeTab = 'overview'"
+      >
+        ภาพรวม
+      </button>
+      <button
+        class="py-2 px-4 font-medium"
+        :class="
+          activeTab === 'byField'
+            ? 'text-blue-600 border-b-2 border-blue-600'
+            : 'text-gray-500'
+        "
+        @click="activeTab = 'byField'"
+      >
+        แยกตามสาขา
+      </button>
+      <button
+        class="py-2 px-4 font-medium"
+        :class="
+          activeTab === 'heatmap'
+            ? 'text-blue-600 border-b-2 border-blue-600'
+            : 'text-gray-500'
+        "
+        @click="activeTab = 'heatmap'"
+      >
+        ความสัมพันธ์
+      </button>
     </div>
 
+    <!-- Overview Tab -->
+    <OverviewTab
+      v-if="activeTab === 'overview'"
+      :academic-fields="academicFields"
+      :top-books="topBooks"
+    />
 
+    <!-- By Field Tab -->
+    <ByFieldTab
+      v-if="activeTab === 'byField'"
+      :academic-fields="academicFields"
+      :book-interest-by-field="bookInterestByField"
+      v-model:selected-field="selectedField"
+    />
+
+    <!-- Heatmap Tab -->
+    <HeatmapTab v-if="activeTab === 'heatmap'" />
+
+    <!-- Insight -->
+    <div class="mt-8 bg-gray-50 p-4 rounded-lg">
+      <h2 class="text-lg font-medium text-gray-700 mb-2">คำแนะนำจากข้อมูล</h2>
+      <ul class="list-disc pl-5 space-y-1 text-gray-600">
+        <li>
+          สาขาเภสัชศาสตร์มีความสนใจในหนังสือ "Principles and Practice of
+          Pharmacovigilance" มากที่สุด (65%)
+        </li>
+        <li>
+          สาขาทันตแพทยศาสตร์มีความสนใจในหนังสือ "Manual of Orthognathic Surgery"
+          มากที่สุด (70%)
+        </li>
+        <li>
+          หนังสือ "Principles and Practice of Pharmacovigilance"
+          ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน
+        </li>
+        <li>
+          สาขาสาธารณสุขศาสตร์มีความสนใจในหนังสือ "Drug Safety Guide" มากที่สุด
+          (50%)
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { Pie } from "vue-chartjs";
-import { Chart as ChartJS, Title, Tooltip, ArcElement, Legend } from "chart.js";
-import ChartDataLabels from "chartjs-plugin-datalabels";
-
-ChartJS.register(Title, Tooltip, ArcElement, Legend, ChartDataLabels);
-
-const chartData = ref({ labels: [], datasets: [] });
-const chartOptions = {
-  plugins: {
-    legend: { display: false },
-    datalabels: {
-      color: "#fff",
-      font: { weight: "bold", size: 14 },
-      formatter: (value, context) => {
-        const label = context.chart.data.labels[context.dataIndex];
-        const total = context.chart.data.datasets[0].data.reduce(
-          (a, b) => a + b,
-          0
-        );
-        const percentage = ((value / total) * 100).toFixed(0);
-        return `${wrapText(label)}\n${percentage}%`;
-      },
-    },
-  },
-};
-
-function wrapText(text, maxCharPerLine = 15) {
-  const words = text.split(" ");
-  const lines = [];
-  let currentLine = "";
-
-  for (const word of words) {
-    if ((currentLine + " " + word).trim().length <= maxCharPerLine) {
-      currentLine += " " + word;
-    } else {
-      lines.push(currentLine.trim());
-      currentLine = word;
-    }
-  }
-  lines.push(currentLine.trim());
-  return lines.join("\n");
-}
+import OverviewTab from "./tabs/OverviewTab.vue";
+import ByFieldTab from "./tabs/ByFieldTab.vue";
+import HeatmapTab from "./tabs/HeatmapTab.vue";
+import axios from "axios";
+const activeTab = ref("overview");
+const bookInterestByField = ref({});
+const academicFields = ref([]);
+const topBooks = ref([]);
 
 onMounted(async () => {
   try {
-    const res = await fetch("http://localhost:8080/api/admin/favorite-counts", {
-      credentials: "include",
-    });
-    const raw = await res.json(); // [{ bookTitle, favoriteCount }]
+    const [fieldRes, bookRes, topRes] = await Promise.all([
+      axios.get("http://localhost:8080/api/admin/active-users-by-field"),
+      axios.get("http://localhost:8080/api/admin/favorite-books-by-field"),
+      axios.get("http://localhost:8080/api/admin/top-books"),
+    ]);
 
-    console.log("📊 Raw data:", raw);
-    // จัดอันดับมาก → น้อย
-    const sorted = raw.sort((a, b) => b.favoriteCount - a.favoriteCount);
-    const top3 = sorted.slice(0, 3);
-    const othersTotal = sorted
-      .slice(3)
-      .reduce((sum, b) => sum + b.favoriteCount, 0);
-
-    const labels = top3.map((b) => b.bookTitle);
-    const dataValues = top3.map((b) => b.favoriteCount);
-
-    if (othersTotal > 0) {
-      labels.push("Others");
-      dataValues.push(othersTotal);
-    }
-
-    chartData.value = {
-      labels,
-      datasets: [
-        {
-          data: dataValues,
-          backgroundColor: ["#1E3A8A", "#F59E0B", "#EC4899", "#6366F1"],
-          borderColor: "#ffffff",
-          borderWidth: 2,
-        },
-      ],
-    };
+    academicFields.value = fieldRes.data;
+    bookInterestByField.value = bookRes.data;
+    topBooks.value = topRes.data; // ✅ ตัวแปรนี้ใช้ได้แล้ว
   } catch (err) {
-    console.error("❌ Failed to load chart data:", err);
+    console.error("โหลดข้อมูล dashboard ล้มเหลว", err);
   }
 });
+
+
 </script>

@@ -11,8 +11,6 @@
       </router-link>
     </div>
 
-
-
     <div class="flex justify-between items-center mb-4">
       <input
         v-model="searchText"
@@ -53,7 +51,7 @@
           :to="`/admin/adminbookdetail/${book.id}`"
           class="mt-3 px-4 py-1 bg-purple-500 text-white rounded-full text-sm hover:bg-purple-600 transition"
         >
-          More
+          edit
         </router-link>
       </div>
     </div>

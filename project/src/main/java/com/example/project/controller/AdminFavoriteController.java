@@ -49,69 +49,168 @@ public class AdminFavoriteController {
 
         return ResponseEntity.ok(result);
     }
-@GetMapping("/export/favorites")
-public ResponseEntity<?> exportByRound(
-    @RequestParam int round,
-    @RequestParam int year
-    
-) {
-    try {
-        Set<Integer> months = switch (round) {
-            case 1 -> Set.of(5,6,7,8,9,10,11,12);
-            case 2 -> Set.of(1,2);
-            case 3 -> Set.of(3,4);
-            default -> throw new IllegalArgumentException("Invalid round");
-        };
+    @GetMapping("/export/favorites")
+    public ResponseEntity<?> exportByRound(
+        @RequestParam int round,
+        @RequestParam int year
+        
+    ) {
+        try {
+            Set<Integer> months = switch (round) {
+                case 1 -> Set.of(5,6,7,8,9,10,11,12);
+                case 2 -> Set.of(1,2);
+                case 3 -> Set.of(3,4);
+                default -> throw new IllegalArgumentException("Invalid round");
+            };
 
-        List<BookFavorite> favs = favoriteRepository.findAll();
+            List<BookFavorite> favs = favoriteRepository.findAll();
 
-        // filter รอบ + ปี
-        List<BookFavorite> filteredFavs = favs.stream()
-            .filter(fav -> {
-                LocalDateTime created = fav.getCreatedAt();
-                return created.getYear() == year && months.contains(created.getMonthValue());
-            }).toList();
+            // filter รอบ + ปี
+            List<BookFavorite> filteredFavs = favs.stream()
+                .filter(fav -> {
+                    LocalDateTime created = fav.getCreatedAt();
+                    return created.getYear() == year && months.contains(created.getMonthValue());
+                }).toList();
 
-        // group by book
-        Map<Long, List<BookFavorite>> grouped = filteredFavs.stream()
-            .collect(Collectors.groupingBy(f -> f.getBook().getId()));
+            // group by book
+            Map<Long, List<BookFavorite>> grouped = filteredFavs.stream()
+                .collect(Collectors.groupingBy(f -> f.getBook().getId()));
 
-        List<Map<String, Object>> result = grouped.entrySet().stream()
-            .map(entry -> {
-                Book book = entry.getValue().get(0).getBook(); // ดึง book จากรายการแรก
-                Map<String, Object> map = new HashMap<>();
-                map.put("title", book.getBookTitle());
-                map.put("isbn", book.getIsbn());
-                map.put("price", book.getPrice());
-                map.put("year", book.getYear());
-                map.put("bookCover", book.getCoverImage());
-                map.put("publisher", book.getPublisher());
-                map.put("favorites", entry.getValue().size());
-                map.put("edition",book.getEdition());
-                List<String> userNames = entry.getValue().stream()
-                    .map(fav -> fav.getUser().getFirstName() + " " + fav.getUser().getLastName())
-                    .collect(Collectors.toList());
+            List<Map<String, Object>> result = grouped.entrySet().stream()
+                .map(entry -> {
+                    Book book = entry.getValue().get(0).getBook(); // ดึง book จากรายการแรก
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("title", book.getBookTitle());
+                    map.put("isbn", book.getIsbn());
+                    map.put("price", book.getPrice());
+                    map.put("year", book.getYear());
+                    map.put("bookCover", book.getCoverImage());
+                    map.put("publisher", book.getPublisher());
+                    map.put("favorites", entry.getValue().size());
+                    map.put("edition",book.getEdition());
+                    List<String> userNames = entry.getValue().stream()
+                        .map(fav -> fav.getUser().getFirstName() + " " + fav.getUser().getLastName())
+                        .collect(Collectors.toList());
 
-                map.put("users", String.join(", ", userNames)); 
-                
-                List<String> userNamesEn = entry.getValue().stream()
-                    .map(fav -> fav.getUser().getFirstNameEn() + " " + fav.getUser().getLastNameEn())
-                    .collect(Collectors.toList());
+                    map.put("users", String.join(", ", userNames)); 
+                    
+                    List<String> userNamesEn = entry.getValue().stream()
+                        .map(fav -> fav.getUser().getFirstNameEn() + " " + fav.getUser().getLastNameEn())
+                        .collect(Collectors.toList());
 
-                map.put("usersEn", String.join(", ", userNamesEn)); 
-                
-                return map;
-            })
-            .toList();
+                    map.put("usersEn", String.join(", ", userNamesEn)); 
+                    
+                    return map;
+                })
+                .toList();
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: " + e.getMessage());
+        }
+    }
+    @GetMapping("/active-users-by-field")
+    public ResponseEntity<?> getActiveUserDistributionByField() {
+        List<Object[]> raw = favoriteRepository.countUsersByAcademicField();
+
+        List<Map<String, Object>> result = raw.stream().map(row -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", row[0]);   // สาขา
+            map.put("value", row[1]);  // จำนวนคน
+            return map;
+        }).collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Error: " + e.getMessage());
     }
+
+@GetMapping("/favorite-books-by-field")
+public ResponseEntity<?> getFavoriteBooksGroupedByField() {
+    List<BookFavorite> all = favoriteRepository.findAll();
+
+    // group by สาขา
+    Map<String, List<BookFavorite>> grouped = all.stream()
+        .filter(fav -> fav.getUser().getAcademicField() != null)
+        .collect(Collectors.groupingBy(
+            fav -> fav.getUser().getAcademicField().getNameTh()
+        ));
+
+    Map<String, List<Map<String, Object>>> result = new HashMap<>();
+
+    for (Map.Entry<String, List<BookFavorite>> entry : grouped.entrySet()) {
+        String field = entry.getKey();
+
+        // group by หนังสือ → set ของ user IDs
+        Map<String, Set<Long>> bookToUsers = entry.getValue().stream()
+            .collect(Collectors.groupingBy(
+                fav -> fav.getBook().getBookTitle(),
+                Collectors.mapping(fav -> fav.getUser().getId(), Collectors.toSet())
+            ));
+
+        // แปลงเป็น list + limit top 10
+        List<Map<String, Object>> books = bookToUsers.entrySet().stream()
+            .map(e -> {
+                Map<String, Object> m = new HashMap<>();
+                m.put("name", e.getKey());
+                m.put("value", e.getValue().size()); // ✅ จำนวนคน
+                return m;
+            })
+            .sorted((a, b) -> ((Integer) b.get("value")) - ((Integer) a.get("value")))
+            .limit(10)
+            .collect(Collectors.toList());
+
+        result.put(field, books);
+    }
+
+    return ResponseEntity.ok(result);
 }
+
+
+    @GetMapping("/top-books")
+    public ResponseEntity<?> getTopBooks() {
+        List<BookFavorite> allFavs = favoriteRepository.findAll();
+      // รวมจำนวน favorite ตามชื่อหนังสือ
+    Map<String, Long> bookCounts = allFavs.stream()
+        .collect(Collectors.groupingBy(
+            fav -> fav.getBook().getBookTitle(),
+            Collectors.counting()
+        ));
+
+    // เรียงจากมากไปน้อย
+    List<Map<String, Object>> sorted = bookCounts.entrySet().stream()
+        .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+        .map(entry -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", entry.getKey());
+            map.put("value", entry.getValue());
+            return map;
+        })
+        .toList();
+
+    // เอา Top 10
+    List<Map<String, Object>> top10 = sorted.stream().limit(10).toList();
+
+    // รวมยอดที่เหลือ
+    long othersTotal = sorted.stream()
+        .skip(10)
+        .mapToLong(item -> (Long) item.get("value"))
+        .sum();
+
+    // ถ้ามีหนังสืออื่นนอกเหนือจาก Top 10
+    if (othersTotal > 0) {
+        Map<String, Object> others = new HashMap<>();
+        others.put("name", "อื่น ๆ");
+        others.put("value", othersTotal);
+        top10 = new ArrayList<>(top10); // ทำให้ editable
+        top10.add(others);
+    }
+
+    return ResponseEntity.ok(top10);
+    }
+
+
 
 
 

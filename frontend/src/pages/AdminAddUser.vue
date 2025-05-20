@@ -174,6 +174,22 @@
             </select>
           </div>
 
+          <select
+            id="branch"
+            v-model="form.branchId"
+            :required="form.role !== 'ADMIN'"
+            class="w-full px-3 py-2 mb-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-gray-50 transition duration-200 appearance-none text-xs sm:text-sm"
+          >
+            <option value="" disabled>-- เลือกสาขาวิชา --</option>
+            <option
+              v-for="field in academicFields"
+              :key="field.id"
+              :value="field.id"
+            >
+              {{ field.name_th }}
+            </option>
+          </select>
+
           <!-- Submit Button -->
           <button
             type="submit"
@@ -270,15 +286,21 @@ const form = ref({
   lastNameEn: "",
   email: "",
   role: "",
+  branchId: "",
 });
+const academicFields = ref([]);
 
-// UI state
-const isSubmitting = ref(false);
-const successMessage = ref("");
-const errorMessage = ref("");
+onMounted(async () => {
+  // โหลด academicFields
+  try {
+    const res = await fetch("http://localhost:8080/api/fields");
+    academicFields.value = await res.json();
+    console.log("📦 ได้ข้อมูลสาขา:", academicFields.value);
+  } catch (err) {
+    console.error("โหลดสาขาวิชาไม่สำเร็จ", err);
+  }
 
-// Load data from localStorage
-onMounted(() => {
+  // โหลด localStorage
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
@@ -288,6 +310,11 @@ onMounted(() => {
     }
   }
 });
+
+// UI state
+const isSubmitting = ref(false);
+const successMessage = ref("");
+const errorMessage = ref("");
 
 // Generate username automatically
 watch(
@@ -324,6 +351,12 @@ const handleSubmit = async () => {
     // Simulate API call to backend
     // In production, replace with actual API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    if (form.value.role !== "ADMIN" && !form.value.branchId) {
+      errorMessage.value = "กรุณาเลือกสาขาวิชา";
+      isSubmitting.value = false;
+      return;
+    }
 
     const res = await fetch("http://localhost:8080/api/users", {
       method: "POST",

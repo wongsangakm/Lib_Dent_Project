@@ -28,5 +28,14 @@ public interface FavoriteRepository extends JpaRepository<BookFavorite, Long> {
     @Query("SELECT f FROM BookFavorite f WHERE f.createdAt <= :cutoff")
     List<BookFavorite> findAllBefore(@Param("cutoff") LocalDateTime cutoff);
 
-    
+
+    @Query("""
+    SELECT u.academicField.nameTh, COUNT(DISTINCT u.id)
+    FROM BookFavorite f
+    JOIN f.user u
+    WHERE u.academicField IS NOT NULL
+    GROUP BY u.academicField.nameTh
+""")
+List<Object[]> countUsersByAcademicField();
+
 }
