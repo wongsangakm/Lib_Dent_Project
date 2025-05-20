@@ -2,7 +2,7 @@
   <div class="min-h-screen px-4 py-6 sm:px-8 sm:py-10 bg-gradient-to-br from-white to-purple-50">
     <div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-6 border">
       <h1 class="text-xl sm:text-2xl font-bold text-purple-700 mb-6 text-center">
-        Additional Request Details
+        Your Book Request Details
       </h1>
 
       <div v-if="loading" class="text-center text-gray-500">Loading...</div>
@@ -15,28 +15,16 @@
         <div><label>Year:</label> <div>{{ request.year || '-' }}</div></div>
         <div><label>Price:</label> <div>{{ request.price || '-' }} ฿</div></div>
         <div><label>Reason:</label> <div class="whitespace-pre-line">{{ request.reason || '-' }}</div></div>
-        <div><label>Requested By:</label> <div>{{ request.requestedBy || 'N/A' }}</div></div>
+        <div><label>Status:</label> <div>{{ request.status || '-' }}</div></div>
         <div><label>Requested Date:</label><div>{{ formatDate(request.requestDate) }}</div></div>
       </div>
 
-      <div class="mt-6 flex flex-wrap justify-center gap-4">
-        <!-- <button
-          @click="approveRequest"
-          class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2 rounded-full transition"
-        >
-          Approve Request
-        </button> -->
-        <button
-          @click="deleteRequest"
-          class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2 rounded-full transition"
-        >
-          Delete Request
-        </button>
+      <div class="mt-6 flex justify-center">
         <router-link
-          to="/admin/request-table"
+          to="/user/request-history"
           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium px-5 py-2 rounded-full transition"
         >
-          Back
+          Back to History
         </router-link>
       </div>
     </div>
@@ -56,7 +44,7 @@ const loading = ref(true);
 
 const loadRequest = async () => {
   try {
-    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}`, {
+    const res = await fetch(`http://localhost:8080/api/user/requests/${requestId}`, {
       credentials: 'include'
     });
     if (!res.ok) throw new Error("Request not found");
@@ -71,48 +59,11 @@ const loadRequest = async () => {
 const formatDate = (dateStr) => {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("th-TH", {
     year: "numeric",
-    month: "short",
-    day: "2-digit"
+    month: "long",
+    day: "numeric"
   });
-};
-
-
-// const approveRequest = async () => {
-//   const confirmApprove = confirm("Are you sure you want to approve this request?");
-//   if (!confirmApprove) return;
-
-//   try {
-//     const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/approve`, {
-//       method: 'PUT',
-//       credentials: 'include'
-//     });
-//     if (!res.ok) throw new Error("Approval failed");
-//     alert("✅ Request approved successfully");
-//     router.push("/admin/request-table");
-//   } catch (err) {
-//     console.error("❌ Approval error:", err);
-//     alert("Approval failed. Please try again.");
-//   }
-// };
-
-const deleteRequest = async () => {
-  const confirmDelete = confirm("Are you sure you want to delete this request?");
-  if (!confirmDelete) return;
-
-  try {
-    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}`, {
-      method: 'DELETE',
-      credentials: 'include'
-    });
-    if (!res.ok) throw new Error("Delete failed");
-    alert("🗑️ Request deleted successfully");
-    router.push("/admin/request-table");
-  } catch (err) {
-    console.error("❌ Delete error:", err);
-    alert("Delete failed. Please try again.");
-  }
 };
 
 onMounted(loadRequest);

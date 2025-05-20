@@ -9,11 +9,24 @@
         class="absolute top-[500px] bottom-0 left-0 right-0 bg-repeat-y z-0"
         style="background-image: url('/images/bg_repeat.png')"
       ></div>
-      <div class="pt-16 md:pt-28">
+<div class="pt-8 md:pt-8">
+  <!-- ปุ่ม view history -->
+  <div class="max-w-xl mx-auto text-right mb-4">
+    <router-link
+      to="/favbooks"
+      class="inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition"
+    >
+      🧾 View Request History
+    </router-link>
+  </div>
+  </div>
+
+      <div class="pt-8 md:pt-8">
         <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-md relative z-10">
-          <h1 class="text-2xl font-bold text-purple-700 mb-6 text-center">
+          <h1 class="text-2xl font-bold text-purple-700 mb-4 text-center">
             Additional Book Request
           </h1>
+          
 
           <form @submit.prevent="submitRequest" class="space-y-4">
             <label class="block">
@@ -236,6 +249,8 @@ const submitRequest = async () => {
     }
   }
 }
+
+
 </script>
 
 <style scoped>

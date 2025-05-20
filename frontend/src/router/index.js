@@ -15,6 +15,7 @@ import AdminRoundExport from "@/pages/AdminRoundExport.vue";
 import AdminLayout from "@/pages/AdminLayout.vue";
 import AdditionalRequest from "@/pages/AdditionalRequest.vue";
 import AdditionalRequestDetail from "@/pages/AdditionalRequestDetail.vue";
+import UserRequestDetail from "@/pages/UserRequestDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,7 +25,8 @@ const router = createRouter({
     { path: "/profile", name: "Profile", component: Profile },
     { path: "/book/:id", component: BookDetail },
     { path: "/favbooks", name: "Favbooks", component: Favbooks },
-    { path: "/additional", name:"Additional", component:AdditionalRequest},
+    { path: "/additional", name:"Additional", component: AdditionalRequest},
+    { path: "/request/:id", name: "Request", component: UserRequestDetail},
 
     {
       path: "/admin",

@@ -121,10 +121,6 @@ public class FavoriteController {
         return ResponseEntity.ok(result);
     }
 
-
-
-
-
     @GetMapping("/ids")
     public ResponseEntity<?> getFavoriteBookIds(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
