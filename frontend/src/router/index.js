@@ -15,6 +15,8 @@ import AdminRoundExport from "@/pages/AdminRoundExport.vue";
 import AdminLayout from "@/pages/AdminLayout.vue";
 import AdminAddUser from "@/pages/AdminAddUser.vue";
 import ChangePassword from "@/pages/ChangePassword.vue";
+import AdminResetPasswords from "@/pages/AdminResetPassword.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -43,14 +45,8 @@ const router = createRouter({
         { path: "", redirect: "/admin/dashboard" },
         { path: "AdminAddUser", component: AdminAddUser },
         {
-          path: "/admin/reset-password/:id",
-          name: "AdminResetPasswordDetail",
-          component: () => import("@/pages/AdminChangePassword.vue"),
-        },
-        {
           path: "/admin/reset-password",
-          name: "AdminResetPasswordList",
-          component: () => import("@/pages/AdminResetPasswords.vue"),
+          component: AdminResetPasswords
         },
       ],
     },
