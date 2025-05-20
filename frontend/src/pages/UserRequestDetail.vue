@@ -21,7 +21,7 @@
 
       <div class="mt-6 flex justify-center">
         <router-link
-          to="/user/request-history"
+          to="/favbooks"
           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium px-5 py-2 rounded-full transition"
         >
           Back to History
