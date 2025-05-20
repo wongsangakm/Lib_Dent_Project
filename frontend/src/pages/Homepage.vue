@@ -176,7 +176,7 @@
         Favourite by Publisher
       </h2>
       <button
-        @click="goToAdditionalRequest"
+        @click="handleAdditionalRequest"
         class="relative z-50 px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
       >Additional Request
       </button>
@@ -423,8 +423,12 @@ const scrollToSection = (sectionId) => {
     element.scrollIntoView({ behavior: "smooth" });
   }
 };
-const goToAdditionalRequest = () => {
-  router.push('/additional');
+const handleAdditionalRequest = () => {
+  if (!isLoggedIn.value) {
+    alert('กรุณาเข้าสู่ระบบก่อนเพิ่ม Additional Request')
+    return
+  }
+  router.push('/additional')
 }
 
 

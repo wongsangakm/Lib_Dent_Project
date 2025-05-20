@@ -23,5 +23,9 @@ public class AdditionalRequest {
 
     @Column(length = 1000)
     private String reason;
+
+    private String requestedBy;
     
+    @Column(name = "status")
+    private String status = "Pending";
 }

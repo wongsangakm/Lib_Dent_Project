@@ -14,6 +14,7 @@ import AdminRequestDetail from "@/pages/AdminRequestDetail.vue";
 import AdminRoundExport from "@/pages/AdminRoundExport.vue";
 import AdminLayout from "@/pages/AdminLayout.vue";
 import AdditionalRequest from "@/pages/AdditionalRequest.vue";
+import AdditionalRequestDetail from "@/pages/AdditionalRequestDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,7 @@ const router = createRouter({
         { path: "allbooks/add-book", component: AdminAddBook },
         { path: "request-table", component: AdminRequestTable },
         { path: "request/:id", component: AdminRequestDetail },
+        { path: "/admin/additional-request/:id", component: AdditionalRequestDetail},
         { path: "adminbookdetail/:id", component: AdminBookDetail },
         { path: "round-export", component: AdminRoundExport },
         { path: "", redirect: "/admin/dashboard" },

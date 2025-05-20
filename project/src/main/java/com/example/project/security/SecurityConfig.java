@@ -32,7 +32,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/books/**").permitAll()
                 .requestMatchers("/api/auth/favorites/**").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/auth/favorites/admin/**").hasRole("ADMIN") 
+                .requestMatchers("/api/auth/favorites/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/requests/**").authenticated()
                 .anyRequest().permitAll()
             )
             .sessionManagement(session -> session

@@ -1,5 +1,6 @@
 package com.example.project.payload.request;
 
+import com.example.project.model.AdditionalRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AdditionalRequestDTO {
+    private Long id;
 
     @NotBlank
     private String bookTitle;
@@ -31,4 +33,25 @@ public class AdditionalRequestDTO {
 
     @NotBlank
     private String reason;
+
+    private String requestedBy;
+
+    private String status;
+
+    public AdditionalRequestDTO() {
+    }
+
+    public AdditionalRequestDTO(AdditionalRequest request) {
+        this.id = request.getId();
+        this.bookTitle = request.getBookTitle();
+        this.author = request.getAuthor();
+        this.publisher = request.getPublisher();
+        this.isbn = request.getIsbn();
+        this.year = request.getYear();
+        this.price = request.getPrice();
+        this.description = request.getDescription();
+        this.reason = request.getReason();
+        this.requestedBy = request.getRequestedBy();
+        this.status = request.getStatus();
+    }
 }
