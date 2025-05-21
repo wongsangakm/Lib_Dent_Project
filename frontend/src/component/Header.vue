@@ -4,9 +4,12 @@
       <!-- Logo and Brand -->
       <div class="flex items-center space-x-2">
         <Logo :size="'w-16 h-16'" />
-        <span class="text-lg font-bold text-purple-600">Book Request</span>
+        <div class="flex flex-col leading-tight">
+          <span class="text-lg font-bold text-purple-600">Book Request</span>
+          <span class="text-base text-gray-600">ห้องสมุดสมนึก พูนทรัพย์</span>
+          
+        </div>
       </div>
-
       <!-- Mobile Menu Button -->
       <button @click="isMenuOpen = !isMenuOpen" class="md:hidden ml-auto mr-4">
         <svg
