@@ -58,6 +58,14 @@ public class UserRequestController {
         return ResponseEntity.ok(saved);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AdditionalRequestDTO> getRequestById(@PathVariable Long id) {
+    AdditionalRequest request = service.getRequestById(id);
+    return ResponseEntity.ok(new AdditionalRequestDTO(request));
+    }
+
+
+
     @GetMapping
     public List<AdditionalRequestDTO> getAllRequests() {
         return service.getAllRequests().stream().map(AdditionalRequestDTO::new).collect(Collectors.toList());

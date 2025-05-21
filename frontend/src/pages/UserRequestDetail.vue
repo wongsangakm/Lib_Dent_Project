@@ -44,7 +44,7 @@ const loading = ref(true);
 
 const loadRequest = async () => {
   try {
-    const res = await fetch(`http://localhost:8080/api/user/requests/${requestId}`, {
+    const res = await fetch(`http://localhost:8080/api/requests/${requestId}`, {
       credentials: 'include'
     });
     if (!res.ok) throw new Error("Request not found");

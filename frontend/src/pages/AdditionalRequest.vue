@@ -30,25 +30,25 @@
 
           <form @submit.prevent="submitRequest" class="space-y-4">
             <label class="block">
-              <span class="text-gray-700">Book Title</span>
+              <span class="text-gray-700">Book Title</span><span class="text-red-500">*</span>
               <input v-model="request.bookTitle" type="text" class="form-input" />
               <p v-if="bookTitleError" class="text-red-500 text-sm mt-1">{{ bookTitleError }}</p>
             </label>
             <label class="block">
-              <span class="text-gray-700">Author</span>
+              <span class="text-gray-700">Author</span><span class="text-red-500">*</span>
               <input v-model="request.author" type="text" class="form-input" />
               <p v-if="authorError" class="text-red-500 text-sm mt-1">{{ authorError }}</p>
             </label>
 
             <label class="block">
-              <span class="text-gray-700">Publisher</span>
+              <span class="text-gray-700">Publisher</span><span class="text-red-500">*</span>
               <input v-model="request.publisher" type="text" class="form-input" />
               <p v-if="publisherError" class="text-red-500 text-sm mt-1">{{ publisherError }}</p>
             </label>
 
             <div class="flex flex-row gap-8">
               <label class="block flex-1">
-                <span class="text-gray-700">ISBN</span>
+                <span class="text-gray-700">ISBN</span><span class="text-red-500">*</span>
                 <input
                   v-model="request.isbn"
                   type="text"
@@ -59,7 +59,7 @@
                 <p v-if="isbnError" class="text-red-500 text-sm mt-1">{{ isbnError }}</p>
               </label>
               <label class="block flex-1">
-                <span class="text-gray-700">Year</span>
+                <span class="text-gray-700">Year</span><span class="text-red-500">*</span>
                 <input
                   v-model="request.year"
                   type="text"
@@ -72,7 +72,7 @@
             </div>
 
             <label class="block">
-              <span class="text-gray-700">Price</span>
+              <span class="text-gray-700">Price</span><span class="text-red-500">*</span>
               <input
                 v-model="request.price"
                 type="text"
@@ -92,7 +92,7 @@
             </label>
 
             <label class="block">
-              <span class="text-gray-700">Reason / Notes</span>
+              <span class="text-gray-700">Reason / Notes</span><span class="text-red-500">*</span>
               <textarea
                 v-model="request.reason"
                 class="w-full border rounded px-3 py-2 mt-1 resize-none"
@@ -103,12 +103,30 @@
             </label>
 
             <div class="text-right">
-              <button
-                type="submit"
-                class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700 transition"
-              >
-                Submit Request
+              <div class="text-right flex justify-end">
+                <button
+                  type="submit"
+                  :disabled="isLoading"
+                  class="bg-purple-600 text-white px-6 py-2 rounded transition flex items-center gap-2 ml-auto"
+                  :class="{ 'opacity-60 cursor-not-allowed': isLoading }"
+                >
+                <svg
+                  v-if="isLoading"
+                  class="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 000 16v4l3.5-3.5L12 20v-4a8 8 0 01-8-8z"
+                  />
+                </svg>
+                <span>{{ isLoading ? 'Submitting...' : 'Submit Request' }}</span>
               </button>
+          </div>
               <p v-if="globalError" class="text-red-600 text-sm mt-2 whitespace-pre-line">
                 {{ globalError }}
               </p>
@@ -136,6 +154,7 @@ const authorError = ref('')
 const publisherError = ref('')
 const reasonError = ref('')
 const globalError = ref('')
+const isLoading = ref(false)
 
 const request = ref({
   bookTitle: '',
@@ -191,16 +210,20 @@ const submitRequest = async () => {
     reason: request.value.reason.trim(),
   }
 
-  // Check required fields
-  if (
-    !trimmed.bookTitle || !trimmed.author || !trimmed.publisher ||
-    !trimmed.isbn || !trimmed.year || !trimmed.price || !trimmed.reason
-  ) {
-    globalError.value = '❌ Please fill in all required fields.'
+  const missingFields = []
+  if (!trimmed.bookTitle) missingFields.push('Book Title')
+  if (!trimmed.author) missingFields.push('Author')
+  if (!trimmed.publisher) missingFields.push('Publisher')
+  if (!trimmed.isbn) missingFields.push('ISBN')
+  if (!trimmed.year) missingFields.push('Year')
+  if (!trimmed.price) missingFields.push('Price')
+  if (!trimmed.reason) missingFields.push('Reason')
+
+  if (missingFields.length > 0) {
+    globalError.value = '❌ Please fill in the following fields:\n- ' + missingFields.join('\n- ')
     return
   }
 
-  // Final validation
   if (!/^\d+$/.test(trimmed.isbn)) {
     globalError.value = '❌ ISBN must be an integer.'
     return
@@ -216,6 +239,8 @@ const submitRequest = async () => {
     return
   }
 
+  isLoading.value = true
+
   try {
     const payload = {
       ...trimmed,
@@ -225,9 +250,9 @@ const submitRequest = async () => {
     }
 
     await axios.post('http://localhost:8080/api/requests', payload, { withCredentials: true })
+
     alert('✅ Request submitted successfully!')
     globalError.value = ''
-
     request.value = {
       bookTitle: '',
       author: '',
@@ -243,12 +268,14 @@ const submitRequest = async () => {
       const messages = err.response.data.errors.map(e => `❌ ${e.field}: ${e.defaultMessage}`).join('\n')
       globalError.value = messages
     } else {
-      globalError.value =
-        '❌ Failed to submit request: ' +
+      globalError.value = '❌ Failed to submit request: ' +
         (err.response?.data?.message || JSON.stringify(err.response?.data) || err.message)
     }
+  } finally {
+    isLoading.value = false
   }
 }
+
 
 
 </script>
