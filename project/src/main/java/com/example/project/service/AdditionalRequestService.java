@@ -17,9 +17,8 @@ public class AdditionalRequestService {
     }
 
     public List<AdditionalRequest> getRequestsByRequester(String fullName) {
-    return repository.findByRequestedBy(fullName);
+        return repository.findByRequestedBy(fullName);
     }
-    
 
     public AdditionalRequest saveRequest(AdditionalRequest request, String fullName) {
         request.setRequestedBy(fullName);
@@ -32,28 +31,28 @@ public class AdditionalRequestService {
     public List<AdditionalRequest> getAllRequests() {
         return repository.findAll();
     }
-
-    public AdditionalRequest approveRequest(Long id) {
+    
+    public AdditionalRequest approveRequestSimple(Long id) {
         AdditionalRequest request = repository.findById(id)
             .orElseThrow(() -> new RuntimeException("Request not found"));
         request.setStatus(RequestStatus.APPROVED);
         return repository.save(request);
     }
 
-    // public void deleteRequest(Long id) {
-    //     if (!repository.existsById(id)) {
-    //         throw new RuntimeException("Request not found");
-    //     }
-    //     repository.deleteById(id);
-    // }
+    public void approveRequest(Long id, String finalStatus) {
+        AdditionalRequest request = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Request not found"));
 
-    public AdditionalRequest rejectRequest(Long id) {
-    AdditionalRequest request = repository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Request not found"));
-    request.setStatus(RequestStatus.REJECTED);
-    return repository.save(request);
+        request.setStatus(finalStatus); // เช่น "in_shelf", "ordered", "popular_request"
+        repository.save(request);
     }
 
+    public AdditionalRequest rejectRequest(Long id) {
+        AdditionalRequest request = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Request not found"));
+        request.setStatus(RequestStatus.REJECTED);
+        return repository.save(request);
+    }
 
     public AdditionalRequest getRequestById(Long id) {
         return repository.findById(id)

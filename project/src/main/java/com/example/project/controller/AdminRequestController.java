@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
@@ -23,7 +24,9 @@ public class AdminRequestController {
 
     @GetMapping
     public List<AdditionalRequestDTO> getAllRequests() {
-        return service.getAllRequests().stream().map(AdditionalRequestDTO::new).collect(Collectors.toList());
+        return service.getAllRequests().stream()
+                .map(AdditionalRequestDTO::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -32,22 +35,18 @@ public class AdminRequestController {
         return ResponseEntity.ok(new AdditionalRequestDTO(request));
     }
 
+    // ✅ ยืนยันสถานะพร้อม finalStatus
     @PutMapping("/{id}/approve")
-    public ResponseEntity<String> approveRequest(@PathVariable Long id) {
-        service.approveRequest(id);
-        return ResponseEntity.ok("Request approved");
+    public ResponseEntity<String> approveRequest(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String finalStatus = body.get("finalStatus"); // เช่น "in_shelf", "ordered", ...
+        service.approveRequest(id, finalStatus); // ส่งไปที่ service
+        return ResponseEntity.ok("Approved with status: " + finalStatus);
     }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<String> deleteRequest(@PathVariable Long id) {
-    //     service.deleteRequest(id);
-    //     return ResponseEntity.ok("Request deleted");
-    // }
-
+    // ❌ ยกเลิกคำขอ
     @PutMapping("/{id}/reject")
     public ResponseEntity<String> rejectRequest(@PathVariable Long id) {
-    service.rejectRequest(id);
-    return ResponseEntity.ok("Request rejected");
+        service.rejectRequest(id);
+        return ResponseEntity.ok("Request rejected");
     }
-
 }

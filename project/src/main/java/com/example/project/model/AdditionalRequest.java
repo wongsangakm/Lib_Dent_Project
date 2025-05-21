@@ -30,4 +30,9 @@ public class AdditionalRequest {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date requestDate;
+
+    public enum FinalApprovalStatus {
+    IN_SHELF, ORDERED, POPULAR_REQUEST
+    }
+
 }

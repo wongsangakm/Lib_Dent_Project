@@ -81,13 +81,10 @@
   <div>
     <p class="text-gray-800 font-semibold">Requested: {{ request.title }}</p>
     <p class="text-sm text-gray-500">Date: {{ request.date }}</p>
-    <p><span class="text-sm text-gray-500">Status: </span>
-      <span :class="{
-        'text-sm text-yellow-500 font-semibold': request.status === 'PENDING',
-        'text-sm text-green-600 font-semibold': request.status === 'APPROVED',
-        'text-sm text-red-600 font-semibold': request.status === 'REJECTED'
-      }">{{ request.status }}</span>
-    </p>
+    <p class="text-sm text-gray-500">Status: <span class="ml-1" :class="{
+      'text-yellow-500 font-semibold': request.status === 'PENDING',
+      'text-green-600 font-semibold': isApprovedStatus(request.status),
+      'text-red-600 font-semibold': request.status === 'REJECTED'}">{{ displayStatus(request.status) }}</span></p>
   </div>
 
   <router-link
@@ -149,11 +146,20 @@ onMounted(async () => {
 // Tabs
 const activeTab = ref("favourites");
 
-onMounted(async () => {
-  try {
-    await favouritesStore.fetchFavourites();
-  } catch (error) {
-    console.error("❌ Error fetching favourites:", error);
-  }
-});
+// onMounted(async () => {
+//   try {
+//     await favouritesStore.fetchFavourites();
+//   } catch (error) {
+//     console.error("❌ Error fetching favourites:", error);
+//   }
+// });
+
+const isApprovedStatus = (status) => {
+  return ['APPROVED', 'in_shelf', 'ordered', 'popular_request'].includes(status);
+};
+
+const displayStatus = (status) => {
+  if (['in_shelf', 'ordered', 'popular_request'].includes(status)) return 'APPROVED';
+  return status;
+};
 </script>

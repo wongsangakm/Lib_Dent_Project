@@ -208,12 +208,10 @@
               <td class="px-4 py-2">{{ req.author || '-' }}</td>
               <td class="px-4 py-2">{{ req.publisher || '-' }}</td>
               <td class="px-4 py-2">{{ req.requestedBy || 'N/A' }}</td>
-              <td class="px-4 py-2">
-                <span :class="{
-                  'text-yellow-500 font-semibold': req.status === 'PENDING',
-                  'text-green-600 font-semibold': req.status === 'APPROVED',
-                  'text-red-600 font-semibold': req.status === 'REJECTED'
-                }">{{ req.status }}</span></td>
+              <td class="px-4 py-2"><span :class="{
+                'text-yellow-500 font-semibold': req.status === 'PENDING',
+                'text-green-600 font-semibold': isApprovedStatus(req.status),
+                'text-red-600 font-semibold': req.status === 'REJECTED'}">{{ displayStatus(req.status) }}</span></td>
               <td class="px-4 py-2 text-center">
               <router-link
                 :to="`/admin/additional-request/${req.id}`"
@@ -274,8 +272,6 @@ watch(activeTab, (newTab) => {
   }
 });
 
-
-
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth <= 768;
 };
@@ -297,6 +293,14 @@ const handleStatusChange = async (book) => {
     console.error("❌ Error updating status:", err);
     alert("Error saving status. Please try again.");
   }
+};
+const isApprovedStatus = (status) => {
+  return ['APPROVED', 'in_shelf', 'ordered', 'popular_request'].includes(status);
+};
+
+const displayStatus = (status) => {
+  if (['in_shelf', 'ordered', 'popular_request'].includes(status)) return 'APPROVED';
+  return status;
 };
 
 onMounted(async () => {

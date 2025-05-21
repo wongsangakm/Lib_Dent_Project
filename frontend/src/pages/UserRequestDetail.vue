@@ -27,7 +27,7 @@
         <div><label>Reason:</label> <div class="whitespace-pre-line">{{ request.reason || '-' }}</div></div>
         <div v-if="request"><label>Status:</label><div :class="{
           'text-yellow-500 font-semibold': request.status === 'PENDING',
-          'text-green-600 font-semibold': request.status === 'APPROVED',
+          'text-green-600 font-semibold': isApprovedStatus(request.status),
           'text-red-600 font-semibold': request.status === 'REJECTED',}"
         >{{ request.status }}</div></div>
         <div><label>Requested Date:</label><div>{{ formatDate(request.requestDate) }}</div></div>
@@ -84,6 +84,16 @@ const formatDate = (dateStr) => {
     day: "numeric"
   });
 };
+
+const isApprovedStatus = (status) => {
+  return ['APPROVED', 'in_shelf', 'ordered', 'popular_request'].includes(status);
+};
+
+const displayStatus = (status) => {
+  if (['in_shelf', 'ordered', 'popular_request'].includes(status)) return 'APPROVED';
+  return status;
+};
+
 
 onMounted(loadRequest);
 </script>
