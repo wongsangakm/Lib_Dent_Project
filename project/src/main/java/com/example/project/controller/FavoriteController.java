@@ -36,7 +36,7 @@ public class FavoriteController {
     private EmailService emailService;
 
 
-    // ✅ เพิ่ม favorite (หากยังไม่เคยกด)
+    //  เพิ่ม favorite (หากยังไม่เคยกด)
   @PostMapping("/{bookId}")
     public ResponseEntity<?> addFavorite(@PathVariable Long bookId, HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
@@ -49,6 +49,11 @@ public class FavoriteController {
 
         User user = userRepository.findById(userId).orElseThrow();
         Book book = bookRepository.findById(bookId).orElseThrow();
+        // ถ้าหนังสือยังไม่มีสถานะ กำหนดให้เป็น popular_request
+        if (book.getStatus() == null || book.getStatus().isBlank()) {
+            book.setStatus("popular_request");
+            bookRepository.save(book); // Save updated status
+        }
 
         BookFavorite favorite = new BookFavorite();
         favorite.setUser(user);

@@ -17,9 +17,9 @@
             class="border rounded px-3 py-1 text-sm w-full"
           >
             <option value="">All Status</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-            <option value="Ordering">Ordering</option>
+            <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+            <option value="ordered">กำลังสั่งซื้อ</option>
+            <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
           </select>
         </div>
         <input
@@ -58,14 +58,17 @@
                   @change="handleStatusChange(book)"
                   class="text-xs font-semibold px-2 py-0.5 rounded-full"
                   :class="{
-                    'bg-green-100 text-green-700': book.status === 'Yes',
-                    'bg-yellow-100 text-yellow-800': book.status === 'Ordering',
-                    'bg-gray-200 text-gray-600': book.status === 'No',
+                    'bg-green-100 text-green-700': book.status === 'in_shelf',
+                    'bg-blue-100 text-blue-800': book.status === 'ordered',
+                    'bg-purple-100 text-purple-800':
+                      book.status === 'popular_request',
+                      
+
                   }"
                 >
-                  <option value="Yes">Yes</option>
-                  <option value="Ordering">Ordering</option>
-                  <option value="No">No</option>
+                  <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+                  <option value="ordered">กำลังสั่งซื้อ</option>
+                  <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
                 </select>
               </td>
               <td class="px-4 py-2">{{ book.Favorites }}</td>
@@ -114,14 +117,15 @@
               @change="handleStatusChange(book)"
               class="text-xs font-semibold px-2 py-1 rounded-full"
               :class="{
-                'bg-green-100 text-green-700': book.status === 'Yes',
-                'bg-yellow-100 text-yellow-800': book.status === 'Ordering',
-                'bg-gray-200 text-gray-600': book.status === 'No',
+                'bg-green-100 text-green-700': book.status === 'in_shelf',
+                'bg-blue-100 text-blue-800': book.status === 'ordered',
+                'bg-purple-100 text-purple-800':
+                  book.status === 'popular_request',
               }"
             >
-              <option value="Yes">Yes</option>
-              <option value="Ordering">Ordering</option>
-              <option value="No">No</option>
+              <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+              <option value="ordered">กำลังสั่งซื้อ</option>
+              <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
             </select>
 
             <router-link
@@ -209,7 +213,7 @@ onMounted(async () => {
               name: book.bookTitle,
               publisher: book.publisher,
               Favorites: match.favoriteCount,
-              status: book.status || "No",
+              status: book.status || "popular_request",
             }
           : null;
       })
@@ -274,6 +278,19 @@ const paginatedData = computed(() => {
     currentPage.value * pageSize.value
   );
 });
+
+const getStatusText = (status) => {
+  switch (status) {
+    case "in_shelf":
+      return "มีในชั้นหนังสือแล้ว";
+    case "ordered":
+      return "กำลังสั่งซื้อ";
+    case "popular_request":
+      return "กำลังพิจารณาจัดซื้อ";
+    default:
+      return "ไม่ทราบสถานะ";
+  }
+};
 </script>
 
 <style scoped>

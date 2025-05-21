@@ -278,6 +278,22 @@ public ResponseEntity<?> getTopBooksByFieldHeatmap() {
     return ResponseEntity.ok(response);
 }
 
+@PutMapping("/mark-popular-requests")
+public ResponseEntity<?> markBooksAsPopularRequest() {
+    // ดึง ID ของหนังสือทั้งหมดที่ถูกกด favorite อย่างน้อย 1 ครั้ง
+    List<Long> bookIds = favoriteRepository.findBookIdsWithFavorites();
+
+    // ดึงหนังสือทั้งหมดตาม ID
+    List<Book> books = bookRepository.findAllById(bookIds);
+
+    for (Book book : books) {
+        book.setStatus("popular_request");
+    }
+
+    bookRepository.saveAll(books);
+
+    return ResponseEntity.ok(Map.of("updated", books.size()));
+}
 
 
 }

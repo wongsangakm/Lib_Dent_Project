@@ -16,6 +16,7 @@ import AdminLayout from "@/pages/AdminLayout.vue";
 import AdminAddUser from "@/pages/AdminAddUser.vue";
 import ChangePassword from "@/pages/ChangePassword.vue";
 import AdminResetPasswords from "@/pages/AdminResetPassword.vue";
+import FavoritesDashboard from "@/pages/FavoritesDashboard.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       component: ChangePassword,
     },
     {
+      path: "/favorites-dashboard",
+      name: "FavoritesDashboard",
+      component: FavoritesDashboard,
+    },
+    {
       path: "/admin",
       component: AdminLayout,
       children: [
@@ -46,7 +52,7 @@ const router = createRouter({
         { path: "AdminAddUser", component: AdminAddUser },
         {
           path: "/admin/reset-password",
-          component: AdminResetPasswords
+          component: AdminResetPasswords,
         },
       ],
     },

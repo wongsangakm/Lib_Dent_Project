@@ -38,4 +38,9 @@ public interface FavoriteRepository extends JpaRepository<BookFavorite, Long> {
 """)
 List<Object[]> countUsersByAcademicField();
 
+@Query("SELECT DISTINCT bf.book.id FROM BookFavorite bf")
+List<Long> findBookIdsWithFavorites();
+
+long countByBookId(Long bookId);
+
 }
