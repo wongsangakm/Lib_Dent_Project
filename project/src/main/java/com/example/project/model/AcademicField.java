@@ -3,7 +3,10 @@ package com.example.project.model;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
+
 @Table(name = "academic_field")
 public class AcademicField {
 
@@ -20,8 +23,9 @@ public class AcademicField {
     @Column(name = "code", unique = true, nullable = false)
     private String code;
 
-    // Optional: เชื่อมกับผู้ใช้ (User) หากต้องการ reverse mapping
+  
     @OneToMany(mappedBy = "academicField")
+    @JsonIgnore
     private List<User> users;
 
     // --- Getters and Setters ---

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -52,7 +54,8 @@ public class User implements Serializable{
     private LocalDateTime createdAt;
 
     @ManyToOne
-    @JoinColumn(name = "academic_field_id") 
+    @JoinColumn(name = "academic_field_id")
+    @JsonBackReference 
     private AcademicField academicField;
 
 }

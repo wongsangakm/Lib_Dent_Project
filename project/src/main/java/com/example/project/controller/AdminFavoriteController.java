@@ -211,6 +211,72 @@ public ResponseEntity<?> getFavoriteBooksGroupedByField() {
     }
 
 
+@GetMapping("/heatmap/top-books-by-field")
+public ResponseEntity<?> getTopBooksByFieldHeatmap() {
+    List<BookFavorite> allFavs = favoriteRepository.findAll();
+
+    // Step 1: หาหนังสือ Top 10 โดยรวม (ใช้ bookId เพื่อความแม่นยำ)
+    Map<Long, Long> bookCounts = allFavs.stream()
+        .collect(Collectors.groupingBy(
+            fav -> fav.getBook().getId(),
+            Collectors.counting()
+        ));
+
+    List<Long> topBookIds = bookCounts.entrySet().stream()
+        .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+        .limit(5)
+        .map(Map.Entry::getKey)
+        .toList();
+
+    // ดึงชื่อหนังสือ Top 10
+    Map<Long, String> bookIdToTitle = allFavs.stream()
+        .filter(fav -> topBookIds.contains(fav.getBook().getId()))
+        .collect(Collectors.toMap(
+            fav -> fav.getBook().getId(),
+            fav -> fav.getBook().getBookTitle(),
+            (a, b) -> a // keep first one if duplicated
+        ));
+
+    // Step 2: สร้างตาราง cross-tab field → book → count
+    Map<String, Map<String, Long>> heatmap = new LinkedHashMap<>();
+
+    for (BookFavorite fav : allFavs) {
+        if (fav.getUser().getAcademicField() == null) continue;
+
+        Long bookId = fav.getBook().getId();
+        if (!topBookIds.contains(bookId)) continue;
+
+        String field = fav.getUser().getAcademicField().getNameTh();
+        String bookTitle = bookIdToTitle.get(bookId);
+
+        heatmap.computeIfAbsent(field, f -> new HashMap<>());
+        Map<String, Long> fieldRow = heatmap.get(field);
+        fieldRow.put(bookTitle, fieldRow.getOrDefault(bookTitle, 0L) + 1);
+    }
+
+    // Step 3: จัดรูปแบบผลลัพธ์
+    List<String> columns = topBookIds.stream()
+        .map(bookIdToTitle::get)
+        .toList();
+
+    List<Map<String, Object>> rows = new ArrayList<>();
+
+    for (Map.Entry<String, Map<String, Long>> entry : heatmap.entrySet()) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("name", entry.getKey());
+        for (String col : columns) {
+            row.put(col, entry.getValue().getOrDefault(col, 0L));
+        }
+        rows.add(row);
+    }
+
+    Map<String, Object> response = Map.of(
+        "columns", columns,
+        "rows", rows
+    );
+
+    return ResponseEntity.ok(response);
+}
 
 
 

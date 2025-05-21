@@ -69,7 +69,7 @@ const pieOption = computed(() => ({
       radius: "50%",
       data: props.academicFields,
       label: {
-        formatter: "{b}: {@value}%",
+        formatter: "{b}",
       },
     },
   ],

@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+
 public class AdminUserController {
 
     @Autowired
@@ -51,10 +53,28 @@ public class AdminUserController {
         return ResponseEntity.ok(Map.of("message", "Password changed"));
     }
 
+    public record UserDto(Long id, String username, String firstName, String lastName, AcademicFieldDto academicField) {}
+    public record AcademicFieldDto(Long id, String nameTh, String nameEn) {}
+
     @GetMapping("/admin/users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll(); // หรือกำหนด field ที่ต้องการส่งกลับ
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+            .map(user -> new UserDto(
+                user.getId(),
+                user.getUsername(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getAcademicField() != null
+                    ? new AcademicFieldDto(
+                        user.getAcademicField().getId(),
+                        user.getAcademicField().getNameTh(),
+                        user.getAcademicField().getNameEn()
+                    )
+                    : null
+            ))
+            .toList();
     }
+
 
     @CrossOrigin(
     origins = "http://localhost:5173",

@@ -63,21 +63,8 @@
     <div class="mt-8 bg-gray-50 p-4 rounded-lg">
       <h2 class="text-lg font-medium text-gray-700 mb-2">คำแนะนำจากข้อมูล</h2>
       <ul class="list-disc pl-5 space-y-1 text-gray-600">
-        <li>
-          สาขาเภสัชศาสตร์มีความสนใจในหนังสือ "Principles and Practice of
-          Pharmacovigilance" มากที่สุด (65%)
-        </li>
-        <li>
-          สาขาทันตแพทยศาสตร์มีความสนใจในหนังสือ "Manual of Orthognathic Surgery"
-          มากที่สุด (70%)
-        </li>
-        <li>
-          หนังสือ "Principles and Practice of Pharmacovigilance"
-          ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน
-        </li>
-        <li>
-          สาขาสาธารณสุขศาสตร์มีความสนใจในหนังสือ "Drug Safety Guide" มากที่สุด
-          (50%)
+        <li v-for="(insight, idx) in insights" :key="idx">
+          {{ insight }}
         </li>
       </ul>
     </div>
@@ -94,6 +81,7 @@ const activeTab = ref("overview");
 const bookInterestByField = ref({});
 const academicFields = ref([]);
 const topBooks = ref([]);
+const insights = ref([]);
 
 onMounted(async () => {
   try {
@@ -105,11 +93,28 @@ onMounted(async () => {
 
     academicFields.value = fieldRes.data;
     bookInterestByField.value = bookRes.data;
-    topBooks.value = topRes.data; // ✅ ตัวแปรนี้ใช้ได้แล้ว
+    topBooks.value = topRes.data;
+    const insightList = [];
+
+    for (const field in bookRes.data) {
+      const books = bookRes.data[field];
+      if (books.length > 0) {
+        const topBook = books[0];
+        insightList.push(
+          `สาขา ${field} มีความสนใจในหนังสือ "${topBook.name}" มากที่สุด (${topBook.value} คน)`
+        );
+      }
+    }
+
+    if (topBooks.value.length > 0) {
+      insightList.push(
+        `หนังสือ "${topBooks.value[0].name}" ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน (${topBooks.value[0].value} คน)`
+      );
+    }
+
+    insights.value = insightList;
   } catch (err) {
     console.error("โหลดข้อมูล dashboard ล้มเหลว", err);
   }
 });
-
-
 </script>
