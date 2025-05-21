@@ -1,5 +1,15 @@
 <template>
-  <div class="min-h-screen px-4 py-6 sm:px-8 sm:py-10 bg-gradient-to-br from-white to-purple-50">
+  <div
+    class="min-h-screen flex flex-col bg-gray-100 items-center"
+    :style="{
+      backgroundImage: `url(${bgImage})`,
+      backgroundPosition: '0% 6%',
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+    }"
+  >
+    <Header />
+  <div class="container mx-auto px-4 pt-28 w-full max-w-4xl">
     <div class="max-w-3xl mx-auto bg-white shadow-md rounded-xl p-6 border">
       <h1 class="text-xl sm:text-2xl font-bold text-purple-700 mb-6 text-center">
         Your Book Request Details
@@ -15,7 +25,11 @@
         <div><label>Year:</label> <div>{{ request.year || '-' }}</div></div>
         <div><label>Price:</label> <div>{{ request.price || '-' }} ฿</div></div>
         <div><label>Reason:</label> <div class="whitespace-pre-line">{{ request.reason || '-' }}</div></div>
-        <div><label>Status:</label> <div>{{ request.status || '-' }}</div></div>
+        <div v-if="request"><label>Status:</label><div :class="{
+          'text-yellow-500 font-semibold': request.status === 'PENDING',
+          'text-green-600 font-semibold': request.status === 'APPROVED',
+          'text-red-600 font-semibold': request.status === 'REJECTED',}"
+        >{{ request.status }}</div></div>
         <div><label>Requested Date:</label><div>{{ formatDate(request.requestDate) }}</div></div>
       </div>
 
@@ -29,11 +43,16 @@
       </div>
     </div>
   </div>
+  <Footer class="mt-8" />
+</div>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import Header from "@/component/Header.vue";
+import Footer from "@/component/Footer.vue";
+import bgImage from "@/image/Background.png";
 
 const route = useRoute();
 const router = useRouter();

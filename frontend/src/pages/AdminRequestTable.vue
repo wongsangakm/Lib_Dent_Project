@@ -194,6 +194,7 @@
               <th class="px-4 py-2">Author</th>
               <th class="px-4 py-2">Publisher</th>
               <th class="px-4 py-2">Requested By</th>
+              <th class="px-4 py-2">Status</th>
               <th class="px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -207,13 +208,17 @@
               <td class="px-4 py-2">{{ req.author || '-' }}</td>
               <td class="px-4 py-2">{{ req.publisher || '-' }}</td>
               <td class="px-4 py-2">{{ req.requestedBy || 'N/A' }}</td>
+              <td class="px-4 py-2">
+                <span :class="{
+                  'text-yellow-500 font-semibold': req.status === 'PENDING',
+                  'text-green-600 font-semibold': req.status === 'APPROVED',
+                  'text-red-600 font-semibold': req.status === 'REJECTED'
+                }">{{ req.status }}</span></td>
               <td class="px-4 py-2 text-center">
-                <router-link
-                  :to="`/admin/additional-request/${req.id}`"
-                  class="text-purple-600 hover:text-purple-800 underline text-sm"
-                >
-                  View
-                </router-link>
+              <router-link
+                :to="`/admin/additional-request/${req.id}`"
+                class="text-purple-600 hover:text-purple-800 underline text-sm"
+              >View</router-link>
               </td>
             </tr>
           </tbody>
@@ -264,10 +269,8 @@ const loadAdditionalRequests = async () => {
 };
 
 watch(activeTab, (newTab) => {
-  if (newTab === "user" && !hasLoadedAdditional.value) {
-    loadAdditionalRequests().then(() => {
-      hasLoadedAdditional.value = true;
-    });
+  if (newTab === 'user') {
+    loadAdditionalRequests(); // โหลดใหม่ทุกครั้ง
   }
 });
 

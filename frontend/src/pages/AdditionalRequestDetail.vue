@@ -15,30 +15,37 @@
         <div><label>Year:</label> <div>{{ request.year || '-' }}</div></div>
         <div><label>Price:</label> <div>{{ request.price || '-' }} ฿</div></div>
         <div><label>Reason:</label> <div class="whitespace-pre-line">{{ request.reason || '-' }}</div></div>
+        <div><label>Status:</label><div :class="{
+          'text-yellow-500 font-semibold': request.status === 'PENDING',
+          'text-green-600 font-semibold': request.status === 'APPROVED',
+          'text-red-600 font-semibold': request.status === 'REJECTED',}"
+        >{{ request.status }}</div></div>
         <div><label>Requested By:</label> <div>{{ request.requestedBy || 'N/A' }}</div></div>
         <div><label>Requested Date:</label><div>{{ formatDate(request.requestDate) }}</div></div>
       </div>
 
-      <div class="mt-6 flex flex-wrap justify-center gap-4">
-        <!-- <button
+      <div class="mt-6 flex flex-wrap justify-center gap-4" v-if="request && request.status === 'PENDING'">
+        <button
           @click="approveRequest"
           class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2 rounded-full transition"
         >
           Approve Request
-        </button> -->
-        <button
-          @click="deleteRequest"
-          class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2 rounded-full transition"
-        >
-          Delete Request
         </button>
-        <router-link
+        <button
+          @click="rejectRequest"
+          class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2 rounded-full transition"
+          >
+          Reject Request
+        </button>
+      </div>
+      <div class="mt-6 flex flex-wrap justify-center gap-4">
+      <router-link
           to="/admin/request-table"
           class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium px-5 py-2 rounded-full transition"
         >
           Back
-        </router-link>
-      </div>
+      </router-link>
+    </div>
     </div>
   </div>
 </template>
@@ -79,39 +86,39 @@ const formatDate = (dateStr) => {
 };
 
 
-// const approveRequest = async () => {
-//   const confirmApprove = confirm("Are you sure you want to approve this request?");
-//   if (!confirmApprove) return;
-
-//   try {
-//     const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/approve`, {
-//       method: 'PUT',
-//       credentials: 'include'
-//     });
-//     if (!res.ok) throw new Error("Approval failed");
-//     alert("✅ Request approved successfully");
-//     router.push("/admin/request-table");
-//   } catch (err) {
-//     console.error("❌ Approval error:", err);
-//     alert("Approval failed. Please try again.");
-//   }
-// };
-
-const deleteRequest = async () => {
-  const confirmDelete = confirm("Are you sure you want to delete this request?");
-  if (!confirmDelete) return;
+const approveRequest = async () => {
+  const confirmApprove = confirm("Are you sure you want to approve this request?");
+  if (!confirmApprove) return;
 
   try {
-    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}`, {
-      method: 'DELETE',
+    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/approve`, {
+      method: 'PUT',
       credentials: 'include'
     });
-    if (!res.ok) throw new Error("Delete failed");
-    alert("🗑️ Request deleted successfully");
-    router.push("/admin/request-table");
+    if (!res.ok) throw new Error("Approval failed");
+    alert("✅ Request approved successfully");
+    await loadRequest(); 
   } catch (err) {
-    console.error("❌ Delete error:", err);
-    alert("Delete failed. Please try again.");
+    console.error("❌ Approval error:", err);
+    alert("Approval failed. Please try again.");
+  }
+};
+
+const rejectRequest = async () => {
+  const confirmReject = confirm("Are you sure you want to reject this request?");
+  if (!confirmReject) return;
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/reject`, {
+      method: 'PUT',
+      credentials: 'include'
+    });
+    if (!res.ok) throw new Error("Reject failed");
+    alert("🚫 Request rejected successfully");
+    await loadRequest();
+  } catch (err) {
+    console.error("❌ Reject error:", err);
+    alert("Reject failed. Please try again.");
   }
 };
 

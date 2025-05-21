@@ -81,8 +81,15 @@
   <div>
     <p class="text-gray-800 font-semibold">Requested: {{ request.title }}</p>
     <p class="text-sm text-gray-500">Date: {{ request.date }}</p>
-    <p class="text-sm text-gray-500">Status: {{ request.status }}</p>
+    <p><span class="text-sm text-gray-500">Status: </span>
+      <span :class="{
+        'text-sm text-yellow-500 font-semibold': request.status === 'PENDING',
+        'text-sm text-green-600 font-semibold': request.status === 'APPROVED',
+        'text-sm text-red-600 font-semibold': request.status === 'REJECTED'
+      }">{{ request.status }}</span>
+    </p>
   </div>
+
   <router-link
     :to="`/request/${request.id}`"
     class="ml-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm transition"

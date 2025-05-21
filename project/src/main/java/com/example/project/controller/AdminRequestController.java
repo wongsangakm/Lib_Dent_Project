@@ -32,15 +32,22 @@ public class AdminRequestController {
         return ResponseEntity.ok(new AdditionalRequestDTO(request));
     }
 
-    // @PutMapping("/{id}/approve")
-    // public ResponseEntity<String> approveRequest(@PathVariable Long id) {
-    //     service.approveRequest(id);
-    //     return ResponseEntity.ok("Request approved");
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<String> approveRequest(@PathVariable Long id) {
+        service.approveRequest(id);
+        return ResponseEntity.ok("Request approved");
+    }
+
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<String> deleteRequest(@PathVariable Long id) {
+    //     service.deleteRequest(id);
+    //     return ResponseEntity.ok("Request deleted");
     // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRequest(@PathVariable Long id) {
-        service.deleteRequest(id);
-        return ResponseEntity.ok("Request deleted");
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<String> rejectRequest(@PathVariable Long id) {
+    service.rejectRequest(id);
+    return ResponseEntity.ok("Request rejected");
     }
+
 }
