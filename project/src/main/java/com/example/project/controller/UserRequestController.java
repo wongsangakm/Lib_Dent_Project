@@ -37,7 +37,7 @@ public class UserRequestController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
 
         String fullName = user.getFirstName() + " " + user.getLastName();
@@ -76,7 +76,7 @@ public class UserRequestController {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String username = auth.getName();
 
-    User user = userRepository.findByUsername(username)
+    User user = userRepository.findByUsernameIgnoreCase(username)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated"));
 
     String fullName = user.getFirstName() + " " + user.getLastName();
