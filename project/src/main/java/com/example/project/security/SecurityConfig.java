@@ -7,6 +7,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -15,6 +17,7 @@ import java.util.List;
 import static org.springframework.security.config.Customizer.withDefaults;
 import com.example.project.security.SessionUserFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 public class SecurityConfig {
@@ -23,12 +26,18 @@ public class SecurityConfig {
     private SessionUserFilter sessionUserFilter;
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .addFilterBefore(sessionUserFilter, UsernamePasswordAuthenticationFilter.class) // ✅ เพิ่มตรงนี้
-            .cors().and()
+            .cors(withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/books/**").permitAll()
                 .requestMatchers("/api/auth/favorites/**").authenticated()
                 .requestMatchers("/api/auth/**").permitAll()
@@ -43,16 +52,17 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
+   @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173")); // ✅ ระบุ origin ชัดเจน
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // ✅ ต้องเปิดสำหรับ cookie
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", config);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }

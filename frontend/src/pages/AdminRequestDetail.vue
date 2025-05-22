@@ -136,6 +136,8 @@ onMounted(async () => {
       const users = await res.json();
       found.favoritedBy = users;
       book.value = found;
+
+      console.log("👤 Users:", book.value.favoritedBy);
     } catch (error) {
       console.error("❌ Failed to fetch users:", error);
       found.favoritedBy = [];

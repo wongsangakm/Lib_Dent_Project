@@ -62,9 +62,11 @@
       <!-- User Actions (Desktop and Mobile) -->
       <div class="flex items-center space-x-2">
         <!-- Favorites Link -->
-        <router-link to="/favbooks" class="relative">
+        <div class="relative dropdown-heart">
+          <!-- ปุ่มหัวใจ -->
           <button
-            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300"
+            @click="toggleHeartDropdown"
+            class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 relative"
           >
             <svg
               class="w-6 h-6 text-purple-600"
@@ -72,7 +74,6 @@
               stroke="currentColor"
               stroke-width="2"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 stroke-linecap="round"
@@ -80,16 +81,37 @@
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
+
+            <!-- Badge -->
+            <span
+              v-if="favouritesCount > 0"
+              class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-indigo-300 text-yellow-300 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+            >
+              {{ favouritesCount }}
+            </span>
           </button>
 
-          <!-- Badge Counter -->
-          <span
-            v-if="favouritesCount > 0"
-            class="absolute top-1 right-0 transform translate-x-1/2 -translate-y-1/2 bg-indigo-300 text-yellow-300 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
-          >
-            {{ favouritesCount }}
-          </span>
-        </router-link>
+          <!-- Dropdown -->
+          <transition name="fade">
+            <div
+              v-if="openHeartDropdown"
+              class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+            >
+              <router-link
+                to="/favbooks"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              >
+                ❤️ รายการโปรด
+              </router-link>
+              <router-link
+                to="/favorites-dashboard"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+              >
+                📈 ภาพรวมและสถานะ
+              </router-link>
+            </div>
+          </transition>
+        </div>
 
         <!-- Sign In / Profile Button -->
         <div class="relative" @click="toggleDropdown">
@@ -119,16 +141,22 @@
             </svg>
           </button>
 
-          <!-- Dropdown Logout -->
+          <!-- Dropdown Menu -->
           <div
             v-if="authStore.isAuthenticated && showDropdown"
-            class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-30"
+            class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-30"
           >
             <button
-              @click="handleLogout"
+              @click="goToChangePassword"
               class="w-full text-left px-4 py-2 text-gray-700 hover:bg-purple-100"
             >
-              Logout
+              Change Password
+            </button>
+            <button
+              @click="handleLogout"
+              class="w-full text-left px-4 py-2 text-red-700 hover:bg-purple-100"
+            >
+              Log out
             </button>
           </div>
         </div>
@@ -194,6 +222,10 @@ const authStore = useAuthStore();
 const router = useRouter();
 const showDropdown = ref(false);
 const isMenuOpen = ref(false);
+const openHeartDropdown = ref(false);
+const toggleHeartDropdown = () => {
+  openHeartDropdown.value = !openHeartDropdown.value;
+};
 
 // Close mobile menu when screen size changes to desktop
 const checkScreenSize = () => {
@@ -201,16 +233,28 @@ const checkScreenSize = () => {
     isMenuOpen.value = false;
   }
 };
+const handleClickOutsideHeart = (event) => {
+  const heartDropdown = document.querySelector(".dropdown-heart");
+  if (heartDropdown && !heartDropdown.contains(event.target)) {
+    openHeartDropdown.value = false;
+  }
+};
 
 onMounted(() => {
   window.addEventListener("resize", checkScreenSize);
   // Close the mobile menu when clicking outside
   document.addEventListener("click", handleClickOutside);
+  document.addEventListener("click", handleClickOutsideHeart);
 });
+const goToChangePassword = () => {
+  showDropdown.value = false;
+  router.push("/change-password");
+};
 
 onUnmounted(() => {
   window.removeEventListener("resize", checkScreenSize);
   document.removeEventListener("click", handleClickOutside);
+  document.removeEventListener("click", handleClickOutsideHeart);
 });
 
 const handleClickOutside = (event) => {
@@ -254,7 +298,6 @@ onMounted(() => {
     favouritesStore.fetchFavourites();
   }
 });
-
 </script>
 
 <style scoped>

@@ -26,7 +26,7 @@
       <div
         class="px-6 py-4 border-b border-gray-200 text-gray-800 font-semibold"
       >
-        Sunny
+        {{ authStore.username }}
       </div>
 
       <!-- Navigation -->
@@ -77,8 +77,34 @@
             ),
           }"
         >
-          <i class="fas fa-comment-dots"></i>
+          <i class="fa-solid fa-file-export"></i>
           Ordering Cycle
+        </RouterLink>
+
+        <RouterLink
+          to="/admin/AdminAddUser"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/AdminAddUser'
+            ),
+          }"
+        >
+          <i class="fa-solid fa-user-plus"></i>
+          Add User
+        </RouterLink>
+
+        <RouterLink
+          to="/admin/reset-password"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/reset-password'
+            ),
+          }"
+        >
+          <i class="fa-solid fa-unlock-keyhole"></i>
+          Reset Password
         </RouterLink>
 
         <!-- Optional -->

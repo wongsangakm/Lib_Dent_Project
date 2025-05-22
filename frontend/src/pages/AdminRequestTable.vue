@@ -43,9 +43,9 @@
               class="border rounded px-3 py-1 text-sm w-full"
             >
               <option value="">All Status</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-              <option value="Ordering">Ordering</option>
+              <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+              <option value="ordered">กำลังสั่งซื้อ</option>
+              <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
             </select>
           </div>
           <input
@@ -56,7 +56,7 @@
           />
         </div>
 
-        <!-- Desktop view -->
+        <!-- Desktop View -->
         <div v-if="!isMobile" class="w-full overflow-auto max-w-full">
           <table class="table-auto text-sm text-left w-full">
             <thead class="bg-gray-100 text-gray-600">
@@ -84,21 +84,19 @@
                     @change="handleStatusChange(book)"
                     class="text-xs font-semibold px-2 py-0.5 rounded-full"
                     :class="{
-                      'bg-green-100 text-green-700': book.status === 'Yes',
-                      'bg-yellow-100 text-yellow-800': book.status === 'Ordering',
-                      'bg-gray-200 text-gray-600': book.status === 'No',
+                      'bg-green-100 text-green-700': book.status === 'in_shelf',
+                      'bg-blue-100 text-blue-800': book.status === 'ordered',
+                      'bg-purple-100 text-purple-800': book.status === 'popular_request',
                     }"
                   >
-                    <option value="Yes">Yes</option>
-                    <option value="Ordering">Ordering</option>
-                    <option value="No">No</option>
+                    <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+                    <option value="ordered">กำลังสั่งซื้อ</option>
+                    <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
                   </select>
                 </td>
                 <td class="px-4 py-2">{{ book.Favorites }}</td>
                 <td class="px-4 py-2 truncate max-w-xs">{{ book.name }}</td>
-                <td
-                  class="px-4 py-2 font-semibold text-purple-700 truncate max-w-xs"
-                >
+                <td class="px-4 py-2 font-semibold text-purple-700 truncate max-w-xs">
                   {{ book.publisher }}
                 </td>
                 <td class="px-4 py-2 text-center">
@@ -114,42 +112,33 @@
           </table>
         </div>
 
-        <!-- Mobile view -->
+        <!-- Mobile View -->
         <div v-else class="space-y-4 w-full py-2 px-3">
           <div
             v-for="book in paginatedData"
             :key="book.id"
             class="bg-white rounded-xl shadow p-4 border"
           >
-            <div class="text-xs text-gray-400 mb-2">
-              Book No. {{ book.bookNo }}
-            </div>
-            <div class="font-semibold text-purple-800 mb-1 truncate">
-              {{ book.name }}
-            </div>
+            <div class="text-xs text-gray-400 mb-2">Book No. {{ book.bookNo }}</div>
+            <div class="font-semibold text-purple-800 mb-1 truncate">{{ book.name }}</div>
             <div class="text-sm text-gray-600 mb-1">ISBN: {{ book.isbn }}</div>
-            <div class="text-sm text-gray-600 mb-1 truncate">
-              Publisher: {{ book.publisher }}
-            </div>
-            <div class="text-base text-blue-600 mb-1">
-              Favorites: {{ book.Favorites }}
-            </div>
+            <div class="text-sm text-gray-600 mb-1 truncate">Publisher: {{ book.publisher }}</div>
+            <div class="text-base text-blue-600 mb-1">Favorites: {{ book.Favorites }}</div>
             <div class="flex justify-between items-center mt-2">
               <select
                 v-model="book.status"
                 @change="handleStatusChange(book)"
                 class="text-xs font-semibold px-2 py-1 rounded-full"
                 :class="{
-                  'bg-green-100 text-green-700': book.status === 'Yes',
-                  'bg-yellow-100 text-yellow-800': book.status === 'Ordering',
-                  'bg-gray-200 text-gray-600': book.status === 'No',
+                  'bg-green-100 text-green-700': book.status === 'in_shelf',
+                  'bg-blue-100 text-blue-800': book.status === 'ordered',
+                  'bg-purple-100 text-purple-800': book.status === 'popular_request',
                 }"
               >
-                <option value="Yes">Yes</option>
-                <option value="Ordering">Ordering</option>
-                <option value="No">No</option>
+                <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+                <option value="ordered">กำลังสั่งซื้อ</option>
+                <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
               </select>
-
               <router-link
                 :to="`request/${book.id}`"
                 class="text-purple-600 hover:text-purple-800"
@@ -179,7 +168,10 @@
     </div>
 
     <!-- Tab: USER (Additional Requests) -->
-    <div v-if="activeTab === 'user'" class="bg-white shadow-md rounded-xl overflow-hidden p-4">
+    <div
+      v-if="activeTab === 'user'"
+      class="bg-white shadow-md rounded-xl overflow-hidden p-4"
+    >
       <div class="text-lg font-semibold mb-3 text-purple-700">Additional Requests</div>
 
       <div v-if="additionalRequests.length === 0" class="text-center text-gray-500 py-8">
@@ -208,15 +200,18 @@
               <td class="px-4 py-2">{{ req.author || '-' }}</td>
               <td class="px-4 py-2">{{ req.publisher || '-' }}</td>
               <td class="px-4 py-2">{{ req.requestedBy || 'N/A' }}</td>
-              <td class="px-4 py-2"><span :class="{
-                'text-yellow-500 font-semibold': req.status === 'PENDING',
-                'text-green-600 font-semibold': isApprovedStatus(req.status),
-                'text-red-600 font-semibold': req.status === 'REJECTED'}">{{ displayStatus(req.status) }}</span></td>
+              <td class="px-4 py-2">
+                <span :class="{
+                  'text-yellow-500 font-semibold': req.status === 'PENDING',
+                  'text-green-600 font-semibold': isApprovedStatus(req.status),
+                  'text-red-600 font-semibold': req.status === 'REJECTED'
+                }">{{ displayStatus(req.status) }}</span>
+              </td>
               <td class="px-4 py-2 text-center">
-              <router-link
-                :to="`/admin/additional-request/${req.id}`"
-                class="text-purple-600 hover:text-purple-800 underline text-sm"
-              >View</router-link>
+                <router-link
+                  :to="`/admin/additional-request/${req.id}`"
+                  class="text-purple-600 hover:text-purple-800 underline text-sm"
+                >View</router-link>
               </td>
             </tr>
           </tbody>
@@ -226,38 +221,40 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 
-const activeTab = ref("admin"); 
-const userRequests = ref([]);  
+const activeTab = ref("admin");
 const allRequests = ref([]);
+const additionalRequests = ref([]);
+const filters = ref({ search: "", status: "" });
 const isMobile = ref(window.innerWidth <= 768);
-const filters = ref({
-  search: "",
-  status: "",
-});
+const currentPage = ref(1);
 
-const additionalRequests = ref([])
-const hasLoadedAdditional = ref(false);
+const checkIsMobile = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
 
-const loadUserRequests = async () => {
+const handleStatusChange = async (book) => {
   try {
-    const res = await fetch("http://localhost:8080/api/user-book-requests");
-    const data = await res.json();
-    userRequests.value = data;
+    const res = await fetch(`http://localhost:8080/api/books/${book.id}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: book.status }),
+    });
+    if (!res.ok) throw new Error("Failed to update status");
+    console.log("✅ Status updated:", book.name, "->", book.status);
   } catch (err) {
-    console.error("❌ Failed to load user requests:", err);
+    console.error("❌ Error updating status:", err);
+    alert("Error saving status. Please try again.");
   }
 };
 
 const loadAdditionalRequests = async () => {
   try {
     const res = await fetch("http://localhost:8080/api/admin/request-table", {
-      credentials: "include"
+      credentials: "include",
     });
-    if (!res.ok) throw new Error("Failed to load additional requests");
     const data = await res.json();
     additionalRequests.value = data;
   } catch (err) {
@@ -266,130 +263,74 @@ const loadAdditionalRequests = async () => {
   }
 };
 
-watch(activeTab, (newTab) => {
-  if (newTab === 'user') {
-    loadAdditionalRequests(); // โหลดใหม่ทุกครั้ง
-  }
-});
-
-const checkIsMobile = () => {
-  isMobile.value = window.innerWidth <= 768;
-};
-
-const handleStatusChange = async (book) => {
-  try {
-    const res = await fetch(
-      `http://localhost:8080/api/books/${book.id}/status`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: book.status }),
-      }
-    );
-
-    if (!res.ok) throw new Error("Failed to update status");
-    console.log("✅ Status updated:", book.name, "->", book.status);
-  } catch (err) {
-    console.error("❌ Error updating status:", err);
-    alert("Error saving status. Please try again.");
-  }
-};
 const isApprovedStatus = (status) => {
   return ['APPROVED', 'in_shelf', 'ordered', 'popular_request'].includes(status);
 };
 
 const displayStatus = (status) => {
-  if (['in_shelf', 'ordered', 'popular_request'].includes(status)) return 'APPROVED';
-  return status;
+  return ['in_shelf', 'ordered', 'popular_request'].includes(status) ? 'APPROVED' : status;
 };
 
-onMounted(async () => {
-  try {
-    const resBooks = await fetch("http://localhost:8080/api/books");
-    const books = await resBooks.json();
+const pageSize = computed(() => (isMobile.value ? 5 : 10));
 
-    const resCounts = await fetch(
-      "http://localhost:8080/api/admin/favorite-counts",
-      { credentials: "include" }
-    );
-    if (!resCounts.ok) throw new Error("Favorite counts not found");
-    const counts = await resCounts.json();
-
-    const booksWithFav = books
-      .map((book) => {
-        const match = counts.find((c) => c.bookId === book.id);
-        return match
-          ? {
-              id: book.id,
-              bookNo: book.id,
-              isbn: book.isbn,
-              name: book.bookTitle,
-              publisher: book.publisher,
-              Favorites: match.favoriteCount,
-              status: book.status || "No",
-            }
-          : null;
-      })
-      .filter(Boolean); // ตัด null ทิ้ง
-
-    allRequests.value = booksWithFav;
-  } catch (error) {
-    console.error("❌ Failed to load admin fav data:", error);
-  }
-
-  // Set up event listener for resize
-  window.addEventListener("resize", checkIsMobile);
-});
-
-// Clean up event listener when component unmounts
-onUnmounted(() => {
-  window.removeEventListener("resize", checkIsMobile);
-});
-
-const currentPage = ref(1);
-const pageSize = computed(() => (isMobile.value ? 5 : 10)); // Smaller page size on mobile
-
-const filtered = computed(() => {
-  return allRequests.value.filter((b) => {
-    const matchStatus =
-      !filters.value.status || b.status === filters.value.status;
-    const matchSearch =
-      !filters.value.search ||
-      b.name.toLowerCase().includes(filters.value.search.toLowerCase()) ||
-      (b.publisher &&
-        b.publisher
-          .toLowerCase()
-          .includes(filters.value.search.toLowerCase())) ||
-      (b.isbn && b.isbn.includes(filters.value.search)) ||
-      b.bookNo.toString().includes(filters.value.search);
-    return matchStatus && matchSearch;
-  });
-});
+const filtered = computed(() =>
+  allRequests.value.filter((b) => {
+    const s = filters.value.search.toLowerCase();
+    return (!filters.value.status || b.status === filters.value.status) &&
+      (!filters.value.search ||
+        b.name.toLowerCase().includes(s) ||
+        (b.publisher && b.publisher.toLowerCase().includes(s)) ||
+        (b.isbn && b.isbn.includes(s)) ||
+        b.bookNo.toString().includes(filters.value.search));
+  })
+);
 
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filtered.value.length / pageSize.value))
 );
 
-// Reset to page 1 when filters change
-const watchFilters = computed(() => JSON.stringify(filters.value));
-const resetPage = () => {
-  currentPage.value = 1;
-};
-
-// Watch for filter changes to reset pagination
-watchFilters; // Just accessing it to trigger reactivity
-if (watchFilters.value) resetPage();
-
 const paginatedData = computed(() => {
-  // Make sure current page is valid
-  if (currentPage.value > totalPages.value) {
-    currentPage.value = totalPages.value;
-  }
-
+  if (currentPage.value > totalPages.value) currentPage.value = totalPages.value;
   return filtered.value.slice(
     (currentPage.value - 1) * pageSize.value,
     currentPage.value * pageSize.value
   );
+});
+
+watch(() => filters.value, () => currentPage.value = 1, { deep: true });
+watch(activeTab, (tab) => {
+  if (tab === "user") loadAdditionalRequests();
+});
+
+onMounted(async () => {
+  window.addEventListener("resize", checkIsMobile);
+  try {
+    const resBooks = await fetch("http://localhost:8080/api/books");
+    const books = await resBooks.json();
+    const resCounts = await fetch("http://localhost:8080/api/admin/favorite-counts", {
+      credentials: "include",
+    });
+    const counts = await resCounts.json();
+
+    allRequests.value = books.map(book => {
+      const match = counts.find(c => c.bookId === book.id);
+      return match ? {
+        id: book.id,
+        bookNo: book.id,
+        isbn: book.isbn,
+        name: book.bookTitle,
+        publisher: book.publisher,
+        Favorites: match.favoriteCount,
+        status: book.status || "popular_request"
+      } : null;
+    }).filter(Boolean);
+  } catch (err) {
+    console.error("❌ Failed to load admin fav data:", err);
+  }
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", checkIsMobile);
 });
 </script>
 
@@ -397,8 +338,6 @@ const paginatedData = computed(() => {
 i {
   font-size: 1rem;
 }
-
-/* Ensure table doesn't cause horizontal overflow */
 @media (max-width: 768px) {
   .overflow-auto {
     max-width: 100%;

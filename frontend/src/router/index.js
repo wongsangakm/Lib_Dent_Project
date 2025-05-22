@@ -13,6 +13,10 @@ import AdminRequestTable from "@/pages/AdminRequestTable.vue";
 import AdminRequestDetail from "@/pages/AdminRequestDetail.vue";
 import AdminRoundExport from "@/pages/AdminRoundExport.vue";
 import AdminLayout from "@/pages/AdminLayout.vue";
+import AdminAddUser from "@/pages/AdminAddUser.vue";
+import ChangePassword from "@/pages/ChangePassword.vue";
+import AdminResetPasswords from "@/pages/AdminResetPassword.vue";
+import FavoritesDashboard from "@/pages/FavoritesDashboard.vue";
 import AdditionalRequest from "@/pages/AdditionalRequest.vue";
 import AdditionalRequestDetail from "@/pages/AdditionalRequestDetail.vue";
 import UserRequestDetail from "@/pages/UserRequestDetail.vue";
@@ -25,6 +29,17 @@ const router = createRouter({
     { path: "/profile", name: "Profile", component: Profile },
     { path: "/book/:id", component: BookDetail },
     { path: "/favbooks", name: "Favbooks", component: Favbooks },
+    { path: "/favbooks", name: "Favbooks", component: Favbooks },
+    {
+      path: "/change-password",
+      name: "ChangePassword",
+      component: ChangePassword,
+    },
+    {
+      path: "/favorites-dashboard",
+      name: "FavoritesDashboard",
+      component: FavoritesDashboard,
+    },
     { path: "/additional", name:"Additional", component: AdditionalRequest},
     { path: "/request/:id", name: "Request", component: UserRequestDetail},
 
@@ -41,6 +56,11 @@ const router = createRouter({
         { path: "adminbookdetail/:id", component: AdminBookDetail },
         { path: "round-export", component: AdminRoundExport },
         { path: "", redirect: "/admin/dashboard" },
+        { path: "AdminAddUser", component: AdminAddUser },
+        {
+          path: "/admin/reset-password",
+          component: AdminResetPasswords,
+        },
       ],
     },
   ],
@@ -54,7 +74,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore();
-  await new Promise(resolve => setTimeout(resolve, 0));
+  await new Promise((resolve) => setTimeout(resolve, 0));
   // 1. ป้องกัน guest เข้า favbooks หรือ profile
   const mustLoginPages = ["/favbooks"];
   if (mustLoginPages.includes(to.path) && !auth.isAuthenticated) {
