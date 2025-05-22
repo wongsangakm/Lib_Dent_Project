@@ -53,26 +53,28 @@ public class AdminUserController {
         return ResponseEntity.ok(Map.of("message", "Password changed"));
     }
 
-    public record UserDto(Long id, String username, String firstName, String lastName, AcademicFieldDto academicField) {}
+    public record UserDto(Long id, String username, String firstName, String lastName, AcademicFieldDto academicField, String role) {}
     public record AcademicFieldDto(Long id, String nameTh, String nameEn) {}
 
     @GetMapping("/admin/users")
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
-            .map(user -> new UserDto(
-                user.getId(),
-                user.getUsername(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getAcademicField() != null
-                    ? new AcademicFieldDto(
-                        user.getAcademicField().getId(),
-                        user.getAcademicField().getNameTh(),
-                        user.getAcademicField().getNameEn()
-                    )
-                    : null
-            ))
-            .toList();
+       return userRepository.findAll().stream()
+    .map(user -> new UserDto(
+        user.getId(),
+        user.getUsername(),
+        user.getFirstName(),
+        user.getLastName(),
+        user.getAcademicField() != null
+            ? new AcademicFieldDto(
+                user.getAcademicField().getId(),
+                user.getAcademicField().getNameTh(),
+                user.getAcademicField().getNameEn()
+              )
+            : null,
+        user.getRole() // ✅ เพิ่มอันนี้
+    ))
+    .toList();
+
     }
 
 

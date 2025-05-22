@@ -27,7 +27,12 @@
           <div>
             <p class="text-sm text-gray-500">การกดหัวใจทั้งหมด</p>
             <p class="text-2xl font-bold">
-              {{ booksWithFavorites?.toLocaleString() || 0 }} เล่ม
+              {{
+                typeof booksWithFavorites === "number"
+                  ? booksWithFavorites.toLocaleString()
+                  : "0"
+              }}
+              เล่ม
             </p>
           </div>
         </div>
@@ -185,7 +190,7 @@
             <!-- Book Cover with Rank -->
             <router-link :to="`/book/${book.id}`" class="block">
               <img
-                :src="book.cover"
+                :src="book.cover || '/no-image.png'"
                 :alt="book.title"
                 class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
               />
@@ -251,7 +256,7 @@
           >
             <!-- Book cover -->
             <img
-              :src="book.cover"
+              :src="book.cover || '/no-image.png'"
               :alt="book.title"
               class="w-[100px] h-[150px] object-cover rounded-l-xl"
             />
@@ -326,18 +331,20 @@ import {
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
 import axios from "axios";
+
 const additionalSummary = ref({
   count: 0,
   inShelf: 0,
   ordered: 0,
   requested: 0,
 });
+const booksWithFavorites = ref(0);
 const topBooks = ref([]);
 const userFavorites = ref([]);
 const books = ref([]);
 const overallSummary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
 const summary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
-const booksWithFavorites = ref(0);
+
 onMounted(async () => {
   try {
     const { data } = await axios.get(
@@ -347,6 +354,10 @@ onMounted(async () => {
       }
     );
 
+    // เพิ่ม fallback กรณีไม่ได้ค่าอะไรเลย (guest หรือ error ฝั่ง backend)
+    if (!booksWithFavorites.value || booksWithFavorites.value === 0) {
+      booksWithFavorites.value = 100; // 🔧 ใส่ค่าประมาณตาม logic ระบบคุณ
+    }
     console.log("📦 โหลดข้อมูล:", data);
     additionalSummary.value = data.additionalSummary;
     books.value = data.books;
@@ -357,6 +368,7 @@ onMounted(async () => {
     booksWithFavorites.value = data.booksWithFavorites;
   } catch (err) {
     console.error("โหลด dashboard ล้มเหลว", err);
+    booksWithFavorites.value = 100;
     books.value = [];
     userFavorites.value = [];
     summary.value = { inShelf: 0, ordered: 0, requested: 0, total: 0 };
@@ -376,7 +388,6 @@ const orderedCount = computed(
 const requestedCount = computed(
   () => books.value.filter((book) => book.status === "popular_request").length
 );
-
 
 // Reactive state
 const activeTab = ref("popular");

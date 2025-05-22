@@ -71,6 +71,7 @@ public class UserFavoriteDashboardController {
             m.put("author", book.getPublisher());
             m.put("cover", book.getCoverImage());
             m.put("status", book.getStatus());
+            
             m.put("favorites", favoriteCounts.getOrDefault(book.getId(), 0L));
             m.put("trendingStatus", 0); // Placeholder
             return m;
