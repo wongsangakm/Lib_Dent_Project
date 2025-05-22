@@ -96,10 +96,6 @@
             <span>กำลังพิจารณาจัดซื้อ {{ requestedCount }}</span>
           </div>
         </div>
-        <p class="mt-6 text-center text-gray-600 italic">
-          "เราฟังเสียงของคุณ!
-          หนังสือที่ได้รับความนิยมสูงจะถูกจัดซื้อเข้าห้องสมุดเร็วๆ นี้"
-        </p>
       </div>
 
       <!-- Tabs -->
@@ -172,7 +168,7 @@
 
             <!-- Bottom: Favorite + Status - Added mt-auto to push this to bottom -->
             <div
-              class="flex justify-between items-center px-2 py-2 bg-white bg-opacity-90 rounded-md mt-auto"
+              class="flex justify-between items-center px-2 py-2 bg-gray-50 bg-opacity-90 rounded-md mt-auto"
             >
               <div class="flex items-center text-sm">
                 <Heart class="h-4 w-4 text-red-500 mr-1 fill-current" />
@@ -205,74 +201,75 @@
       <!-- User Favorites -->
       <div v-if="activeTab === 'status'">
         <h2 class="text-xl font-semibold mb-4">หนังสือที่คุณชื่นชอบ</h2>
-        <div v-if="userFavorites.length > 0" class="grid grid-cols-1 gap-4">
+
+        <div
+          v-if="userFavorites.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div
             v-for="book in books.filter((b) => userFavorites.includes(b.id))"
             :key="book.id"
-            class="bg-white rounded-lg shadow overflow-hidden"
+            class="bg-white rounded-xl shadow hover:shadow-md transition-all duration-200 overflow-hidden flex"
           >
-            <div class="flex">
-              <img
-                :src="book.cover"
-                :alt="book.title"
-                class="w-20 h-28 object-cover"
-              />
-              <div class="p-4 flex-1">
-                <h3 class="font-bold text-gray-800 mb-1">{{ book.title }}</h3>
-                <div class="flex items-center">
-                  <span
-                    :class="[
-                      'px-3 py-1 text-xs font-medium text-white rounded-full',
-                      getStatusColor(book.status),
-                    ]"
-                  >
-                    {{ getStatusText(book.status) }}
-                  </span>
+            <!-- Book cover -->
+            <img
+              :src="book.cover"
+              :alt="book.title"
+              class="w-[100px] h-[150px] object-cover rounded-l-xl"
+            />
+
+            <!-- Book info -->
+            <div class="flex flex-col justify-between p-4 flex-1">
+              <div>
+                <h3 class="text-md md:text-lg font-semibold text-gray-800">
+                  {{ book.title }}
+                </h3>
+                <p class="text-sm text-gray-500 mb-2">{{ book.author }}</p>
+              </div>
+
+              <div class="flex justify-between items-center">
+                <!-- Status badge -->
+                <span
+                  class="px-3 py-1 text-xs font-medium text-white rounded-full"
+                  :class="getStatusColor(book.status)"
+                >
+                  {{ getStatusText(book.status) }}
+                </span>
+
+                <!-- Locked favorite icon -->
+                <div
+                  class="bg-red-100 text-red-500 p-2 rounded-full cursor-not-allowed"
+                  title="หนังสือนี้ถูกเพิ่มในรายการโปรดแล้ว"
+                >
+                  <Heart class="h-5 w-5 fill-current" />
                 </div>
               </div>
-              <button
-                class="p-4 flex items-center justify-center cursor-default"
-                disabled
-              >
-                <Heart class="h-6 w-6 text-red-500 fill-current" />
-              </button>
             </div>
           </div>
         </div>
-        <div v-else class="bg-white rounded-lg shadow p-8 text-center">
-          <Heart class="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <p class="text-gray-500">
-            คุณยังไม่มีหนังสือที่ชื่นชอบ
-            กดที่ไอคอนหัวใจเพื่อเพิ่มหนังสือที่คุณสนใจ
-          </p>
-        </div>
-        <div class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 class="font-semibold text-blue-800 mb-2">
-            การติดตามสถานะหนังสือ
-          </h3>
-          <p class="text-blue-700">
-            คุณสามารถติดตามสถานะของหนังสือที่คุณชื่นชอบได้ที่นี่
-            เมื่อหนังสือเปลี่ยนสถานะ (เช่น จาก "กำลังสั่งซื้อ" เป็น
-            "มีในชั้นหนังสือแล้ว")
-            ระบบจะแจ้งเตือนให้คุณทราบผ่านอีเมลและการแจ้งเตือนในแอป
-          </p>
+
+        <!-- No favorites -->
+        <div
+          v-else
+          class="bg-white rounded-lg shadow p-8 text-center text-gray-600"
+        >
+          <Heart class="h-10 w-10 text-gray-300 mx-auto mb-4" />
+          <p>คุณยังไม่มีหนังสือที่ชื่นชอบ</p>
+          <p class="text-sm mt-1">กดที่ไอคอนหัวใจเพื่อเพิ่มหนังสือที่คุณสนใจ</p>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div class="mt-8 text-center p-6 bg-gray-100 rounded-lg">
-        <h3 class="font-bold text-xl text-gray-800 mb-2">
-          ขอบคุณสำหรับการมีส่วนร่วม!
-        </h3>
-        <p class="text-gray-600 max-w-2xl mx-auto">
-          การกดหัวใจช่วยให้เราทราบความต้องการของผู้ใช้ ในแต่ละเดือน
-          เราจะพิจารณาหนังสือที่ได้รับความนิยมสูงสุด เพื่อนำเข้าห้องสมุดของเรา
-          นี่คือวิธีที่เราปรับปรุงคอลเลกชันหนังสือให้ตรงกับความต้องการของผู้ใช้อย่างแท้จริง
+      <div class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+        <h3 class="font-semibold text-blue-800 mb-2">การติดตามสถานะหนังสือ</h3>
+        <p class="text-blue-700">
+          คุณสามารถติดตามสถานะของหนังสือที่คุณชื่นชอบได้ที่นี่
+          เมื่อหนังสือเปลี่ยนสถานะ (เช่น จาก "กำลังสั่งซื้อ" เป็น
+          "มีในชั้นหนังสือแล้ว")
         </p>
       </div>
     </div>
-    <Footer />
   </div>
+  <Footer />
 </template>
 
 <script setup>
