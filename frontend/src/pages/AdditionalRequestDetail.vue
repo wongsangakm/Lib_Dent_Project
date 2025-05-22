@@ -17,34 +17,33 @@
         <div><label>Price:</label> <div>{{ request.price || '-' }} ฿</div></div>
         <div><label>Reason:</label> <div class="whitespace-pre-line">{{ request.reason || '-' }}</div></div>
         
-        <!-- ✅ STATUS -->
         <div>
           <label>Status:</label>
-          <div
-            :class="[
-              request.status === 'PENDING' ? 'text-yellow-500 font-semibold' :
-              request.status === 'REJECTED' ? 'text-red-600 font-semibold' :
-              isApprovedStatus(request.status) ? 'text-green-600 font-semibold' : ''
-            ]"
-          >
-            {{ request.status }}
-          </div>
+          <div :class="[
+            request.status === 'PENDING' ? 'text-yellow-500 font-semibold' :
+            request.status === 'REJECTED' ? 'text-red-600 font-semibold' :
+            request.status === 'in_shelf' ? 'text-green-600 font-semibold' :
+            request.status === 'ordered' ? 'text-blue-600 font-semibold' :
+            request.status === 'popular_request' ? 'text-purple-600 font-semibold' :
+            ''
+          ]">{{ displayStatus(request.status) }}</div>
         </div>
 
         <div><label>Requested By:</label> <div>{{ request.requestedBy || 'N/A' }}</div></div>
         <div><label>Requested Date:</label><div>{{ formatDate(request.requestDate) }}</div></div>
       </div>
 
-      <!-- ปุ่ม Approve / Reject -->
-      <div class="mt-6 flex flex-wrap justify-center gap-4" v-if="request && request.status === 'PENDING'">
+      <!-- ✅ ปุ่ม Approve / Update Status -->
+      <div class="mt-6 flex flex-wrap justify-center gap-4" v-if="request && request.status !== 'REJECTED'">
         <button
           @click="showApproveDialog = true"
           class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2 rounded-full transition"
         >
-          Approve Request
+          {{ request.status === 'PENDING' ? 'Approve Request' : 'Update Status' }}
         </button>
 
         <button
+          v-if="request.status === 'PENDING'"
           @click="rejectRequest"
           class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2 rounded-full transition"
         >
@@ -63,10 +62,13 @@
       </div>
     </div>
 
-    <!-- ✅ กล่องยืนยัน Approve พร้อม dropdown -->
-    <div v-if="showApproveDialog" class="fixed inset-0 flex items-center justify-center z-50">
+    <!-- ✅ กล่องยืนยัน Approve / Update -->
+    <div v-if="showApproveDialog" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
       <div class="bg-white border rounded-lg shadow-lg p-6 w-full max-w-md">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">Are you sure you want to approve this request?</h2>
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+          {{ request.status === 'PENDING' ? 'Are you sure you want to approve this request?' : 'Update the request status:' }}
+        </h2>
+
         <select
           v-model="finalStatus"
           class="w-full border rounded px-3 py-2 mb-4"
@@ -85,6 +87,7 @@
             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded disabled:opacity-50"
           >ยืนยัน</button>
         </div>
+
         <p v-if="successMessage" class="text-green-600 font-semibold text-sm mt-2">{{ successMessage }}</p>
       </div>
     </div>
@@ -120,18 +123,7 @@ const loadRequest = async () => {
   }
 };
 
-// รูปแบบวันที่
-const formatDate = (dateStr) => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit"
-  });
-};
-
-// อนุมัติ
+// อัปเดตสถานะ / อนุมัติ
 const confirmApprove = async () => {
   try {
     const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/approve`, {
@@ -145,8 +137,7 @@ const confirmApprove = async () => {
 
     if (!res.ok) throw new Error("Approval failed");
 
-    successMessage.value = "✅ Request approved successfully.";
-
+    successMessage.value = "✅ Request updated successfully.";
     setTimeout(() => {
       successMessage.value = "";
     }, 3000);
@@ -157,13 +148,13 @@ const confirmApprove = async () => {
 
   } catch (err) {
     console.error("❌ Approval error:", err);
-    alert("Approval failed. Please try again.");
+    alert("Update failed. Please try again.");
   }
 };
 
-// ปฏิเสธ
+// ปฏิเสธคำขอ
 const rejectRequest = async () => {
-  const confirmReject = confirm("Are you sure you want to reject this request.?");
+  const confirmReject = confirm("Are you sure you want to reject this request?");
   if (!confirmReject) return;
 
   try {
@@ -180,9 +171,33 @@ const rejectRequest = async () => {
   }
 };
 
-// สถานะที่ถือว่า "approved" (ใช้สีเขียว)
-const isApprovedStatus = (status) => {
-  return ['APPROVED', 'in_shelf', 'ordered', 'popular_request'].includes(status);
+// แสดงสถานะในภาษาไทย
+const displayStatus = (status) => {
+  switch (status) {
+    case 'in_shelf':
+      return 'มีในชั้นหนังสือแล้ว';
+    case 'ordered':
+      return 'กำลังสั่งซื้อ';
+    case 'popular_request':
+      return 'กำลังพิจารณาจัดซื้อ';
+    case 'PENDING':
+      return 'รอการอนุมัติ';
+    case 'REJECTED':
+      return 'ถูกปฏิเสธ';
+    default:
+      return status;
+  }
+};
+
+// รูปแบบวันที่
+const formatDate = (dateStr) => {
+  if (!dateStr) return "-";
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+  });
 };
 
 onMounted(loadRequest);

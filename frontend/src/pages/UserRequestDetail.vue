@@ -25,11 +25,14 @@
         <div><label>Year:</label> <div>{{ request.year || '-' }}</div></div>
         <div><label>Price:</label> <div>{{ request.price || '-' }} ฿</div></div>
         <div><label>Reason:</label> <div class="whitespace-pre-line">{{ request.reason || '-' }}</div></div>
-        <div v-if="request"><label>Status:</label><div :class="{
-          'text-yellow-500 font-semibold': request.status === 'PENDING',
-          'text-green-600 font-semibold': isApprovedStatus(request.status),
-          'text-red-600 font-semibold': request.status === 'REJECTED',}"
-        >{{ request.status }}</div></div>
+        <div v-if="request"><label>Status:</label><div :class="[
+            request.status === 'PENDING' ? 'text-yellow-500 font-semibold' :
+            request.status === 'REJECTED' ? 'text-red-600 font-semibold' :
+            request.status === 'in_shelf' ? 'text-green-600 font-semibold' :
+            request.status === 'ordered' ? 'text-blue-600 font-semibold' :
+            request.status === 'popular_request' ? 'text-purple-600 font-semibold' :
+            '']">{{ displayStatus(request.status) }}
+          </div></div>
         <div><label>Requested Date:</label><div>{{ formatDate(request.requestDate) }}</div></div>
       </div>
 
@@ -90,8 +93,20 @@ const isApprovedStatus = (status) => {
 };
 
 const displayStatus = (status) => {
-  if (['in_shelf', 'ordered', 'popular_request'].includes(status)) return 'APPROVED';
-  return status;
+  switch (status) {
+    case 'in_shelf':
+      return 'มีในชั้นหนังสือแล้ว';
+    case 'ordered':
+      return 'กำลังสั่งซื้อ';
+    case 'popular_request':
+      return 'กำลังพิจารณาจัดซื้อ';
+    case 'PENDING':
+      return 'รอการอนุมัติ';
+    case 'REJECTED':
+      return 'ถูกปฏิเสธ';
+    default:
+      return status;
+  }
 };
 
 
