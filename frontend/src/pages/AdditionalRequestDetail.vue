@@ -74,9 +74,9 @@
           class="w-full border rounded px-3 py-2 mb-4"
         >
           <option disabled value="">-- กรุณาเลือกสถานะ --</option>
-          <option value="in_shelf">in_shelf</option>
-          <option value="ordered">ordered</option>
-          <option value="popular_request">popular_request</option>
+          <option value="in_shelf">มีในชั้นหนังสือแล้ว</option>
+          <option value="ordered">กำลังสั่งซื้อ</option>
+          <option value="popular_request">กำลังพิจารณาจัดซื้อ</option>
         </select>
 
         <div class="flex justify-end gap-3">
