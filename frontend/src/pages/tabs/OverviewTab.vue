@@ -7,7 +7,7 @@
       </h2>
       <v-chart class="h-72 w-full" :option="pieOption" autoresize />
     </div>
-    
+
     <div class="bg-gray-50 p-4 rounded-lg">
       <h2 class="text-lg font-medium text-gray-700 mb-4">
         หนังสือยอดนิยมโดยรวม
@@ -20,13 +20,13 @@
           :key="book.name"
           class="flex justify-between items-center bg-white border rounded-lg px-4 py-2 shadow-sm"
         >
-          <span class="text-gray-700 text-sm truncate w-48" :title="book.name">
+          <span class="text-gray-700 text-sm w-48" :title="book.name">
             {{ book.name }}
           </span>
           <span
-            class="bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full"
+            class="bg-purple-100 text-purple-700 text-xs font-semibold w-8 h-8 flex items-center justify-center rounded-full"
           >
-            {{ book.value }} คน
+            {{ book.value }}
           </span>
         </div>
       </div>
