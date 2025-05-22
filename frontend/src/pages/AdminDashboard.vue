@@ -57,7 +57,11 @@
     />
 
     <!-- Heatmap Tab -->
-    <HeatmapTab v-if="activeTab === 'heatmap'" />
+    <HeatmapTab
+      v-if="activeTab === 'heatmap'"
+      :columns="heatmapData.columns"
+      :rows="heatmapData.rows"
+    />
 
     <!-- Insight -->
     <div class="mt-8 bg-gray-50 p-4 rounded-lg">
@@ -82,18 +86,24 @@ const bookInterestByField = ref({});
 const academicFields = ref([]);
 const topBooks = ref([]);
 const insights = ref([]);
+const heatmapData = ref({ columns: [], rows: [] });
+const selectedField = ref("");
 
 onMounted(async () => {
   try {
     const [fieldRes, bookRes, topRes] = await Promise.all([
       axios.get("http://localhost:8080/api/admin/active-users-by-field"),
       axios.get("http://localhost:8080/api/admin/favorite-books-by-field"),
-      axios.get("http://localhost:8080/api/admin/top-books"),
+      axios.get("http://localhost:8080/api/admin/top-books-matrix"),
     ]);
 
+    heatmapData.value = {
+      columns: topRes.data.columns,
+      rows: topRes.data.rows,
+    };
     academicFields.value = fieldRes.data;
     bookInterestByField.value = bookRes.data;
-    topBooks.value = topRes.data;
+    topBooks.value = topRes.data.topBooks;
     const insightList = [];
 
     for (const field in bookRes.data) {

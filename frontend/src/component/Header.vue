@@ -7,7 +7,6 @@
         <div class="flex flex-col leading-tight">
           <span class="text-lg font-bold text-purple-600">Book Request</span>
           <span class="text-base text-gray-600">ห้องสมุดสมนึก พูนทรัพย์</span>
-          
         </div>
       </div>
       <!-- Mobile Menu Button -->
@@ -272,8 +271,11 @@ const toggleDropdown = () => {
 
 const handleLogout = () => {
   authStore.logout();
+  favouritesStore.$reset();
+  console.log("หลัง logout: ", favouritesStore.favourites); // ✅ ต้องเป็น []
+
   showDropdown.value = false;
-  router.push("/login");
+  router.push("/");
 };
 
 const scrollToSection = (id) => {

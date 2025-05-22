@@ -7,16 +7,19 @@
         <h1 class="text-3xl font-bold text-gray-800">
           ภาพรวมและสถานะของหนังสือ
         </h1>
-        <div class="bg-white px-4 py-2 rounded-lg shadow flex items-center">
+        <div
+          v-if="authStore.isAuthenticated"
+          class="bg-white px-4 py-2 rounded-lg shadow flex items-center"
+        >
           <Heart class="h-5 w-5 text-red-500 mr-2" />
-          <span class="font-medium"
-            >หนังสือที่คุณชื่นชอบ: {{ userFavorites.length }} เล่ม</span
-          >
+          <span class="font-medium">
+            หนังสือที่คุณชื่นชอบ: {{ userFavorites.length }} เล่ม
+          </span>
         </div>
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <div class="bg-white rounded-lg shadow p-6 flex items-center">
           <div class="bg-red-100 p-3 rounded-full mr-4">
             <Heart class="h-8 w-8 text-red-500" />
@@ -33,8 +36,21 @@
             <BookOpen class="h-8 w-8 text-green-500" />
           </div>
           <div>
+            <p class="text-sm text-gray-500">รายการเสนอซื้อโดยผู้ใช้</p>
+            <p class="text-2xl font-bold">
+              {{ additionalSummary.count.toLocaleString() }} เล่ม
+            </p>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 flex items-center">
+          <div class="bg-green-100 p-3 rounded-full mr-4">
+            <BookOpen class="h-8 w-8 text-green-500" />
+          </div>
+          <div>
             <p class="text-sm text-gray-500">มีในชั้นหนังสือแล้ว</p>
-            <p class="text-2xl font-bold">{{ inShelfCount }} เล่ม</p>
+            <p class="text-2xl font-bold">
+              {{ overallSummary.inShelf.toLocaleString() }} เล่ม
+            </p>
           </div>
         </div>
         <div class="bg-white rounded-lg shadow p-6 flex items-center">
@@ -43,7 +59,9 @@
           </div>
           <div>
             <p class="text-sm text-gray-500">กำลังสั่งซื้อ</p>
-            <p class="text-2xl font-bold">{{ orderedCount }} เล่ม</p>
+            <p class="text-2xl font-bold">
+              {{ overallSummary?.ordered?.toLocaleString() || 0 }} เล่ม
+            </p>
           </div>
         </div>
         <div class="bg-white rounded-lg shadow p-6 flex items-center">
@@ -52,7 +70,9 @@
           </div>
           <div>
             <p class="text-sm text-gray-500">กำลังพิจารณาจัดซื้อ</p>
-            <p class="text-2xl font-bold">{{ requestedCount }} เล่ม</p>
+            <p class="text-2xl font-bold">
+              {{ overallSummary?.requested?.toLocaleString() || 0 }} เล่ม
+            </p>
           </div>
         </div>
       </div>
@@ -67,33 +87,49 @@
           <div
             v-if="inShelfCount > 0"
             class="h-full bg-green-500"
-            :style="{ width: `${(inShelfCount / booksWithFavorites) * 100}%` }"
+            :style="{
+              width: `${
+                (overallSummary.inShelf /
+                  Math.max(1, booksWithFavorites + additionalSummary.count)) *
+                100
+              }%`,
+            }"
           ></div>
           <div
             v-if="orderedCount > 0"
             class="h-full bg-blue-500"
-            :style="{ width: `${(orderedCount / booksWithFavorites) * 100}%` }"
+            :style="{
+              width: `${
+                (overallSummary.ordered /
+                  Math.max(1, booksWithFavorites + additionalSummary.count)) *
+                100
+              }%`,
+            }"
           ></div>
           <div
             v-if="requestedCount > 0"
             class="h-full bg-purple-500"
             :style="{
-              width: `${(requestedCount / booksWithFavorites) * 100}%`,
+              width: `${
+                (overallSummary.requested /
+                  Math.max(1, booksWithFavorites + additionalSummary.count)) *
+                100
+              }%`,
             }"
           ></div>
         </div>
         <div class="flex justify-center mt-4 text-sm flex-wrap gap-4">
           <div class="flex items-center">
             <div class="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
-            <span>มีในชั้นหนังสือแล้ว {{ inShelfCount }}</span>
+            <span>มีในชั้นหนังสือแล้ว {{ overallSummary.inShelf }}</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 bg-blue-500 rounded-full mr-1"></div>
-            <span>กำลังสั่งซื้อ {{ orderedCount }}</span>
+            <span>กำลังสั่งซื้อ {{ overallSummary.ordered }}</span>
           </div>
           <div class="flex items-center">
             <div class="w-3 h-3 bg-purple-500 rounded-full mr-1"></div>
-            <span>กำลังพิจารณาจัดซื้อ {{ requestedCount }}</span>
+            <span>กำลังพิจารณาจัดซื้อ {{ overallSummary.requested }}</span>
           </div>
         </div>
       </div>
@@ -115,7 +151,9 @@
           </div>
         </button>
 
+        <!-- Tab สำหรับหนังสือของคุณ -->
         <button
+          v-if="authStore.isAuthenticated"
           @click="activeTab = 'status'"
           :class="[
             'px-4 py-3 font-medium',
@@ -199,7 +237,7 @@
         </div>
       </div>
       <!-- User Favorites -->
-      <div v-if="activeTab === 'status'">
+      <div v-if="authStore.isAuthenticated && activeTab === 'status'">
         <h2 class="text-xl font-semibold mb-4">หนังสือที่คุณชื่นชอบ</h2>
 
         <div
@@ -285,10 +323,19 @@ import {
   Award,
   Users,
 } from "lucide-vue-next";
-
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 import axios from "axios";
-
+const additionalSummary = ref({
+  count: 0,
+  inShelf: 0,
+  ordered: 0,
+  requested: 0,
+});
+const topBooks = ref([]);
+const userFavorites = ref([]);
 const books = ref([]);
+const overallSummary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
 const summary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
 const booksWithFavorites = ref(0);
 onMounted(async () => {
@@ -299,12 +346,20 @@ onMounted(async () => {
         withCredentials: true,
       }
     );
+
+    console.log("📦 โหลดข้อมูล:", data);
+    additionalSummary.value = data.additionalSummary;
     books.value = data.books;
     summary.value = data.summary;
+    topBooks.value = data.topBooks;
+    overallSummary.value = data.overallSummary;
     userFavorites.value = data.userFavorites;
     booksWithFavorites.value = data.booksWithFavorites;
   } catch (err) {
     console.error("โหลด dashboard ล้มเหลว", err);
+    books.value = [];
+    userFavorites.value = [];
+    summary.value = { inShelf: 0, ordered: 0, requested: 0, total: 0 };
   }
 });
 // Computed properties for stats
@@ -321,18 +376,10 @@ const orderedCount = computed(
 const requestedCount = computed(
   () => books.value.filter((book) => book.status === "popular_request").length
 );
-const topBooks = computed(() =>
-  [...books.value].sort((a, b) => b.favorites - a.favorites).slice(0, 5)
-);
-const trendingBooks = computed(() =>
-  [...books.value]
-    .sort((a, b) => b.trendingStatus - a.trendingStatus)
-    .slice(0, 3)
-);
+
 
 // Reactive state
 const activeTab = ref("popular");
-const userFavorites = ref([1, 3, 4, 6]);
 
 // Functions
 const toggleFavorite = (id) => {

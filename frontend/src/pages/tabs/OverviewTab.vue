@@ -17,16 +17,16 @@
       >
         <div
           v-for="book in topBooks"
-          :key="book.name"
+          :key="book.title"
           class="flex justify-between items-center bg-white border rounded-lg px-4 py-2 shadow-sm"
         >
-          <span class="text-gray-700 text-sm w-48" :title="book.name">
-            {{ book.name }}
+          <span class="text-gray-700 text-sm w-48" :title="book.title">
+            {{ book.title }}
           </span>
           <span
             class="bg-purple-100 text-purple-700 text-xs font-semibold w-8 h-8 flex items-center justify-center rounded-full"
           >
-            {{ book.value }}
+            {{ book.favorites }}
           </span>
         </div>
       </div>
@@ -71,25 +71,6 @@ const pieOption = computed(() => ({
       label: {
         formatter: "{b}",
       },
-    },
-  ],
-}));
-
-const barOption = computed(() => ({
-  tooltip: {},
-  xAxis: {
-    type: "value",
-    axisLabel: { formatter: "{value}%" },
-  },
-  yAxis: {
-    type: "category",
-    data: props.topBooks.map((book) => book.name),
-  },
-  series: [
-    {
-      type: "bar",
-      data: props.topBooks.map((book) => book.value),
-      itemStyle: { color: "#8884d8" },
     },
   ],
 }));

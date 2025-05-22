@@ -42,24 +42,18 @@
     </div>
   </div>
 </template>
-
 <script setup>
-import { ref, onMounted } from "vue";
-import axios from "axios";
+import { defineProps } from "vue";
 
-const columns = ref([]);
-const rows = ref([]);
-
-onMounted(async () => {
-  try {
-    const res = await axios.get(
-      "http://localhost:8080/api/admin/heatmap/top-books-by-field"
-    );
-    columns.value = res.data.columns;
-    rows.value = res.data.rows;
-  } catch (err) {
-    console.error("โหลดข้อมูล heatmap ล้มเหลว", err);
-  }
+const props = defineProps({
+  columns: {
+    type: Array,
+    required: true,
+  },
+  rows: {
+    type: Array,
+    required: true,
+  },
 });
 
 const getCellClass = (value) => {
