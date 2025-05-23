@@ -16,14 +16,25 @@
         <div
           class="container mx-auto px-4 flex flex-col md:flex-row items-center gap-6"
         >
-          <div class="w-full md:w-1/2 flex justify-center md:justify-end order-2 md:order-1">
-            <img :src="dentdesign" class="w-48 h-48 md:w-64 md:h-64 object-cover" />
+          <div
+            class="w-full md:w-1/2 flex justify-center md:justify-end order-2 md:order-1"
+          >
+            <img
+              :src="dentdesign"
+              class="w-48 h-48 md:w-64 md:h-64 object-cover"
+            />
           </div>
-          <div class="w-full md:w-1/2 text-center md:text-left order-1 md:order-2">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-2 text-center">
+          <div
+            class="w-full md:w-1/2 text-center md:text-left order-1 md:order-2"
+          >
+            <h1
+              class="text-4xl md:text-5xl font-bold text-gray-800 mb-2 text-center"
+            >
               BOOK
             </h1>
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center">
+            <h1
+              class="text-3xl md:text-4xl font-bold text-gray-800 mb-4 text-center"
+            >
               REQUEST
             </h1>
             <div class="px-4">
@@ -45,6 +56,209 @@
         id="searchbook"
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
       >
+        <!-- Book Request Form (Above Search Bar) -->
+        <div v-if="isLoggedIn" class="relative z-10 p-6 md:p-8 border-b border-gray-200">
+          <div class="max-w-4xl mx-auto">
+            <div class="mb-6">
+              <h2
+                class="text-2xl font-bold text-purple-700 flex items-center gap-2"
+              >
+                <i class="fas fa-book-medical"></i>
+                Additional Book Request
+              </h2>
+            </div>
+
+            <div class="transition-all duration-300">
+              <form
+                @submit.prevent="submitRequest"
+                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                <!-- First Row -->
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium">Book Title</span>
+                    <span class="text-red-500">*</span>
+                    <input
+                      v-model="request.bookTitle"
+                      type="text"
+                      class="form-input"
+                      placeholder="Enter book title"
+                    />
+                    <p v-if="bookTitleError" class="text-red-500 text-xs mt-1">
+                      {{ bookTitleError }}
+                    </p>
+                  </label>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium">Author</span>
+                    <span class="text-red-500">*</span>
+                    <input
+                      v-model="request.author"
+                      type="text"
+                      class="form-input"
+                      placeholder="Enter author name"
+                    />
+                    <p v-if="authorError" class="text-red-500 text-xs mt-1">
+                      {{ authorError }}
+                    </p>
+                  </label>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium">Publisher</span>
+                    <span class="text-red-500">*</span>
+                    <input
+                      v-model="request.publisher"
+                      type="text"
+                      class="form-input"
+                      placeholder="Enter publisher"
+                    />
+                    <p v-if="publisherError" class="text-red-500 text-xs mt-1">
+                      {{ publisherError }}
+                    </p>
+                  </label>
+                </div>
+
+                <!-- Second Row -->
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium">ISBN</span>
+                    <span class="text-red-500">*</span>
+                    <input
+                      v-model="request.isbn"
+                      type="text"
+                      inputmode="numeric"
+                      pattern="\d*"
+                      class="form-input"
+                      placeholder="Enter ISBN"
+                    />
+                    <p v-if="isbnError" class="text-red-500 text-xs mt-1">
+                      {{ isbnError }}
+                    </p>
+                  </label>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium">Year</span>
+                    <span class="text-red-500">*</span>
+                    <input
+                      v-model="request.year"
+                      type="text"
+                      inputmode="numeric"
+                      pattern="\d*"
+                      class="form-input"
+                      placeholder="Publication year"
+                    />
+                    <p v-if="yearError" class="text-red-500 text-xs mt-1">
+                      {{ yearError }}
+                    </p>
+                  </label>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium">Price</span>
+                    <span class="text-red-500">*</span>
+                    <input
+                      v-model="request.price"
+                      type="text"
+                      inputmode="decimal"
+                      class="form-input"
+                      placeholder="Price in THB"
+                    />
+                    <p v-if="priceError" class="text-red-500 text-xs mt-1">
+                      {{ priceError }}
+                    </p>
+                  </label>
+                </div>
+
+                <!-- Third Row -->
+                <div class="md:col-span-2 space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium"
+                      >Description (หรือ Link สำหรับดูเพิ่มเติม)</span
+                    >
+                    <textarea
+                      v-model="request.description"
+                      class="form-input resize-none"
+                      rows="3"
+                      placeholder="Additional information or links..."
+                    ></textarea>
+                  </label>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block">
+                    <span class="text-gray-700 font-medium"
+                      >Reason / Notes</span
+                    >
+                    <span class="text-red-500">*</span>
+                    <textarea
+                      v-model="request.reason"
+                      class="form-input resize-none"
+                      rows="3"
+                      placeholder="Why do you need this book?"
+                    ></textarea>
+                    <p v-if="reasonError" class="text-red-500 text-xs mt-1">
+                      {{ reasonError }}
+                    </p>
+                  </label>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="md:col-span-2 lg:col-span-3 flex justify-end pt-4">
+                  <button
+                    type="submit"
+                    :disabled="isLoading"
+                    class="bg-purple-600 text-white px-5 py-3 rounded-full transition-all flex items-center gap-2 hover:bg-purple-700 hover:shadow-lg transform hover:scale-105"
+                    :class="{ 'opacity-60 cursor-not-allowed': isLoading }"
+                  >
+                    <svg
+                      v-if="isLoading"
+                      class="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 000 16v4l3.5-3.5L12 20v-4a8 8 0 01-8-8z"
+                      ></path>
+                    </svg>
+                    <i v-else class="fas fa-paper-plane"></i>
+                    <span>{{
+                      isLoading ? "Submitting..." : "Submit Request"
+                    }}</span>
+                  </button>
+                </div>
+
+                <div
+                  v-if="globalError"
+                  class="md:col-span-2 lg:col-span-3 text-right"
+                >
+                  <p
+                    class="text-red-600 text-sm whitespace-pre-line bg-red-50 p-3 rounded-lg"
+                  >
+                    {{ globalError }}
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
         <div class="p-4 md:p-12 max-w-lg mx-auto">
           <!-- Search Bar -->
           <div class="flex w-full items-center space-x-2">
@@ -81,7 +295,9 @@
 
           <!-- Search Results -->
           <div v-if="filteredBooks.length > 0" class="mt-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
+            >
               <div
                 v-for="book in filteredBooks"
                 :key="book.id"
@@ -116,7 +332,9 @@
                   <p class="text-gray-500 text-xs italic truncate mt-2">
                     By {{ book.author }}
                   </p>
-                  <p class="mt-0 text-black-600 text-sm md:text-base font-bold truncate">
+                  <p
+                    class="mt-0 text-black-600 text-sm md:text-base font-bold truncate"
+                  >
                     {{ book.bookTitle }}
                   </p>
                   <p class="text-gray-500 italic truncate text-xs">
@@ -166,264 +384,108 @@
             <p class="text-gray-600">No books found for "{{ searchQuery }}".</p>
           </div>
         </div>
-<!-- Additional Request Form -->
-<div
-  v-if="isLoggedIn"
-  class="mt-10 bg-white p-6 rounded-xl shadow-md relative z-10 pt-8"
->
-  <h1 class="text-2xl font-bold text-purple-700 mb-4 text-center">
-    Additional Book Request
-  </h1>
-
-  <form @submit.prevent="submitRequest" class="space-y-4">
-            <label class="block">
-              <span class="text-gray-700">Book Title</span
-              ><span class="text-red-500">*</span>
-              <input
-                v-model="request.bookTitle"
-                type="text"
-                class="form-input"
-              />
-              <p v-if="bookTitleError" class="text-red-500 text-sm mt-1">
-                {{ bookTitleError }}
-              </p>
-            </label>
-            <label class="block">
-              <span class="text-gray-700">Author</span
-              ><span class="text-red-500">*</span>
-              <input v-model="request.author" type="text" class="form-input" />
-              <p v-if="authorError" class="text-red-500 text-sm mt-1">
-                {{ authorError }}
-              </p>
-            </label>
-
-            <label class="block">
-              <span class="text-gray-700">Publisher</span
-              ><span class="text-red-500">*</span>
-              <input
-                v-model="request.publisher"
-                type="text"
-                class="form-input"
-              />
-              <p v-if="publisherError" class="text-red-500 text-sm mt-1">
-                {{ publisherError }}
-              </p>
-            </label>
-
-            <div class="flex flex-row gap-8">
-              <label class="block flex-1">
-                <span class="text-gray-700">ISBN</span
-                ><span class="text-red-500">*</span>
-                <input
-                  v-model="request.isbn"
-                  type="text"
-                  inputmode="numeric"
-                  pattern="\d*"
-                  class="form-input"
-                />
-                <p v-if="isbnError" class="text-red-500 text-sm mt-1">
-                  {{ isbnError }}
-                </p>
-              </label>
-              <label class="block flex-1">
-                <span class="text-gray-700">Year</span
-                ><span class="text-red-500">*</span>
-                <input
-                  v-model="request.year"
-                  type="text"
-                  inputmode="numeric"
-                  pattern="\d*"
-                  class="form-input"
-                />
-                <p v-if="yearError" class="text-red-500 text-sm mt-1">
-                  {{ yearError }}
-                </p>
-              </label>
-            </div>
-
-            <label class="block">
-              <span class="text-gray-700">Price</span
-              ><span class="text-red-500">*</span>
-              <input
-                v-model="request.price"
-                type="text"
-                inputmode="decimal"
-                class="form-input"
-              />
-              <p v-if="priceError" class="text-red-500 text-sm mt-1">
-                {{ priceError }}
-              </p>
-            </label>
-
-            <label class="block">
-              <span class="text-gray-700"
-                >Description (หรือ Link สำหรับดูเพิ่มเติม)</span
-              >
-              <textarea
-                v-model="request.description"
-                class="w-full border rounded px-3 py-2 mt-1 resize-none"
-                rows="4"
-              ></textarea>
-            </label>
-
-            <label class="block">
-              <span class="text-gray-700">Reason / Notes</span
-              ><span class="text-red-500">*</span>
-              <textarea
-                v-model="request.reason"
-                class="w-full border rounded px-3 py-2 mt-1 resize-none"
-                rows="4"
-                placeholder="Why do you need this book?"
-              ></textarea>
-              <p v-if="reasonError" class="text-red-500 text-sm mt-1">
-                {{ reasonError }}
-              </p>
-            </label>
-
-            <div class="text-right">
-              <div class="text-right flex justify-end">
-                <button
-                  type="submit"
-                  :disabled="isLoading"
-                  class="bg-purple-600 text-white px-6 py-2 rounded transition flex items-center gap-2 ml-auto"
-                  :class="{ 'opacity-60 cursor-not-allowed': isLoading }"
-                >
-                  <svg
-                    v-if="isLoading"
-                    class="animate-spin h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    />
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 000 16v4l3.5-3.5L12 20v-4a8 8 0 01-8-8z"
-                    />
-                  </svg>
-                  <span>{{
-                    isLoading ? "Submitting..." : "Submit Request"
-                  }}</span>
-                </button>
-              </div>
-              <p
-                v-if="globalError"
-                class="text-red-600 text-sm mt-2 whitespace-pre-line"
-              >
-                {{ globalError }}
-              </p>
-            </div>
-          </form>
-</div>
+        <!-- Additional Request Form -->
       </section>
-
 
       <!-- Favourite by Publisher -->
-<section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
-  <div class="container mx-auto px-4">
-    <!-- หัวข้อ + ปุ่ม Additional Request -->
-    <div class="flex justify-between items-center mt-4 md:mt-8 mb-2 md:mb-4">
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
-        Favourite by Publisher
-      </h2>
-    </div>
-
-    <!-- ลูกศร + ปุ่ม Publisher -->
-    <div class="flex items-center space-x-2">
-      <!-- Left Arrow -->
-      <button
-        v-if="showLeftArrow"
-        @click="scrollLeft"
-        class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
-      >
-        <svg
-          class="w-4 h-4 md:w-5 md:h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          ></path>
-        </svg>
-      </button>
-
-      <!-- Publisher Buttons -->
-      <div
-        ref="publisherContainer"
-        class="flex-1 flex space-x-2 md:space-x-3 overflow-x-auto pb-2 scroll-smooth"
-        @scroll="updateScrollPosition"
-      >
-        <button
-          v-for="publisher in publishers"
-          :key="publisher.name"
-          @click="selectPublisher(publisher.name)"
-          class="relative z-10 flex items-center px-2 md:px-4 py-1 md:py-2 rounded-lg shadow-md transition-colors whitespace-nowrap text-xs md:text-base"
-          :class="{
-            'bg-purple-600 text-white':
-              selectedPublisher === publisher.name,
-            'bg-white text-gray-600 hover:bg-gray-100':
-              selectedPublisher !== publisher.name,
-          }"
-        >
-          <svg
-            class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+      <section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
+        <div class="container mx-auto px-4">
+          <!-- หัวข้อ + ปุ่ม Additional Request -->
+          <div
+            class="flex justify-between items-center mt-4 md:mt-8 mb-2 md:mb-4"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"
-            ></path>
-          </svg>
-          <span>{{ publisher.name }}</span>
-          <span class="ml-1 md:ml-2 text-xs opacity-75">
-            {{ publisher.items }}
-          </span>
-        </button>
-      </div>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">
+              Favourite by Publisher
+            </h2>
+          </div>
 
-      <!-- Right Arrow -->
-      <button
-        v-if="showRightArrow"
-        @click="scrollRight"
-        class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
-      >
-        <svg
-          class="w-4 h-4 md:w-5 md:h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </button>
-    </div>
-  </div>
+          <!-- ลูกศร + ปุ่ม Publisher -->
+          <div class="flex items-center space-x-2">
+            <!-- Left Arrow -->
+            <button
+              v-if="showLeftArrow"
+              @click="scrollLeft"
+              class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
+            >
+              <svg
+                class="w-4 h-4 md:w-5 md:h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+
+            <!-- Publisher Buttons -->
+            <div
+              ref="publisherContainer"
+              class="flex-1 flex space-x-2 md:space-x-3 overflow-x-auto pb-2 scroll-smooth"
+              @scroll="updateScrollPosition"
+            >
+              <button
+                v-for="publisher in publishers"
+                :key="publisher.name"
+                @click="selectPublisher(publisher.name)"
+                class="relative z-10 flex items-center px-2 md:px-4 py-1 md:py-2 rounded-lg shadow-md transition-colors whitespace-nowrap text-xs md:text-base"
+                :class="{
+                  'bg-purple-600 text-white':
+                    selectedPublisher === publisher.name,
+                  'bg-white text-gray-600 hover:bg-gray-100':
+                    selectedPublisher !== publisher.name,
+                }"
+              >
+                <svg
+                  class="w-4 h-4 md:w-5 md:h-5 mr-1 md:mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253"
+                  ></path>
+                </svg>
+                <span>{{ publisher.name }}</span>
+                <span class="ml-1 md:ml-2 text-xs opacity-75">
+                  {{ publisher.items }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Right Arrow -->
+            <button
+              v-if="showRightArrow"
+              @click="scrollRight"
+              class="relative z-10 bg-purple-600 text-white rounded-full p-1 md:p-2 hover:bg-purple-700 transition-colors"
+            >
+              <svg
+                class="w-4 h-4 md:w-5 md:h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
       </section>
-
 
       <!-- All Books Section -->
       <section id="all-books" class="py-6 md:py-12">
@@ -474,7 +536,9 @@
                 <p class="text-gray-500 text-xs italic truncate mt-2">
                   By {{ book.author }}
                 </p>
-                <p class="mt-0 text-black-600 text-xs md:text-base font-bold truncate">
+                <p
+                  class="mt-0 text-black-600 text-xs md:text-base font-bold truncate"
+                >
                   {{ book.bookTitle }}
                 </p>
                 <p class="text-gray-500 italic truncate text-xs">
@@ -555,8 +619,8 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
-import { useRouter } from 'vue-router'
-import { ElMessageBox } from 'element-plus'
+import { useRouter } from "vue-router";
+import { ElMessageBox } from "element-plus";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
@@ -565,7 +629,7 @@ import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-const router = useRouter()
+const router = useRouter();
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
@@ -697,9 +761,11 @@ const addToFavorite = async (book) => {
   /* ✅ NEW — กล่องยืนยัน */
   const confirmed = await ElMessageBox.confirm(
     `ต้องการเพิ่ม “${book.bookTitle}” เข้ารายการโปรดใช่หรือไม่?`,
-    'ยืนยันการเพิ่มรายการโปรด',
-    { confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก', type: 'warning' }
-  ).then(() => true).catch(() => false);
+    "ยืนยันการเพิ่มรายการโปรด",
+    { confirmButtonText: "ยืนยัน", cancelButtonText: "ยกเลิก", type: "warning" }
+  )
+    .then(() => true)
+    .catch(() => false);
 
   if (!confirmed) return;
 
@@ -788,29 +854,51 @@ const globalError = ref("");
 const isLoading = ref(false);
 
 // watch validations
-watch(() => request.value.isbn, val => {
-  isbnError.value = /^\d*$/.test(val) ? "" : "❌ ISBN must be an integer.";
-});
-watch(() => request.value.year, val => {
-  yearError.value = /^\d*$/.test(val) ? "" : "❌ Year must be an integer.";
-});
-watch(() => request.value.price, val => {
-  priceError.value = /^\d*\.?\d*$/.test(val)
-    ? ""
-    : "❌ Price must be a valid number (float).";
-});
-watch(() => request.value.bookTitle, val => {
-  bookTitleError.value = val.trim() === "" ? "❌ Book Title is required." : "";
-});
-watch(() => request.value.author, val => {
-  authorError.value = val.trim() === "" ? "❌ Author is required." : "";
-});
-watch(() => request.value.publisher, val => {
-  publisherError.value = val.trim() === "" ? "❌ Publisher is required." : "";
-});
-watch(() => request.value.reason, val => {
-  reasonError.value = val.trim() === "" ? "❌ Reason is required." : "";
-});
+watch(
+  () => request.value.isbn,
+  (val) => {
+    isbnError.value = /^\d*$/.test(val) ? "" : "❌ ISBN must be an integer.";
+  }
+);
+watch(
+  () => request.value.year,
+  (val) => {
+    yearError.value = /^\d*$/.test(val) ? "" : "❌ Year must be an integer.";
+  }
+);
+watch(
+  () => request.value.price,
+  (val) => {
+    priceError.value = /^\d*\.?\d*$/.test(val)
+      ? ""
+      : "❌ Price must be a valid number (float).";
+  }
+);
+watch(
+  () => request.value.bookTitle,
+  (val) => {
+    bookTitleError.value =
+      val.trim() === "" ? "❌ Book Title is required." : "";
+  }
+);
+watch(
+  () => request.value.author,
+  (val) => {
+    authorError.value = val.trim() === "" ? "❌ Author is required." : "";
+  }
+);
+watch(
+  () => request.value.publisher,
+  (val) => {
+    publisherError.value = val.trim() === "" ? "❌ Publisher is required." : "";
+  }
+);
+watch(
+  () => request.value.reason,
+  (val) => {
+    reasonError.value = val.trim() === "" ? "❌ Reason is required." : "";
+  }
+);
 
 // submitRequest method
 const submitRequest = async () => {
@@ -901,7 +989,6 @@ const submitRequest = async () => {
     isLoading.value = false;
   }
 };
-
 </script>
 
 <style scoped>
@@ -940,5 +1027,4 @@ img {
   margin-top: 0.25rem;
   background-color: white;
 }
-
 </style>
