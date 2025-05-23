@@ -51,6 +51,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const exportRounds = [
   { id: 1, name: "รอบที่ 1", deadline: "30 December", label: "May–December" },
@@ -67,7 +68,7 @@ const exportToExcel = async (round) => {
   try {
     const year = new Date().getFullYear();
     const res = await fetch(
-      `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
+      `${baseURL}/api/admin/export/favorites?round=${round.id}&year=${year}`,
       { credentials: "include" }
     );
     const data = await res.json();
@@ -122,7 +123,7 @@ const exportToPDF = async (round) => {
   try {
     const year = new Date().getFullYear(); // ✅ ดึง year จาก system
     const res = await fetch(
-      `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
+      `${baseURL}/api/admin/export/favorites?round=${round.id}&year=${year}`,
       { credentials: "include" }
     );
     const data = await res.json();

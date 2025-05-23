@@ -57,7 +57,10 @@
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
       >
         <!-- Book Request Form (Above Search Bar) -->
-        <div v-if="isLoggedIn" class="relative z-10 p-6 md:p-8 border-b border-gray-200">
+        <div
+          v-if="isLoggedIn"
+          class="relative z-10 p-6 md:p-8 border-b border-gray-200"
+        >
           <div class="max-w-4xl mx-auto">
             <div class="mb-6">
               <h2
@@ -628,7 +631,7 @@ import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
@@ -725,7 +728,7 @@ const updatePublisherCounts = () => {
 // Fetch favorite status for a book
 const fetchAllFavoriteStatuses = async () => {
   try {
-    const res = await fetch("http://localhost:8080/api/auth/favorites/ids", {
+    const res = await fetch(`${baseURL}/api/auth/favorites/ids`, {
       credentials: "include",
     });
 
@@ -773,13 +776,10 @@ const addToFavorite = async (book) => {
   book.isLoading = true;
 
   try {
-    const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${book.id}`,
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
+    const response = await fetch(`${baseURL}/api/auth/favorites/${book.id}`, {
+      method: "POST",
+      credentials: "include",
+    });
 
     if (!response.ok) throw new Error("Failed to add favorite");
 
@@ -956,7 +956,7 @@ const submitRequest = async () => {
       price: parseFloat(trimmed.price),
     };
 
-    await axios.post("http://localhost:8080/api/requests", payload, {
+    await axios.post(`${baseURL}/api/requests`, payload, {
       withCredentials: true,
     });
 

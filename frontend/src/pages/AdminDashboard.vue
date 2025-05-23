@@ -88,13 +88,14 @@ const topBooks = ref([]);
 const insights = ref([]);
 const heatmapData = ref({ columns: [], rows: [] });
 const selectedField = ref("");
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {
     const [fieldRes, bookRes, topRes] = await Promise.all([
-      axios.get("http://localhost:8080/api/admin/active-users-by-field"),
-      axios.get("http://localhost:8080/api/admin/favorite-books-by-field"),
-      axios.get("http://localhost:8080/api/admin/top-books-matrix"),
+      axios.get(`${baseURL}/api/admin/active-users-by-field`),
+      axios.get(`${baseURL}/api/admin/favorite-books-by-field`),
+      axios.get(`${baseURL}/api/admin/top-books-matrix`),
     ]);
 
     heatmapData.value = {

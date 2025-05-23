@@ -189,7 +189,7 @@ import axios from "axios";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const isbnError = ref("");
 const yearError = ref("");
 const priceError = ref("");
@@ -319,7 +319,7 @@ const submitRequest = async () => {
       price: parseFloat(trimmed.price),
     };
 
-    await axios.post("http://localhost:8080/api/requests", payload, {
+    await axios.post(`${baseURL}/api/requests`, payload, {
       withCredentials: true,
     });
 

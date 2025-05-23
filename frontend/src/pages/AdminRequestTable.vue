@@ -230,6 +230,7 @@ const additionalRequests = ref([]);
 const filters = ref({ search: "", status: "" });
 const isMobile = ref(window.innerWidth <= 768);
 const currentPage = ref(1);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -237,7 +238,7 @@ const checkIsMobile = () => {
 
 const handleStatusChange = async (book) => {
   try {
-    const res = await fetch(`http://localhost:8080/api/books/${book.id}/status`, {
+    const res = await fetch(`${baseURL}/api/books/${book.id}/status`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: book.status }),
@@ -252,7 +253,7 @@ const handleStatusChange = async (book) => {
 
 const loadAdditionalRequests = async () => {
   try {
-    const res = await fetch("http://localhost:8080/api/admin/request-table", {
+    const res = await fetch(`${baseURL}/api/admin/request-table`, {
       credentials: "include",
     });
     const data = await res.json();
@@ -305,9 +306,9 @@ watch(activeTab, (tab) => {
 onMounted(async () => {
   window.addEventListener("resize", checkIsMobile);
   try {
-    const resBooks = await fetch("http://localhost:8080/api/books");
+    const resBooks = await fetch(`${baseURL}/api/books`);
     const books = await resBooks.json();
-    const resCounts = await fetch("http://localhost:8080/api/admin/favorite-counts", {
+    const resCounts = await fetch(`${baseURL}/api/admin/favorite-counts`, {
       credentials: "include",
     });
     const counts = await resCounts.json();

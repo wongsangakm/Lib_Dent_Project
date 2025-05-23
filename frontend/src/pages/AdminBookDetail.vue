@@ -96,6 +96,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const route = useRoute();
 const book = ref(null);
@@ -111,7 +112,7 @@ const editableBook = ref({
 const fetchBookById = async () => {
   const bookId = route.params.id;
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`);
+    const response = await fetch(`${baseURL}/api/books/${bookId}`);
     const data = await response.json();
     book.value = data;
     editableBook.value = { ...data };
@@ -126,7 +127,7 @@ onMounted(fetchBookById);
 const saveChanges = async () => {
   const bookId = route.params.id;
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`, {
+    const response = await fetch(`${baseURL}/api/books/${bookId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(editableBook.value),

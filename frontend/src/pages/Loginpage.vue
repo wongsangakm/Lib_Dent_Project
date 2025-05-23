@@ -66,6 +66,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -77,7 +78,7 @@ const formData = reactive({
 
 async function handleSubmit() {
   try {
-    const response = await fetch("http://localhost:8080/api/auth/login", {
+    const response = await fetch(`${baseURL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

@@ -113,13 +113,14 @@ import bgImage from "@/image/Background.png";
 
 const favouritesStore = useFavouritesStore();
 const favourites = computed(() => favouritesStore.favourites);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // Request history (ดึงจาก backend จริง)
 const requestHistory = ref([]);
 
 const fetchRequestHistory = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/api/requests/history', {
+    const response = await axios.get(`${baseURL}/api/requests/history`, {
       withCredentials: true,
     });
     requestHistory.value = response.data.map(req => ({

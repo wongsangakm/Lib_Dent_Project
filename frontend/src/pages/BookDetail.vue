@@ -200,6 +200,7 @@ const bookData = ref(null);
 const isLoading = ref(false);
 const isFavorited = ref(false);
 const isLoadingData = ref(true);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // Mobile detection
 const isMobile = ref(window.innerWidth < 640);
@@ -237,7 +238,7 @@ onMounted(async () => {
 
 const fetchBookData = async (bookId) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`, {
+    const response = await fetch(`${baseURL}/api/books/${bookId}`, {
       credentials: "include",
     });
     if (!response.ok) throw new Error("Failed to fetch book data");
@@ -273,7 +274,7 @@ const addToFavorite = async () => {
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${bookData.value.id}`,
+      `${baseURL}/api/auth/favorites/${bookData.value.id}`,
       {
         method: "POST",
         credentials: "include",
@@ -298,7 +299,7 @@ const fetchFavoriteStatus = async (bookId) => {
 
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${bookId}`,
+      `${baseURL}/api/auth/favorites/${bookId}`,
       {
         credentials: "include",
       }

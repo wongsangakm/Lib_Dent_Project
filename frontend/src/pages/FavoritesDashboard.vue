@@ -344,11 +344,12 @@ const userFavorites = ref([]);
 const books = ref([]);
 const overallSummary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
 const summary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {
     const { data } = await axios.get(
-      "http://localhost:8080/api/user/dashboard",
+      `${baseURL}/api/user/dashboard`,
       {
         withCredentials: true,
       }

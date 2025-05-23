@@ -98,6 +98,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const router = useRouter();
 const favouritesStore = useFavouritesStore();
@@ -116,7 +117,7 @@ const book = ref({
 const saveBook = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:8080/api/books",
+      `${baseURL}/api/books`,
       book.value
     );
     alert("✅ Book added successfully!");
@@ -147,7 +148,7 @@ async function uploadExcel() {
 
   try {
     const response = await axios.post(
-      "http://localhost:8080/api/books/upload",
+      `${baseURL}/api/books/upload`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },

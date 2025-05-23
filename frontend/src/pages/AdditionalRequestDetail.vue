@@ -298,11 +298,12 @@ const showApproveDialog = ref(false);
 const finalStatus = ref("");
 const successMessage = ref("");
 const isUpdating = ref(false);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // โหลดคำขอ
 const loadRequest = async () => {
   try {
-    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}`, {
+    const res = await fetch(`${baseURL}/api/admin/request-table/${requestId}`, {
       credentials: 'include'
     });
     if (!res.ok) throw new Error("Request not found");
@@ -318,7 +319,7 @@ const loadRequest = async () => {
 const confirmApprove = async () => {
   isUpdating.value = true;
   try {
-    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/approve`, {
+    const res = await fetch(`${baseURL}/api/admin/request-table/${requestId}/approve`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -354,7 +355,7 @@ const rejectRequest = async () => {
   if (!confirmReject) return;
 
   try {
-    const res = await fetch(`http://localhost:8080/api/admin/request-table/${requestId}/reject`, {
+    const res = await fetch(`${baseURL}/api/admin/request-table/${requestId}/reject`, {
       method: 'PUT',
       credentials: 'include'
     });
