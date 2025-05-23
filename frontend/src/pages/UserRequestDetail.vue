@@ -10,7 +10,7 @@
   >
     <Header />
 
-    <div class="container mx-auto px-4 pt-24 pb-8 w-full max-w-5xl flex-1">
+    <div class="container mx-auto px-4 pt-24 pb-8 w-full max-w-3xl flex-1">
       <!-- Page Header -->
       <div class="text-center mb-8">
         <h1

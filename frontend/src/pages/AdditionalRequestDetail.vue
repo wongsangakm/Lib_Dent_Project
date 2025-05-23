@@ -22,7 +22,7 @@
       </div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 py-8 sm:px-6">
+    <div class="max-w-4xl mx-auto px-4 py-8 sm:px-6">
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center py-20">
         <div class="flex flex-col items-center gap-4">
