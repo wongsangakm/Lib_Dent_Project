@@ -79,7 +79,7 @@ public class AdminUserController {
 
 
     @CrossOrigin(
-    origins = "http://localhost:5173",
+    origins = "https://requestbooks-dentkku.vercel.app",
     methods = {RequestMethod.PATCH, RequestMethod.OPTIONS},
     allowedHeaders = "*",
     allowCredentials = "true"

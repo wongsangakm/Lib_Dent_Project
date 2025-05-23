@@ -15,8 +15,8 @@ public class SessionConfig {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
         serializer.setCookieName("SESSIONID");  // กำหนดชื่อ Cookie
         serializer.setCookiePath("/");
-        serializer.setDomainName("localhost"); // หาก deploy ต้องเปลี่ยนเป็น domain จริง
-        serializer.setUseSecureCookie(false); // เปลี่ยนเป็น true ถ้าใช้ HTTPS
+        serializer.setDomainName("requestbooks-dentkku.vercel.app"); // หาก deploy ต้องเปลี่ยนเป็น domain จริง
+        serializer.setUseSecureCookie(true); // เปลี่ยนเป็น true ถ้าใช้ HTTPS
         return serializer;
     }
 }

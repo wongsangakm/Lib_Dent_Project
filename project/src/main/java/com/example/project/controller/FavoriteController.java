@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth/favorites")
 
