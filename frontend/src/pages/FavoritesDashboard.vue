@@ -88,9 +88,9 @@
           <BarChart3 class="mr-2 h-5 w-5 text-gray-700" />
           สัดส่วนสถานะหนังสือในระบบ
         </h2>
-        <div class="h-6 bg-gray-200 rounded-full overflow-hidden flex">
+        <div class="h-6 bg-pink-100 rounded-full overflow-hidden flex">
           <div
-            v-if="inShelfCount > 0"
+            v-if="overallSummary.inShelf > 0"
             class="h-full bg-green-500"
             :style="{
               width: `${
@@ -101,7 +101,7 @@
             }"
           ></div>
           <div
-            v-if="orderedCount > 0"
+            v-if="overallSummary.ordered > 0"
             class="h-full bg-blue-500"
             :style="{
               width: `${
@@ -112,7 +112,7 @@
             }"
           ></div>
           <div
-            v-if="requestedCount > 0"
+            v-if="overallSummary.requested > 0"
             class="h-full bg-purple-500"
             :style="{
               width: `${
