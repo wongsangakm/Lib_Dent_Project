@@ -15,4 +15,7 @@ export default defineConfig({
   server: {
     historyApiFallback: true,
   },
+   build: {
+    outDir: 'dist' // 💡 ให้ Vercel รู้ว่า static อยู่ที่นี่
+  }
 });
