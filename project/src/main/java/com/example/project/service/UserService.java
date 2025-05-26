@@ -15,20 +15,18 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-public Optional<User> authenticate(String username, String password) {
-    return userRepository.findByUsernameIgnoreCase(username)
-        .filter(user -> {
-            System.out.println("🔍 input password = " + password);
-            System.out.println("🧂 stored password = " + user.getPassword());
-            return password.equals(user.getPassword());
+
+    public Optional<User> authenticate(String username, String password) {
+        return userRepository.findByUsernameIgnoreCase(username)
+              .filter(user -> {
+            String stored = user.getPassword();
+            if (stored.startsWith("$2a$")) {
+                // รหัสผ่านถูกเข้ารหัสแล้ว
+                return passwordEncoder.matches(password, stored);
+            } else {
+                // รหัสผ่านยังเป็น plain text
+                return stored.equals(password);
+            }
         });
-}
-
-
-
-
-
-
-
-
+    }
 }
