@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,16 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
+            System.out.println("📱 เข้ามา login request จากมือถือหรืออุปกรณ์ใดก็ตาม");
+            System.out.println("Username (raw): [" + request.getUsername() + "]");
+            System.out.println("Password (raw): [" + request.getPassword() + "]");
+
+            Enumeration<String> headerNames = httpRequest.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = headerNames.nextElement();
+                System.out.println(headerName + ": " + httpRequest.getHeader(headerName));
+            }
+
             Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
             if (userOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
