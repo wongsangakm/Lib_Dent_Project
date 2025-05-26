@@ -18,16 +18,26 @@ public class UserService {
 
 public Optional<User> authenticate(String username, String rawPassword) {
     Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
-    if (userOpt.isPresent()) {
-        User user = userOpt.get();
-        
-        // 👇 ใช้แบบ plain-text ชั่วคราวเพื่อเทส
-        if (user.getPassword().equals(rawPassword)) {
-            return userOpt;
-        }
+    
+    if (userOpt.isEmpty()) {
+        System.out.println("❌ User not found: " + username);
+        return Optional.empty();
     }
-    return Optional.empty();
+
+    User user = userOpt.get();
+    String storedPassword = user.getPassword();
+    
+    if (storedPassword == null) {
+        System.out.println("❌ Stored password is null for user: " + username);
+        return Optional.empty();
+    }
+
+    boolean match = passwordEncoder.matches(rawPassword, storedPassword);
+    System.out.println("✅ Password match result: " + match);
+    
+    return match ? userOpt : Optional.empty();
 }
+
 
 
 
