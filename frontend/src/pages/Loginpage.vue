@@ -79,25 +79,30 @@ const formData = reactive({
 async function handleSubmit() {
   try {
     const response = await fetch(`${baseURL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
-        }),
-        credentials: "include"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: formData.username,
+        password: formData.password,
+      }),
+      credentials: "include",
     });
 
     if (response.ok) {
-      await response.text(); 
-      const res = await fetch("http://localhost:8080/api/auth/me", { credentials: "include" });
+      await response.text();
+      const res = await fetch(`${baseURL}/api/auth/me`, {
+        credentials: "include",
+      });
       const data = await res.json();
       authStore.login(data.username, data.role);
 
       // 🔄 ดึง favBooks ของผู้ใช้
-      const favRes = await fetch("http://localhost:8080/api/auth/favorites", {method: 'GET', credentials: "include" });
+      const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
+        method: "GET",
+        credentials: "include",
+      });
       authStore.setFavBooks(await favRes.json());
 
       if (data.role === "ADMIN") {
@@ -113,9 +118,6 @@ async function handleSubmit() {
   }
 }
 </script>
-
-
-
 
 <style>
 @import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";
