@@ -16,17 +16,10 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Optional<User> authenticate(String username, String password) {
-        return userRepository.findByUsernameIgnoreCase(username)
-              .filter(user -> {
-            String stored = user.getPassword();
-            if (stored.startsWith("$2a$")) {
-                // รหัสผ่านถูกเข้ารหัสแล้ว
-                return passwordEncoder.matches(password, stored);
-            } else {
-                // รหัสผ่านยังเป็น plain text
-                return stored.equals(password);
-            }
-        });
-    }
+public Optional<User> authenticate(String username, String rawPassword) {
+    return userRepository.findByUsernameIgnoreCase(username)
+        .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()));
+}
+
+
 }
