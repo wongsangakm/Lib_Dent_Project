@@ -39,7 +39,17 @@
       >
         ความสัมพันธ์
       </button>
+
+      <button
+        class="py-2 px-4 font-medium"
+        :class="activeTab === 'budgetReport' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'"
+        @click="activeTab = 'budgetReport'"
+      >
+        งบสั่งซื้อ
+      </button>
     </div>
+
+    
 
     <!-- Overview Tab -->
     <OverviewTab
@@ -63,6 +73,9 @@
       :rows="heatmapData.rows"
     />
 
+    <BudgetReportTab v-if="activeTab === 'budgetReport'" />
+
+
     <!-- Insight -->
     <div class="mt-8 bg-gray-50 p-4 rounded-lg">
       <h2 class="text-lg font-medium text-gray-700 mb-2">คำแนะนำจากข้อมูล</h2>
@@ -80,6 +93,7 @@ import { ref, onMounted } from "vue";
 import OverviewTab from "./tabs/OverviewTab.vue";
 import ByFieldTab from "./tabs/ByFieldTab.vue";
 import HeatmapTab from "./tabs/HeatmapTab.vue";
+import BudgetReportTab from "./tabs/BudgetReportTab.vue";
 import axios from "axios";
 const activeTab = ref("overview");
 const bookInterestByField = ref({});
