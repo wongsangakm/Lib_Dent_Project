@@ -18,6 +18,7 @@ public class SessionConfig {
       
         serializer.setSameSite("None");        // เพื่อให้ cross-origin ได้
         serializer.setUseSecureCookie(true);  
+        serializer.setDomainNamePattern("^(.+\\.)?vercel\\.app$");
         return serializer;
     }
 }
