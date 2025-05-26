@@ -18,11 +18,12 @@ public class UserService {
 public Optional<User> authenticate(String username, String password) {
     return userRepository.findByUsernameIgnoreCase(username)
         .filter(user -> {
-            String stored = user.getPassword();
-            // ❗ เช็คว่าเป็น plaintext ตรง ๆ
-            return password.equals(stored);  
+            System.out.println("🔍 input password = " + password);
+            System.out.println("🧂 stored password = " + user.getPassword());
+            return password.equals(user.getPassword());
         });
 }
+
 
 
 
