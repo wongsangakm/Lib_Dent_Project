@@ -17,9 +17,19 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
 public Optional<User> authenticate(String username, String rawPassword) {
-    return userRepository.findByUsernameIgnoreCase(username)
-        .filter(user -> passwordEncoder.matches(rawPassword, user.getPassword()));
+    Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+    if (userOpt.isPresent()) {
+        User user = userOpt.get();
+        
+        // 👇 ใช้แบบ plain-text ชั่วคราวเพื่อเทส
+        if (user.getPassword().equals(rawPassword)) {
+            return userOpt;
+        }
+    }
+    return Optional.empty();
 }
+
+
 
 
 }
