@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.project.model.User;
 import com.example.project.repository.UserRepository;
+import com.example.project.service.AdminSettingsService;
+
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @RestController
@@ -30,6 +33,10 @@ public class AdminUserController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AdminSettingsService adminSettingsService;
+
 
     @PatchMapping("/admin/users/{id}/change-password")
     public ResponseEntity<?> changePasswordByAdmin(
@@ -96,6 +103,19 @@ public class AdminUserController {
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Password reset to default"));
+    }
+
+    @PostMapping("/admin/settings/update-email")
+    public ResponseEntity<?> updateEmail(@RequestBody Map<String, String> body) {
+        String newEmail = body.get("email");
+        adminSettingsService.updateRecipientEmail(newEmail);
+        return ResponseEntity.ok(Map.of("message", "Email updated", "newEmail", newEmail));
+    }
+
+    @GetMapping("/admin/settings/email")
+    public ResponseEntity<?> getCurrentEmail() {
+        String email = adminSettingsService.getRecipientEmail();
+        return ResponseEntity.ok(Map.of("recipientEmail", email));
     }
 
 
