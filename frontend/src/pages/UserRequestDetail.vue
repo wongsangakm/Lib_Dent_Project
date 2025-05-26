@@ -463,7 +463,7 @@
             <div v-if="request.reason" class="pt-6 border-t border-slate-100">
               <!-- description section -->
               <label
-                class=" block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"
+                class="block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"
               >
                 <svg
                   class="w-4 h-4 text-slate-500"
@@ -560,13 +560,13 @@ import bgImage from "@/image/Background.png";
 const route = useRoute();
 const router = useRouter();
 const requestId = route.params.id;
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const request = ref(null);
 const loading = ref(true);
 
 const loadRequest = async () => {
   try {
-    const res = await fetch(`http://localhost:8080/api/requests/${requestId}`, {
+    const res = await fetch(`${baseURL}/api/requests/${requestId}`, {
       credentials: "include",
     });
     if (!res.ok) throw new Error("Request not found");
