@@ -15,23 +15,15 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-public Optional<User> authenticate(String username, String rawPassword) {
-    System.out.println("🔍 Looking for username: " + username);
-
-    Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
-    if (userOpt.isPresent()) {
-        User user = userOpt.get();
-        System.out.println("✅ User found. Encoded password = " + user.getPassword());
-
-        boolean matches = passwordEncoder.matches(rawPassword, user.getPassword());
-        System.out.println("🔐 Password match: " + matches);
-        return matches ? userOpt : Optional.empty();
-    }
-
-    System.out.println("❌ User not found");
-    return Optional.empty();
+public Optional<User> authenticate(String username, String password) {
+    return userRepository.findByUsernameIgnoreCase(username)
+        .filter(user -> {
+            String stored = user.getPassword();
+            // ❗ เช็คว่าเป็น plaintext ตรง ๆ
+            return password.equals(stored);  
+        });
 }
+
 
 
 
