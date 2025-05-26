@@ -18,15 +18,20 @@ public class UserService {
 
     public Optional<User> authenticate(String username, String password) {
         return userRepository.findByUsernameIgnoreCase(username)
-              .filter(user -> {
-            String stored = user.getPassword();
-            if (stored.startsWith("$2a$")) {
-                // รหัสผ่านถูกเข้ารหัสแล้ว
-                return passwordEncoder.matches(password, stored);
-            } else {
-                // รหัสผ่านยังเป็น plain text
-                return stored.equals(password);
-            }
-        });
+            .filter(user -> {
+                String stored = user.getPassword();
+                System.out.println("💬 Stored: " + stored);
+                System.out.println("💬 Input: " + password);
+                if (stored.startsWith("$2a$")) {
+                    boolean match = passwordEncoder.matches(password, stored);
+                    System.out.println("✅ Bcrypt match = " + match);
+                    return match;
+                } else {
+                    boolean match = password.equals(stored);
+                    System.out.println("✅ Plain match = " + match);
+                    return match;
+                }
+            });
     }
+
 }
