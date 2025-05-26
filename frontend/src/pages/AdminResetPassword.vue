@@ -289,7 +289,7 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 onMounted(async () => {
   try {
     loading.value = true;
-    const res = await fetch(`${baseUrl}/api/admin/users`, {
+    const res = await fetch(`${baseURL}/api/admin/users`, {
       credentials: "include",
       headers: {
         Accept: "application/json",
@@ -336,7 +336,7 @@ const resetPassword = async (userId) => {
     resetting.value = userId;
 
     const res = await fetch(
-      `${baseUrl}/api/admin/users/${userId}/reset-password`,
+      `${baseURL}/api/admin/users/${userId}/reset-password`,
       {
         method: "PATCH",
         headers: {
