@@ -89,7 +89,7 @@ const insights = ref([]);
 const heatmapData = ref({ columns: [], rows: [] });
 const selectedField = ref("");
 const baseURL = import.meta.env.VITE_API_BASE_URL;
-
+const mostPopular = topBooks.value?.[0];
 onMounted(async () => {
   try {
     const [fieldRes, bookRes, topRes] = await Promise.all([
@@ -117,9 +117,9 @@ onMounted(async () => {
       }
     }
 
-    if (topBooks.value.length > 0) {
+    if (mostPopular?.title && mostPopular?.favorites != null) {
       insightList.push(
-        `หนังสือ "${topBooks.value[0].name}" ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน (${topBooks.value[0].value} คน)`
+        `หนังสือ "${mostPopular.title}" ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน (${mostPopular.favorites} คน)`
       );
     }
 
