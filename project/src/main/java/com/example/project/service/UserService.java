@@ -17,26 +17,22 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
 public Optional<User> authenticate(String username, String rawPassword) {
+    System.out.println("🔍 Looking for username: " + username);
+
     Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
-    
-    if (userOpt.isEmpty()) {
-        System.out.println("❌ User not found: " + username);
-        return Optional.empty();
+    if (userOpt.isPresent()) {
+        User user = userOpt.get();
+        System.out.println("✅ User found. Encoded password = " + user.getPassword());
+
+        boolean matches = passwordEncoder.matches(rawPassword, user.getPassword());
+        System.out.println("🔐 Password match: " + matches);
+        return matches ? userOpt : Optional.empty();
     }
 
-    User user = userOpt.get();
-    String storedPassword = user.getPassword();
-    
-    if (storedPassword == null) {
-        System.out.println("❌ Stored password is null for user: " + username);
-        return Optional.empty();
-    }
-
-    boolean match = passwordEncoder.matches(rawPassword, storedPassword);
-    System.out.println("✅ Password match result: " + match);
-    
-    return match ? userOpt : Optional.empty();
+    System.out.println("❌ User not found");
+    return Optional.empty();
 }
+
 
 
 
