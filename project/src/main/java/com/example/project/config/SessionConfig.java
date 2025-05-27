@@ -7,7 +7,7 @@ import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 
 @Configuration
-@EnableJdbcHttpSession(maxInactiveIntervalInSeconds = 1800)  // 30 นาที
+@EnableJdbcHttpSession(maxInactiveIntervalInSeconds = 1800, cleanupCron = "0 */5 * * * *"    )  // 30 นาที
 public class SessionConfig {
 
     @Bean
