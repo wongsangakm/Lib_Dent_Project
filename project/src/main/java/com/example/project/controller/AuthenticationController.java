@@ -4,7 +4,7 @@ import com.example.project.model.User;
 import com.example.project.payload.request.LoginRequest;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.UserService;
-
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -45,6 +45,14 @@ public class AuthenticationController {
                 String headerName = headerNames.nextElement();
                 System.out.println(headerName + ": " + httpRequest.getHeader(headerName));
             }
+               // ✅ log cookie
+            if (httpRequest.getCookies() != null) {
+                for (Cookie cookie : httpRequest.getCookies()) {
+                    System.out.println("🍪 Cookie: " + cookie.getName() + " = " + cookie.getValue());
+                }
+            } else {
+                System.out.println("🍪 ไม่มี cookie แนบมาด้วย");
+            }
 
             Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
             if (userOpt.isEmpty()) {
@@ -58,6 +66,7 @@ public class AuthenticationController {
                 System.out.println("📎 Existing Session ID: " + oldSession.getId()); // ✅ แสดง session เดิม
                 oldSession.invalidate(); // 🔄 ลบทิ้ง
             }
+            
 
             HttpSession session = httpRequest.getSession(true); // regenerate session
             User user = userOpt.get();
