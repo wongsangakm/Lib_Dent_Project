@@ -111,7 +111,8 @@ async function handleSubmit() {
         router.push("/"); // ไปหน้า Home ถ้า role เป็น MEMBER
       }
     } else {
-      alert("❌ Username หรือ Password ไม่ถูกต้อง");
+      const text = await response.text(); // อ่านข้อความจาก backend ตรง ๆ
+      alert("❌ Login ล้มเหลว: " + text);
     }
   } catch (err) {
     console.error("❌ error:", err);
