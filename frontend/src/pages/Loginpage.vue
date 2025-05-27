@@ -117,12 +117,10 @@ async function handleSubmit() {
   } catch (err) {
     console.error("❌ error:", err);
 
-    if (err instanceof TypeError) {
-      alert("❌ เกิดข้อผิดพลาดที่ network หรือ fetch: " + err.message);
-    } else if (err.response) {
-      const text = await err.response.text();
-      alert("❌ Backend ตอบกลับ: " + text);
+    if (err instanceof Error) {
+      alert("❌ เกิดข้อผิดพลาด: " + err.message);
     } else {
+      // fallback กรณีไม่ใช่ Error object
       alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err));
     }
   }
