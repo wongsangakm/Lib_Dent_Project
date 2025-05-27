@@ -281,6 +281,7 @@ const addToFavorite = async () => {
         method: "POST",
         headers: {
           ...authStore.getAuthHeader(),
+          "Content-Type": "application/json",
         },
       }
     );
