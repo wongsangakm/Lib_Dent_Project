@@ -10,6 +10,8 @@ public class BudgetReportDTO {
     private double totalBudget;
     private int totalBooks;
     private List<BookItem> books;
+    private List<BookItem> additionalRequests;
+
 
     // getters & setters
 

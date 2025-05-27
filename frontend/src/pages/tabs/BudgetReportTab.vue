@@ -40,7 +40,7 @@
 
       <button
         @click="fetchReport"
-        class="bg-blue-600 text-white px-4 py-2 rounded"
+        class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-transform duration-300 text-sm flex items-center justify-center"
       >
         ดูรายงาน
       </button>
@@ -57,31 +57,80 @@
         <div>ปีงบประมาณ: {{ reportData.budgetYear }}</div>
         <div>สถานะ: {{ statusText(reportData.status) }}</div>
       </div>
-      <!-- รายการหนังสือ -->
-<div class="mt-6">
-  <h3 class="text-lg font-semibold mb-2">รายการหนังสือ</h3>
-  <div v-if="reportData.books.length === 0">ไม่พบข้อมูล</div>
-  <table v-else class="w-full table-auto border border-collapse">
-    <thead class="bg-gray-200">
-      <tr>
-        <th class="border px-2 py-1">ชื่อหนังสือ</th>
-        <th class="border px-2 py-1">ISBN</th>
-        <th class="border px-2 py-1">ราคา</th>
-        <th class="border px-2 py-1">สำนักพิมพ์</th>
-        <th class="border px-2 py-1">สถานะ</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="book in reportData.books" :key="book.isbn">
-        <td class="border px-2 py-1">{{ book.title }}</td>
-        <td class="border px-2 py-1">{{ book.isbn }}</td>
-        <td class="border px-2 py-1">{{ book.price?.toLocaleString() }} บาท</td>
-        <td class="border px-2 py-1">{{ book.publisher }}</td>
-        <td class="border px-2 py-1">{{ statusText(book.status) }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+
+      <!-- ตารางหนังสือ -->
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold mb-2">รายการหนังสือ</h3>
+        <div v-if="reportData.books.length === 0">ไม่พบข้อมูล</div>
+        <table v-else class="w-full table-auto border border-collapse">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="border px-2 py-1">ชื่อหนังสือ</th>
+              <th class="border px-2 py-1">ISBN</th>
+              <th class="border px-2 py-1">ราคา</th>
+              <th class="border px-2 py-1">สำนักพิมพ์</th>
+              <th class="border px-2 py-1">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="book in reportData.books" :key="book.isbn">
+              <td class="border px-2 py-1">{{ book.title }}</td>
+              <td class="border px-2 py-1">{{ book.isbn }}</td>
+              <td class="border px-2 py-1">{{ book.price?.toLocaleString() }} บาท</td>
+              <td class="border px-2 py-1">{{ book.publisher }}</td>
+              <td class="border px-2 py-1">
+                <span class="px-2 py-1 rounded inline-block"
+                  :class="{
+                    'bg-green-100 text-green-700': book.status === 'in_shelf',
+                    'bg-blue-100 text-blue-800': book.status === 'ordered',
+                    'bg-purple-100 text-purple-800': book.status === 'popular_request',
+                    'bg-yellow-100 text-yellow-800': book.status === 'PENDING',
+                    'bg-red-100 text-red-700': book.status === 'REJECTED'
+                  }">
+                  {{ displayStatus(book.status) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ตาราง AdditionalRequest -->
+      <div class="mt-8">
+        <h3 class="text-lg font-semibold mb-2">คำร้องขอเพิ่มเติม</h3>
+        <h1 class="text-lg mb-2">ไม่แสดงคำร้องที่ถูกปฎิเสธ (REJECTED)</h1>
+        <div v-if="reportData.additionalRequests.length === 0">ไม่พบข้อมูล</div>
+        <table v-else class="w-full table-auto border border-collapse">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="border px-2 py-1">ชื่อหนังสือ</th>
+              <th class="border px-2 py-1">ISBN</th>
+              <th class="border px-2 py-1">ราคา</th>
+              <th class="border px-2 py-1">สำนักพิมพ์</th>
+              <th class="border px-2 py-1">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="req in reportData.additionalRequests" :key="req.id">
+              <td class="border px-2 py-1">{{ req.title }}</td>
+              <td class="border px-2 py-1">{{ req.isbn }}</td>
+              <td class="border px-2 py-1">{{ req.price?.toLocaleString() }} บาท</td>
+              <td class="border px-2 py-1">{{ req.publisher }}</td>
+              <td class="border px-2 py-1">
+                <span class="px-2 py-1 rounded inline-block"
+                  :class="{
+                    'bg-green-100 text-green-700': req.status === 'in_shelf',
+                    'bg-blue-100 text-blue-800': req.status === 'ordered',
+                    'bg-purple-100 text-purple-800': req.status === 'popular_request',
+                    'bg-yellow-100 text-yellow-800': req.status === 'PENDING'
+                  }">
+                  {{ displayStatus(req.status) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
     </div>
   </div>
@@ -100,6 +149,7 @@ const reportData = ref({
   totalBooks: 0,
   totalAmount: 0,
   books: [],
+  additionalRequests: [],
 });
 
 const months = [
@@ -125,8 +175,26 @@ const statusText = (status) => {
     : "-";
 };
 
+const displayStatus = (status) => {
+  const normalized = status?.toLowerCase();
+  switch (normalized) {
+    case "in_shelf":
+      return "มีในชั้นหนังสือแล้ว";
+    case "ordered":
+      return "กำลังสั่งซื้อ";
+    case "popular_request":
+      return "กำลังพิจารณาจัดซื้อ";
+    case "pending":
+      return "รอการอนุมัติ";
+    case "rejected":
+      return "ถูกปฏิเสธ";
+    default:
+      return status;
+  }
+};
+
 const fetchReport = async () => {
-    console.log("🔍 เรียก fetchReport แล้ว");
+  console.log("🔍 เรียก fetchReport แล้ว");
   try {
     const res = await axios.get("http://localhost:8080/api/admin/budget-report", {
       params: {
@@ -138,12 +206,15 @@ const fetchReport = async () => {
       withCredentials: true,
     });
 
-     console.log("✅ ได้ข้อมูลจาก API", res.data);
+    console.log("✅ ได้ข้อมูลจาก API", res.data);
     const data = res.data;
     reportData.value = {
       totalBooks: data.totalBooks,
       totalAmount: data.totalBudget,
       books: data.books || [],
+      additionalRequests: (data.additionalRequests || []).filter(
+        (req) => req.status?.toLowerCase() !== 'rejected'
+      ),
     };
   } catch (err) {
     alert("เกิดข้อผิดพลาดในการดึงรายงานงบประมาณ");
@@ -151,4 +222,3 @@ const fetchReport = async () => {
   }
 };
 </script>
-
