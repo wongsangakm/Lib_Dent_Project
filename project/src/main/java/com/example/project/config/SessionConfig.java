@@ -16,9 +16,11 @@ public class SessionConfig {
         serializer.setCookieName("SESSIONID");  // กำหนดชื่อ Cookie
         serializer.setCookiePath("/");
       
-        serializer.setSameSite("None");        // เพื่อให้ cross-origin ได้
+          // 🔥 CRITICAL FIX for iOS Safari
+        serializer.setSameSite("Lax");  // เปลี่ยนจาก "None" เป็น "Lax"
+        serializer.setUseSecureCookie(true);  // ยังคงใช้ HTTPS
         serializer.setUseSecureCookie(true);  
-        serializer.setDomainNamePattern("^(.+\\.)?vercel\\.app$");
+        
         return serializer;
     }
 }

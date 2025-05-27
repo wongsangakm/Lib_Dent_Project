@@ -62,7 +62,6 @@
     <Footer class="mt-8" />
   </div>
 </template>
-
 <script setup>
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -79,12 +78,21 @@ const formData = reactive({
   username: "",
   password: "",
 });
+
 async function handleSubmit() {
   try {
+    const isIOSSafari =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
     const response = await fetch(`${baseURL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        // เพิ่ม headers สำหรับ iOS
+        ...(isIOSSafari && {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache", // ✅ เพิ่ม quotes
+        }),
       },
       body: JSON.stringify({
         username: formData.username,
@@ -94,10 +102,20 @@ async function handleSubmit() {
     });
 
     if (response.ok) {
+      // รอ 100ms ให้ cookie set เสร็จก่อน (สำหรับ iOS)
+      if (isIOSSafari) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
       await response.text();
       const res = await fetch(`${baseURL}/api/auth/me`, {
         credentials: "include",
       });
+
+      if (!res.ok) {
+        throw new Error(`/me request failed: ${res.status}`);
+      }
+
       const data = await res.json();
       console.log("📦 /me response:", data);
       authStore.login(data.username, data.role);
@@ -124,8 +142,14 @@ async function handleSubmit() {
     const errorMessage =
       err instanceof Error ? err.message : JSON.stringify(err);
     alert("❌ เกิดข้อผิดพลาด: " + errorMessage);
-    // 👇 แสดง log บนหน้าเว็บชั่วคราว
-    document.body.innerHTML += `<pre style="color:red;">[DEBUG LOG]<br>${errorMessage}</pre>`;
+
+    // ✅ ย้าย debug info เข้าไปใน catch block
+    const debugInfo = {
+      userAgent: navigator.userAgent,
+      cookies: document.cookie,
+      error: errorMessage,
+    };
+    console.error("Debug Info:", debugInfo);
   }
 }
 </script>
