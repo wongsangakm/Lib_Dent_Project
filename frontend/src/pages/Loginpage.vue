@@ -26,6 +26,8 @@
             <input
               type="text"
               v-model="formData.username"
+              autocomplete="off"
+              required
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               placeholder="Enter your username"
             />
@@ -35,6 +37,8 @@
             <input
               type="password"
               v-model="formData.password"
+              autocomplete="off"
+              required
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               placeholder="Enter your password"
             />
