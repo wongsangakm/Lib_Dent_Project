@@ -115,13 +115,14 @@ async function handleSubmit() {
       alert("❌ Login ล้มเหลว: " + text);
     }
   } catch (err) {
-    console.error("❌ error:", err);
+    console.error("❌ Error object:", err);
 
     if (err instanceof Error) {
       alert("❌ เกิดข้อผิดพลาด: " + err.message);
+    } else if (typeof err === "object") {
+      alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err, null, 2));
     } else {
-      // fallback กรณีไม่ใช่ Error object
-      alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err));
+      alert("❌ เกิดข้อผิดพลาด: " + String(err));
     }
   }
 }
