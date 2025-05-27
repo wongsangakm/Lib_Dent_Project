@@ -114,13 +114,11 @@ async function handleSubmit() {
       alert("❌ Login ล้มเหลว: " + text);
     }
   } catch (err) {
-    console.error("❌ Error:", err);
-
-    if (err instanceof Error) {
-      alert("❌ เกิดข้อผิดพลาด: " + err.message);
-    } else {
-      alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err));
-    }
+    const errorMessage =
+      err instanceof Error ? err.message : JSON.stringify(err);
+    alert("❌ เกิดข้อผิดพลาด: " + errorMessage);
+    // 👇 แสดง log บนหน้าเว็บชั่วคราว
+    document.body.innerHTML += `<pre style="color:red;">[DEBUG LOG]<br>${errorMessage}</pre>`;
   }
 }
 </script>
