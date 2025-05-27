@@ -96,11 +96,19 @@ public class AuthenticationController {
 
     //  ตรวจสอบ user ที่ login อยู่
     @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(HttpSession session) {
+    public ResponseEntity<?> getCurrentUser(HttpSession session, HttpServletRequest httpRequest) {
+         if (httpRequest.getCookies() != null) {
+            for (Cookie cookie : httpRequest.getCookies()) {
+                System.out.println("🍪 Cookie: " + cookie.getName() + " = " + cookie.getValue());
+            }
+        } else {
+            System.out.println("🍪 ไม่มี cookie แนบมาใน /me");
+        }
         String username = (String) session.getAttribute("username");
         String role = (String) session.getAttribute("role");
         Long userId = (Long) session.getAttribute("userId");
 
+        
         if (username == null || role == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
         }

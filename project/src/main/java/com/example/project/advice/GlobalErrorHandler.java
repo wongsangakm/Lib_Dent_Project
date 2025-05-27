@@ -9,7 +9,9 @@ public class GlobalErrorHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handle(Exception ex) {
-        ex.printStackTrace(); // ✅ log ไป backend
-        return ResponseEntity.badRequest().body("เกิดข้อผิดพลาดจากฝั่งเซิร์ฟเวอร์ กรุณาตรวจสอบข้อมูลที่กรอก");
+        ex.printStackTrace(); // ✅ log ไป console หรือ Render Logs
+        return ResponseEntity
+                .badRequest()
+                .body("⚠️ Spring Error: " + ex.getMessage());
     }
 }
