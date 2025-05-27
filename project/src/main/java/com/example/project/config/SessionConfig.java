@@ -17,7 +17,7 @@ public class SessionConfig {
         serializer.setCookiePath("/");
       
           // 🔥 CRITICAL FIX for iOS Safari
-        serializer.setSameSite("Lax");  // เปลี่ยนจาก "None" เป็น "Lax"
+        serializer.setSameSite("None");  // เปลี่ยนจาก "None" เป็น "Lax"
         serializer.setUseSecureCookie(true);  // ยังคงใช้ HTTPS
         serializer.setUseSecureCookie(true);  
         

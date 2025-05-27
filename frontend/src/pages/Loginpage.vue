@@ -62,6 +62,7 @@
     <Footer class="mt-8" />
   </div>
 </template>
+
 <script setup>
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
@@ -91,7 +92,7 @@ async function handleSubmit() {
         // เพิ่ม headers สำหรับ iOS
         ...(isIOSSafari && {
           "Cache-Control": "no-cache",
-          Pragma: "no-cache", // ✅ เพิ่ม quotes
+          Pragma: "no-cache",
         }),
       },
       body: JSON.stringify({
@@ -99,12 +100,16 @@ async function handleSubmit() {
         password: formData.password,
       }),
       credentials: "include",
+      // 🔥 เพิ่ม referrer policy สำหรับ iOS Safari
+      ...(isIOSSafari && {
+        referrerPolicy: "strict-origin-when-cross-origin",
+      }),
     });
 
     if (response.ok) {
-      // รอ 100ms ให้ cookie set เสร็จก่อน (สำหรับ iOS)
+      // รอ 200ms ให้ cookie set เสร็จก่อน (เพิ่มเวลาสำหรับ iOS)
       if (isIOSSafari) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
 
       await response.text();
