@@ -54,7 +54,10 @@ public class AuthenticationController {
             
             //  ลบ session เก่าและสร้างใหม่
             HttpSession oldSession = httpRequest.getSession(false);
-            if (oldSession != null) oldSession.invalidate();
+            if (oldSession != null) {
+                System.out.println("📎 Existing Session ID: " + oldSession.getId()); // ✅ แสดง session เดิม
+                oldSession.invalidate(); // 🔄 ลบทิ้ง
+            }
 
             HttpSession session = httpRequest.getSession(true); // regenerate session
             User user = userOpt.get();
