@@ -6,6 +6,7 @@ import com.example.project.repository.UserRepository;
 import com.example.project.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,66 +34,86 @@ public class AuthenticationController {
     @Autowired
     private PasswordEncoder passwordEncoder;
     //  Login regenerate session ใหม่
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
-        try {
-            System.out.println("📱 เข้ามา login request จากมือถือหรืออุปกรณ์ใดก็ตาม");
-            System.out.println("Username (raw): [" + request.getUsername() + "]");
-            System.out.println("Password (raw): [" + request.getPassword() + "]");
+   @PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginRequest request, 
+                              HttpServletRequest httpRequest, 
+                              HttpServletResponse httpResponse) { // เพิ่ม parameter นี้
+    try {
+        System.out.println("📱 เข้ามา login request จากมือถือหรืออุปกรณ์ใดก็ตาม");
+        System.out.println("Username (raw): [" + request.getUsername() + "]");
+        System.out.println("Password (raw): [" + request.getPassword() + "]");
 
-            Enumeration<String> headerNames = httpRequest.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                System.out.println(headerName + ": " + httpRequest.getHeader(headerName));
-            }
-               // ✅ log cookie
-            if (httpRequest.getCookies() != null) {
-                for (Cookie cookie : httpRequest.getCookies()) {
-                    System.out.println("🍪 Cookie: " + cookie.getName() + " = " + cookie.getValue());
-                }
-            } else {
-                System.out.println("🍪 ไม่มี cookie แนบมาด้วย");
-            }
-
-            Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
-            if (userOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-
-            
-            //  ลบ session เก่าและสร้างใหม่
-            HttpSession oldSession = httpRequest.getSession(false);
-            if (oldSession != null) {
-                System.out.println("📎 Existing Session ID: " + oldSession.getId()); // ✅ แสดง session เดิม
-                oldSession.invalidate(); // 🔄 ลบทิ้ง
-            }
-            
-
-            HttpSession session = httpRequest.getSession(true); // regenerate session
-            User user = userOpt.get();
-
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("username", user.getUsername());
-            session.setAttribute("role", user.getRole());
-
-            System.out.println("✅ Login success: " + user.getUsername()); 
-
-            boolean requireChangePassword = request.getPassword().equals("123456");
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login success");
-            response.put("username", user.getUsername());
-            response.put("role", user.getRole());
-            System.out.println("userId: " + session.getAttribute("userId")); // ✅ เพิ่มไว้หลัง setAttribute
-            response.put("requireChangePassword", requireChangePassword);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
+        Enumeration<String> headerNames = httpRequest.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            System.out.println(headerName + ": " + httpRequest.getHeader(headerName));
         }
+
+        // ✅ log cookie
+        if (httpRequest.getCookies() != null) {
+            for (Cookie cookie : httpRequest.getCookies()) {
+                System.out.println("🍪 Cookie: " + cookie.getName() + " = " + cookie.getValue());
+            }
+        } else {
+            System.out.println("🍪 ไม่มี cookie แนบมาด้วย");
+        }
+
+        Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+
+        // ลบ session เก่าและสร้างใหม่
+        HttpSession oldSession = httpRequest.getSession(false);
+        if (oldSession != null) {
+            System.out.println("📎 Existing Session ID: " + oldSession.getId());
+            oldSession.invalidate();
+        }
+
+        // สร้าง session ใหม่
+        HttpSession session = httpRequest.getSession(true);
+        User user = userOpt.get();
+
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("username", user.getUsername());
+        session.setAttribute("role", user.getRole());
+
+        // ตั้งค่า Cookie สำหรับ iOS Safari
+        Cookie sessionCookie = new Cookie("JSESSIONID", session.getId()); // ย้ายมาหลัง session.getId()
+        sessionCookie.setSecure(true);  // สำหรับ HTTPS
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setPath("/");
+        sessionCookie.setMaxAge(1800); // 30 นาที
+        
+        // สำคัญสำหรับ iOS Safari cross-origin
+        sessionCookie.setAttribute("SameSite", "None");
+        
+        httpResponse.addCookie(sessionCookie);
+        
+        // เพิ่ม CORS headers สำหรับ iOS
+        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        httpResponse.setHeader("Access-Control-Allow-Origin", "https://requestbooks-dentkku.vercel.app");
+
+        System.out.println("✅ Login success: " + user.getUsername());
+        System.out.println("🍪 Set Cookie - Session ID: " + session.getId());
+        System.out.println("userId: " + session.getAttribute("userId"));
+
+        boolean requireChangePassword = request.getPassword().equals("123456");
+
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("message", "Login success");
+        responseBody.put("username", user.getUsername());
+        responseBody.put("role", user.getRole());
+        responseBody.put("requireChangePassword", requireChangePassword);
+        
+        return ResponseEntity.ok(responseBody);
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
     }
+}
 
     //  ตรวจสอบ user ที่ login อยู่
     @GetMapping("/me")
