@@ -75,7 +75,6 @@ const formData = reactive({
   username: "",
   password: "",
 });
-
 async function handleSubmit() {
   try {
     const response = await fetch(`${baseURL}/api/auth/login`, {
@@ -106,23 +105,21 @@ async function handleSubmit() {
       authStore.setFavBooks(await favRes.json());
 
       if (data.role === "ADMIN") {
-        router.push("/admin"); // ไปหน้า system ถ้า role เป็น ADMIN
+        router.push("/admin");
       } else if (data.role === "MEMBER") {
-        router.push("/"); // ไปหน้า Home ถ้า role เป็น MEMBER
+        router.push("/");
       }
     } else {
-      const text = await response.text(); // อ่านข้อความจาก backend ตรง ๆ
+      const text = await response.text();
       alert("❌ Login ล้มเหลว: " + text);
     }
   } catch (err) {
-    console.error("❌ Error object:", err);
+    console.error("❌ Error:", err);
 
     if (err instanceof Error) {
       alert("❌ เกิดข้อผิดพลาด: " + err.message);
-    } else if (typeof err === "object") {
-      alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err, null, 2));
     } else {
-      alert("❌ เกิดข้อผิดพลาด: " + String(err));
+      alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err));
     }
   }
 }
