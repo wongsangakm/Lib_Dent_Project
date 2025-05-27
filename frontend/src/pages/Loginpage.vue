@@ -109,6 +109,8 @@ async function handleSubmit() {
         router.push("/admin");
       } else if (data.role === "MEMBER") {
         router.push("/");
+      } else {
+        alert("ไม่สามารถเข้าระบบได้: บทบาทไม่ถูกต้อง");
       }
     } else {
       const text = await response.text();
