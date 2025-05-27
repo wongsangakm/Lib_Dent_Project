@@ -95,6 +95,7 @@ async function handleSubmit() {
         credentials: "include",
       });
       const data = await res.json();
+      console.log("📦 /me response:", data);
       authStore.login(data.username, data.role);
 
       // 🔄 ดึง favBooks ของผู้ใช้
