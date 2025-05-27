@@ -114,7 +114,16 @@ async function handleSubmit() {
       alert("❌ Username หรือ Password ไม่ถูกต้อง");
     }
   } catch (err) {
-    alert("❌ เกิดข้อผิดพลาด: " + err.message);
+    console.error("❌ error:", err);
+
+    if (err instanceof TypeError) {
+      alert("❌ เกิดข้อผิดพลาดที่ network หรือ fetch: " + err.message);
+    } else if (err.response) {
+      const text = await err.response.text();
+      alert("❌ Backend ตอบกลับ: " + text);
+    } else {
+      alert("❌ เกิดข้อผิดพลาด: " + JSON.stringify(err));
+    }
   }
 }
 </script>
