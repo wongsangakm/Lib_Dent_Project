@@ -729,10 +729,9 @@ const updatePublisherCounts = () => {
 const fetchAllFavoriteStatuses = async () => {
   try {
     const res = await fetch(`${baseURL}/api/auth/favorites/ids`, {
-      credentials: "include",
+      headers: authStore.getAuthHeader(),
     });
 
-    // กรณีเกิด 403 หรือ response ไม่ใช่ 200
     if (!res.ok) {
       console.error(`❌ Failed to fetch: ${res.status} ${res.statusText}`);
       return;
@@ -778,7 +777,7 @@ const addToFavorite = async (book) => {
   try {
     const response = await fetch(`${baseURL}/api/auth/favorites/${book.id}`, {
       method: "POST",
-      credentials: "include",
+      headers: authStore.getAuthHeader(),
     });
 
     if (!response.ok) throw new Error("Failed to add favorite");
@@ -957,7 +956,7 @@ const submitRequest = async () => {
     };
 
     await axios.post(`${baseURL}/api/requests`, payload, {
-      withCredentials: true,
+      headers: authStore.getAuthHeader(),
     });
 
     alert("✅ Request submitted successfully!");

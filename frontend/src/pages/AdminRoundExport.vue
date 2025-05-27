@@ -51,6 +51,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const exportRounds = [
@@ -69,7 +71,11 @@ const exportToExcel = async (round) => {
     const year = new Date().getFullYear();
     const res = await fetch(
       `${baseURL}/api/admin/export/favorites?round=${round.id}&year=${year}`,
-      { credentials: "include" }
+      {
+        headers: {
+          ...authStore.getAuthHeader(),
+        },
+      }
     );
     const data = await res.json();
 
@@ -124,7 +130,11 @@ const exportToPDF = async (round) => {
     const year = new Date().getFullYear(); // ✅ ดึง year จาก system
     const res = await fetch(
       `${baseURL}/api/admin/export/favorites?round=${round.id}&year=${year}`,
-      { credentials: "include" }
+      {
+        headers: {
+          ...authStore.getAuthHeader(),
+        },
+      }
     );
     const data = await res.json();
 

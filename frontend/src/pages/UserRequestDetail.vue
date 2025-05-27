@@ -556,6 +556,8 @@ import { useRoute, useRouter } from "vue-router";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -567,7 +569,7 @@ const loading = ref(true);
 const loadRequest = async () => {
   try {
     const res = await fetch(`${baseURL}/api/requests/${requestId}`, {
-      credentials: "include",
+      headers: authStore.getAuthHeader(),
     });
     if (!res.ok) throw new Error("Request not found");
     request.value = await res.json();

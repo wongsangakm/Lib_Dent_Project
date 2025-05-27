@@ -98,6 +98,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
+
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const router = useRouter();
@@ -116,10 +119,9 @@ const book = ref({
 
 const saveBook = async () => {
   try {
-    const response = await axios.post(
-      `${baseURL}/api/books`,
-      book.value
-    );
+    const response = await axios.post(`${baseURL}/api/books`, book.value, {
+      headers: authStore.getAuthHeader(),
+    });
     alert("✅ Book added successfully!");
 
     // ดึงข้อมูลใหม่หลังเพิ่ม (optional)
@@ -147,13 +149,12 @@ async function uploadExcel() {
   formData.append("file", selectedFile.value);
 
   try {
-    const response = await axios.post(
-      `${baseURL}/api/books/upload`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
+    const response = await axios.post(`${baseURL}/api/books/upload`, formData, {
+      headers: {
+        ...authStore.getAuthHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    });
     alert("Upload successful: " + response.data);
   } catch (error) {
     alert("Upload failed: " + (error.response?.data || error.message));

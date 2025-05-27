@@ -24,7 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app", allowCredentials = "true")
+@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
 public class UserFavoriteDashboardController {
 
     @Autowired private FavoriteRepository favoriteRepository;

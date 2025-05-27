@@ -110,6 +110,9 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useFavouritesStore } from "@/stores/favourites";
+
+import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่มบรรทัดนี้
+const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const route = useRoute();
@@ -131,7 +134,7 @@ onMounted(async () => {
       const res = await fetch(
         `${baseURL}/api/auth/favorites/book/${bookId}/users`,
         {
-          credentials: "include",
+          headers: authStore.getAuthHeader(),
         }
       );
       const users = await res.json();

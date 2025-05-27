@@ -70,8 +70,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -79,82 +79,58 @@ const formData = reactive({
   username: "",
   password: "",
 });
-
 async function handleSubmit() {
   try {
-    const isIOSSafari =
-      /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
     const response = await fetch(`${baseURL}/api/auth/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // เพิ่ม headers สำหรับ iOS
-        ...(isIOSSafari && {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        }),
-      },
-      body: JSON.stringify({
-        username: formData.username,
-        password: formData.password,
-      }),
-      credentials: "include",
-      // 🔥 เพิ่ม referrer policy สำหรับ iOS Safari
-      ...(isIOSSafari && {
-        referrerPolicy: "strict-origin-when-cross-origin",
-      }),
+      headers: authStore.getAuthHeader(),
+      body: JSON.stringify(formData),
     });
 
-    if (response.ok) {
-      // รอ 200ms ให้ cookie set เสร็จก่อน (เพิ่มเวลาสำหรับ iOS)
-      if (isIOSSafari) {
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
-
-      await response.text();
-      const res = await fetch(`${baseURL}/api/auth/me`, {
-        credentials: "include",
-      });
-
-      if (!res.ok) {
-        throw new Error(`/me request failed: ${res.status}`);
-      }
-
-      const data = await res.json();
-      console.log("📦 /me response:", data);
-      authStore.login(data.username, data.role);
-
-      // 🔄 ดึง favBooks ของผู้ใช้
-      const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
-        method: "GET",
-        credentials: "include",
-      });
-      authStore.setFavBooks(await favRes.json());
-
-      if (data.role === "ADMIN") {
-        router.push("/admin");
-      } else if (data.role === "MEMBER") {
-        router.push("/");
-      } else {
-        alert("ไม่สามารถเข้าระบบได้: บทบาทไม่ถูกต้อง");
-      }
-    } else {
+    if (!response.ok) {
       const text = await response.text();
       alert("❌ Login ล้มเหลว: " + text);
+      return;
+    }
+
+    const data = await response.json();
+    const token = response.headers.get("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      alert("❌ ไม่ได้รับ JWT token จากเซิร์ฟเวอร์");
+      return;
+    }
+
+    // ✅ เก็บ token ใน Pinia store
+    authStore.login(data.username, data.role, token);
+
+    // 🔄 ดึง favBooks ของผู้ใช้
+    const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
+      headers: {
+        headers: authStore.getAuthHeader(),
+      },
+    });
+
+    if (favRes.ok) {
+      const favBooks = await favRes.json();
+      authStore.setFavBooks(favBooks);
+    }
+
+    if (data.role === "ADMIN") {
+      router.push("/admin");
+    } else if (data.role === "MEMBER") {
+      router.push("/");
+    } else {
+      alert("ไม่สามารถเข้าระบบได้: บทบาทไม่ถูกต้อง");
     }
   } catch (err) {
     const errorMessage =
       err instanceof Error ? err.message : JSON.stringify(err);
     alert("❌ เกิดข้อผิดพลาด: " + errorMessage);
-
-    // ✅ ย้าย debug info เข้าไปใน catch block
-    const debugInfo = {
+    console.error("🛠️ Debug Info:", {
       userAgent: navigator.userAgent,
-      cookies: document.cookie,
       error: errorMessage,
-    };
-    console.error("Debug Info:", debugInfo);
+    });
   }
 }
 </script>

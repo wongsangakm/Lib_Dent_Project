@@ -4,154 +4,127 @@ import com.example.project.model.User;
 import com.example.project.payload.request.LoginRequest;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import com.example.project.util.JwtUtil;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Enumeration;
+import io.jsonwebtoken.ExpiredJwtException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app", allowCredentials = "true")
+@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
 public class AuthenticationController {
 
     @Autowired
     private UserService userService;
 
-        @Autowired
-    private UserRepository userRepository; 
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-    //  Login regenerate session ใหม่
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
-        try {
-            System.out.println("📱 เข้ามา login request จากมือถือหรืออุปกรณ์ใดก็ตาม");
-            System.out.println("Username (raw): [" + request.getUsername() + "]");
-            System.out.println("Password (raw): [" + request.getPassword() + "]");
 
-            Enumeration<String> headerNames = httpRequest.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                System.out.println(headerName + ": " + httpRequest.getHeader(headerName));
-            }
-               // ✅ log cookie
-            if (httpRequest.getCookies() != null) {
-                for (Cookie cookie : httpRequest.getCookies()) {
-                    System.out.println("🍪 Cookie: " + cookie.getName() + " = " + cookie.getValue());
-                }
-            } else {
-                System.out.println("🍪 ไม่มี cookie แนบมาด้วย");
-            }
+    @Autowired
+    private JwtUtil jwtUtil;
 
-            Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
-            if (userOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-
-            
-            //  ลบ session เก่าและสร้างใหม่
-            HttpSession oldSession = httpRequest.getSession(false);
-            if (oldSession != null) {
-                System.out.println("📎 Existing Session ID: " + oldSession.getId()); // ✅ แสดง session เดิม
-                oldSession.invalidate(); // 🔄 ลบทิ้ง
-            }
-            
-
-            HttpSession session = httpRequest.getSession(true); // regenerate session
-            User user = userOpt.get();
-
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("username", user.getUsername());
-            session.setAttribute("role", user.getRole());
-
-            System.out.println("✅ Login success: " + user.getUsername()); 
-
-            boolean requireChangePassword = request.getPassword().equals("123456");
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login success");
-            response.put("username", user.getUsername());
-            response.put("role", user.getRole());
-            System.out.println("userId: " + session.getAttribute("userId")); // ✅ เพิ่มไว้หลัง setAttribute
-            response.put("requireChangePassword", requireChangePassword);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
-        }
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
+    if (userOpt.isEmpty()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 
-    //  ตรวจสอบ user ที่ login อยู่
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(HttpSession session, HttpServletRequest httpRequest) {
-         if (httpRequest.getCookies() != null) {
-            for (Cookie cookie : httpRequest.getCookies()) {
-                System.out.println("🍪 Cookie: " + cookie.getName() + " = " + cookie.getValue());
-            }
-        } else {
-            System.out.println("🍪 ไม่มี cookie แนบมาใน /me");
-        }
-        String username = (String) session.getAttribute("username");
-        String role = (String) session.getAttribute("role");
-        Long userId = (Long) session.getAttribute("userId");
+    User user = userOpt.get();
+    String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
-        
-        if (username == null || role == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not logged in");
+    response.setHeader("Authorization", "Bearer " + token);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("message", "Login success");
+    body.put("username", user.getUsername());
+    body.put("role", user.getRole());
+    body.put("token", token); // ✅ ส่งให้ frontend เก็บเอง
+    body.put("requireChangePassword", request.getPassword().equals("123456"));
+
+    return ResponseEntity.ok(body);
+}
+
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing token");
         }
-        Optional<User> userOpt = userRepository.findById(userId);
+
+        String token = authHeader.substring(7);
+        try {
+            Claims claims = jwtUtil.validateToken(token);
+            String username = claims.getSubject();
+            String role = (String) claims.get("role");
+
+            Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
             if (userOpt.isEmpty()) return ResponseEntity.status(404).body("User not found");
 
-        User user = userOpt.get();
+            User user = userOpt.get();
+            Map<String, Object> response = new HashMap<>();
+            response.put("username", username);
+            response.put("role", role);
+            response.put("firstName", user.getFirstName());
+            response.put("userId", user.getId());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("username", username);
-        response.put("role", role);
-        response.put("firstName", user.getFirstName()); 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (ExpiredJwtException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token expired");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
     }
 
-    //  Logout
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpSession session) {
-        session.invalidate();
-        return ResponseEntity.ok("Logged out successfully");
+@PostMapping("/change-password")
+public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body, HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.status(401).body("Unauthorized");
     }
 
-    @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+    try {
+        String jwt = authHeader.substring(7);
+        Claims claims = jwtUtil.validateToken(jwt);
+        String username = claims.getSubject();
+
+        Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found");
+        }
 
         String newPassword = body.get("newPassword");
         if (newPassword == null || newPassword.length() < 6) {
             return ResponseEntity.badRequest().body("Password too short");
         }
 
-        Optional<User> userOpt = userRepository.findById(userId);
-        if (userOpt.isEmpty()) return ResponseEntity.status(404).body("User not found");
-
         User user = userOpt.get();
-        user.setPassword(passwordEncoder.encode(newPassword)); // เปลี่ยนรหัส
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
         return ResponseEntity.ok(Map.of("message", "Password changed"));
 
+    } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+        return ResponseEntity.status(401).body("Token expired");
+    } catch (Exception e) {
+        return ResponseEntity.status(401).body("Invalid token");
     }
-
-
-
+}
 }

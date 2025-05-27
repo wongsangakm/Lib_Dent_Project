@@ -43,6 +43,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/auth/favorites/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/requests/**").authenticated()
+                // ใส่ใน SecurityFilterChain หรือใช้ annotation
+                .requestMatchers("/api/admin/request-table/**").hasRole("ADMIN")
+
                 .anyRequest().permitAll()
             )
             .sessionManagement(session -> session

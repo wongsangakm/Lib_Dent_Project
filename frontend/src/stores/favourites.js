@@ -1,6 +1,13 @@
 import { defineStore } from "pinia";
 import axios from "axios";
+
 const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+const getAuthHeader = () => {
+  const token = localStorage.getItem("jwt");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const useFavouritesStore = defineStore("favourites", {
   state: () => ({
     allBooks: [],
@@ -10,9 +17,7 @@ export const useFavouritesStore = defineStore("favourites", {
   actions: {
     async fetchAllBooks() {
       try {
-        const response = await axios.get(`${baseURL}/api/books`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(`${baseURL}/api/books`);
         this.allBooks = response.data.map((book) => ({
           ...book,
           isFavorited: false,
@@ -26,7 +31,6 @@ export const useFavouritesStore = defineStore("favourites", {
     setAllBooks(books) {
       this.allBooks = books.map((book) => ({
         ...book,
-        id: book.id,
         isFavorited: false,
         isLoading: false,
       }));
@@ -35,13 +39,17 @@ export const useFavouritesStore = defineStore("favourites", {
     async fetchFavourites() {
       try {
         const res = await fetch(`${baseURL}/api/auth/favorites`, {
-          credentials: "include",
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            ...getAuthHeader(),
+          },
         });
+
         if (!res.ok) throw new Error("Failed to fetch favbooks");
         const data = await res.json();
         this.favourites = data;
 
-        // ทำเครื่องหมายว่าเป็นรายการโปรดใน allBooks ด้วย
         this.allBooks = this.allBooks.map((book) => ({
           ...book,
           isFavorited: data.some((fav) => fav.id === book.id),
@@ -55,18 +63,17 @@ export const useFavouritesStore = defineStore("favourites", {
       try {
         const res = await fetch(`${baseURL}/api/auth/favorites/${bookId}`, {
           method: "POST",
-          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeader(),
+          },
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to add favorite");
-        }
+        if (!res.ok) throw new Error("Failed to add favorite");
 
         const book = this.allBooks.find((b) => b.id === bookId);
         if (book && !this.favourites.some((f) => f.id === bookId)) {
           book.isFavorited = true;
-
-          // ✅ เพิ่มเข้า favourites และ trigger Reactivity
           this.favourites = [...this.favourites, { ...book }];
         }
 

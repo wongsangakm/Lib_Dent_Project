@@ -277,6 +277,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่ม
+const authStore = useAuthStore(); // เพิ่ม
 
 const users = ref([]);
 const searchText = ref("");
@@ -293,6 +295,7 @@ onMounted(async () => {
       credentials: "include",
       headers: {
         Accept: "application/json",
+        ...authStore.getAuthHeader(),
       },
     });
 
@@ -342,8 +345,8 @@ const resetPassword = async (userId) => {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...authStore.getAuthHeader(),
         },
-        credentials: "include",
       }
     );
 

@@ -274,6 +274,8 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 
 const STORAGE_KEY = "user-form";
 
@@ -294,7 +296,9 @@ const academicFields = ref([]);
 onMounted(async () => {
   // โหลด academicFields
   try {
-    const res = await fetch(`${baseURL}/api/fields`);
+    const res = await fetch(`${baseURL}/api/fields`, {
+      headers: authStore.getAuthHeader(),
+    });
     academicFields.value = await res.json();
     console.log("📦 ได้ข้อมูลสาขา:", academicFields.value);
   } catch (err) {
@@ -361,7 +365,10 @@ const handleSubmit = async () => {
 
     const res = await fetch(`${baseURL}/api/users`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        ...authStore.getAuthHeader(),
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(form.value),
     });
 

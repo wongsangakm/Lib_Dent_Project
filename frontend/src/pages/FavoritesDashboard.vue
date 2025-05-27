@@ -348,12 +348,9 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get(
-      `${baseURL}/api/user/dashboard`,
-      {
-        withCredentials: true,
-      }
-    );
+    const { data } = await axios.get(`${baseURL}/api/user/dashboard`, {
+      headers: authStore.getAuthHeader(),
+    });
 
     // เพิ่ม fallback กรณีไม่ได้ค่าอะไรเลย (guest หรือ error ฝั่ง backend)
     if (!booksWithFavorites.value || booksWithFavorites.value === 0) {
