@@ -83,7 +83,10 @@ async function handleSubmit() {
   try {
     const response = await fetch(`${baseURL}/api/auth/login`, {
       method: "POST",
-      headers: authStore.getAuthHeader(),
+      headers: {
+        "Content-Type": "application/json",
+        ...authStore.getAuthHeader(),
+      },
       body: JSON.stringify(formData),
     });
 
@@ -106,9 +109,7 @@ async function handleSubmit() {
 
     // 🔄 ดึง favBooks ของผู้ใช้
     const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
-      headers: {
-        headers: authStore.getAuthHeader(),
-      },
+      headers: authStore.getAuthHeader(),
     });
 
     if (favRes.ok) {
