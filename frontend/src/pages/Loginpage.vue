@@ -97,7 +97,7 @@ async function handleSubmit() {
     }
 
     const data = await response.json();
-    const token = response.headers.get("Authorization")?.replace("Bearer ", "");
+    const token = data.token;
 
     if (!token) {
       alert("❌ ไม่ได้รับ JWT token จากเซิร์ฟเวอร์");
