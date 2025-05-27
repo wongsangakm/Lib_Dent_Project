@@ -13,11 +13,12 @@ public class SessionConfig {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setCookieName("SESSIONID");  // หรือใช้ "JSESSIONID" ตามมาตรฐาน
+        serializer.setCookieName("SESSIONID");  // กำหนดชื่อ Cookie
         serializer.setCookiePath("/");
+      
         serializer.setSameSite("None");        // เพื่อให้ cross-origin ได้
-        serializer.setUseSecureCookie(true);   // สำหรับ HTTPS
-        serializer.setUseHttpOnlyCookie(true); // เพิ่มความปลอดภัย
+        serializer.setUseSecureCookie(true);  
+        serializer.setDomainNamePattern("^(.+\\.)?vercel\\.app$");
         return serializer;
     }
 }
