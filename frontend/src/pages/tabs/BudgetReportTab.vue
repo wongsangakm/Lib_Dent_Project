@@ -139,7 +139,9 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
-
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const selectedMonth = ref("");
 const selectedYear = ref(new Date().getFullYear());
 const selectedStatus = ref("");
@@ -196,7 +198,7 @@ const displayStatus = (status) => {
 const fetchReport = async () => {
   console.log("🔍 เรียก fetchReport แล้ว");
   try {
-    const res = await axios.get("http://localhost:8080/api/admin/budget-report", {
+    const res = await axios.get(`${baseURL}/api/admin/budget-report`, {
       params: {
         month: selectedMonth.value ? parseInt(selectedMonth.value) : undefined,
         term: selectedTerm.value ? parseInt(selectedTerm.value) : undefined,
