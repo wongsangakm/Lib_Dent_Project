@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.project.model.User;
+import com.example.project.repository.UserRepository;
 import com.example.project.util.JwtUtil;
 
 import io.jsonwebtoken.Claims;
@@ -22,9 +24,12 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public JwtAuthFilter(JwtUtil jwtUtil) {
+    @Autowired
+    public JwtAuthFilter(JwtUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -46,8 +51,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String username = claims.getSubject();
                 String role = (String) claims.get("role");
 
+                
+                User user = userRepository.findByUsernameIgnoreCase(username)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(username, null, jwtUtil.getAuthorities(role));
+                        new UsernamePasswordAuthenticationToken(user, null, jwtUtil.getAuthorities(role));
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
