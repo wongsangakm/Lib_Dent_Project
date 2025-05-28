@@ -134,7 +134,7 @@
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import { useFavouritesStore } from "@/stores/favourites";
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import bgImage from "@/image/Background.png";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -161,16 +161,7 @@ const fetchRequestHistory = async () => {
     console.error("❌ Error fetching request history:", error);
   }
 };
-watch(
-  () => authStore.jwt,
-  (newVal) => {
-    if (newVal) {
-      favouritesStore.fetchFavourites();
-      fetchRequestHistory();
-    }
-  },
-  { immediate: true }
-);
+
 onMounted(async () => {
   try {
     await favouritesStore.fetchFavourites();
