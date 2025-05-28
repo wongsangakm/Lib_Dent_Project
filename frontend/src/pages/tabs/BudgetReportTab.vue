@@ -33,8 +33,8 @@
         <label class="block text-sm font-medium">สถานะ</label>
         <select v-model="selectedStatus" class="border px-3 py-1 rounded">
           <option value="">ทั้งหมด</option>
-          <option value="pending">กำลังสั่งซื้อ</option>
-          <option value="ordered">สั่งซื้อแล้ว</option>
+          <option value="ordered">กำลังสั่งซื้อ</option>
+          <option value="in_shelf">สั่งซื้อแล้ว</option>
         </select>
       </div>
 
