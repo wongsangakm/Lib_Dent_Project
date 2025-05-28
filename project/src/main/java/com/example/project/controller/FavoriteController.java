@@ -39,8 +39,9 @@ public class FavoriteController {
 
     //  เพิ่ม favorite (หากยังไม่เคยกด)
 @PostMapping("/{bookId}")
-public ResponseEntity<?> addFavorite(@PathVariable Long bookId, Authentication authentication) {
-    User user = (User) authentication.getPrincipal();
+public ResponseEntity<?> addFavorite(@PathVariable Long bookId, @AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
+
     Long userId = user.getId();
 
     if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) {
@@ -81,31 +82,17 @@ public ResponseEntity<?> getUserFavorites(@AuthenticationPrincipal User user) {
 }
 
 
-    // ✅ ดูรายการหนังสือทั้งหมดที่ user คนนั้นเคยกด favorite
-@GetMapping
-public ResponseEntity<?> getUserFavorites(Authentication authentication) {
-    if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-        return ResponseEntity.status(401).body("Unauthorized");
-    }
-
-    Long userId = user.getId();
-    List<BookFavorite> favs = favoriteRepository.findByUserId(userId);
-    List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
-
-    return ResponseEntity.ok(books);
-}
+    
 
 
 @GetMapping("/{bookId}")
-public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, Authentication authentication) {
-    if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-        return ResponseEntity.status(401).body("Unauthorized");
-    }
+public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, @AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
 
-    Long userId = user.getId();
-    boolean isFav = favoriteRepository.existsByUserIdAndBookId(userId, bookId);
+    boolean isFav = favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId);
     return ResponseEntity.ok(Map.of("isFavorited", isFav));
 }
+
 
 
 
@@ -142,13 +129,13 @@ public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, Authentication
     }
 
 @GetMapping("/ids")
-public ResponseEntity<?> getFavoriteBookIds(Authentication authentication) {
-    User user = (User) authentication.getPrincipal(); // ✅ ได้ user จาก JWT ที่ผ่าน filter มาแล้ว
-    Long userId = user.getId();
+public ResponseEntity<?> getFavoriteBookIds(@AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
 
-    List<Long> bookIds = favoriteRepository.findBookIdsByUserId(userId);
+    List<Long> bookIds = favoriteRepository.findBookIdsByUserId(user.getId());
     return ResponseEntity.ok(bookIds);
 }
+
 
 
 
