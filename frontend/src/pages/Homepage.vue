@@ -596,14 +596,14 @@
         >
           <div class="w-full md:w-1/2 mb-6 md:mb-0">
             <img
-              src="https://via.placeholder.com/500x300"
+              src="libdent"
               alt="Books"
               class="rounded-lg shadow-lg w-full h-auto"
             />
           </div>
           <div class="w-full md:w-1/2 md:pl-8">
             <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-              Why Shop with Us?
+              Why request Books with Us?
             </h2>
             <p class="text-sm md:text-base text-gray-600 mb-4">
               We offer a wide selection of books from bestselling authors,
@@ -627,6 +627,7 @@ import { ElMessageBox } from "element-plus";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+import libdent from "@/image/libdent.jpg";
 import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
