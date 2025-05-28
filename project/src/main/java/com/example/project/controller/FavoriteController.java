@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,8 +39,9 @@ public class FavoriteController {
 
     //  เพิ่ม favorite (หากยังไม่เคยกด)
 @PostMapping("/{bookId}")
-public ResponseEntity<?> addFavorite(@PathVariable Long bookId, Authentication authentication) {
-    User user = (User) authentication.getPrincipal();
+public ResponseEntity<?> addFavorite(@PathVariable Long bookId, @AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
+
     Long userId = user.getId();
 
     if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) {
@@ -66,21 +67,10 @@ public ResponseEntity<?> addFavorite(@PathVariable Long bookId, Authentication a
 
 
     // ✅ ตรวจสอบว่า user เคย favorite หรือยัง
-@GetMapping("/check/{bookId}")
-public ResponseEntity<?> isFavorited(@PathVariable Long bookId, Authentication authentication) {
-    if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-        return ResponseEntity.status(401).body(Map.of("isFavorited", false));
-    }
 
-    boolean isFav = favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId);
-    return ResponseEntity.ok(Map.of("isFavorited", isFav));
-}
-
-
-    // ✅ ดูรายการหนังสือทั้งหมดที่ user คนนั้นเคยกด favorite
 @GetMapping
-public ResponseEntity<?> getUserFavorites(Authentication authentication) {
-    if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
+public ResponseEntity<?> getUserFavorites(@AuthenticationPrincipal User user) {
+    if (user == null) {
         return ResponseEntity.status(401).body("Unauthorized");
     }
 
@@ -92,16 +82,17 @@ public ResponseEntity<?> getUserFavorites(Authentication authentication) {
 }
 
 
-@GetMapping("/{bookId}")
-public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, Authentication authentication) {
-    if (authentication == null || !(authentication.getPrincipal() instanceof User user)) {
-        return ResponseEntity.status(401).body("Unauthorized");
-    }
+    
 
-    Long userId = user.getId();
-    boolean isFav = favoriteRepository.existsByUserIdAndBookId(userId, bookId);
+
+@GetMapping("/{bookId}")
+public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, @AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
+
+    boolean isFav = favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId);
     return ResponseEntity.ok(Map.of("isFavorited", isFav));
 }
+
 
 
 
@@ -138,13 +129,13 @@ public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, Authentication
     }
 
 @GetMapping("/ids")
-public ResponseEntity<?> getFavoriteBookIds(Authentication authentication) {
-    User user = (User) authentication.getPrincipal(); // ✅ ได้ user จาก JWT ที่ผ่าน filter มาแล้ว
-    Long userId = user.getId();
+public ResponseEntity<?> getFavoriteBookIds(@AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
 
-    List<Long> bookIds = favoriteRepository.findBookIdsByUserId(userId);
+    List<Long> bookIds = favoriteRepository.findBookIdsByUserId(user.getId());
     return ResponseEntity.ok(bookIds);
 }
+
 
 
 
