@@ -627,7 +627,7 @@ import { ElMessageBox } from "element-plus";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
-import libdent from "@/image/libdent.jpg";
+import libdent from "@/assets/libdent.jpg";
 import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
