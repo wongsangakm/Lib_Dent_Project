@@ -189,9 +189,9 @@ const months = [
 ];
 
 const statusText = (status) => {
-  return status === "pending"
+  return status === "ordered"
     ? "กำลังสั่งซื้อ"
-    : status === "ordered"
+    : status === "in_shelf"
     ? "สั่งซื้อแล้ว"
     : "-";
 };
