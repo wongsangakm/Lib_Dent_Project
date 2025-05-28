@@ -589,7 +589,7 @@
         </div>
       </section>
 
-      <!-- Why Shop with Us?? Section -->
+      <!-- Why Shop with Us?? Section. -->
       <section id="why" class="py-8 md:py-12 bg-purple-100 w-full">
         <div
           class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6"

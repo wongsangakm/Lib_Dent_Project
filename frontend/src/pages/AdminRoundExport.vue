@@ -63,7 +63,7 @@ const exportRounds = [
     deadline: "28 Febuary",
     label: "January–Febuary",
   },
-  { id: 3, name: "รอบที่ 3", deadline: "30 Aprill", label: "March–April" },
+  { id: 3, name: "รอบที่ 3", deadline: "30 April", label: "March–April" },
 ];
 
 const exportToExcel = async (round) => {
