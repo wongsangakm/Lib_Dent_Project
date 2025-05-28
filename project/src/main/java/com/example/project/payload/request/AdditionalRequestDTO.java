@@ -14,7 +14,7 @@ public class AdditionalRequestDTO {
     @NotBlank private String bookTitle;
     @NotBlank private String author;
     @NotBlank private String publisher;
-    @NotNull private Integer isbn;
+    @NotNull private String  isbn;
     @NotNull private Integer year;
     @NotNull private Double price;
     private String description;

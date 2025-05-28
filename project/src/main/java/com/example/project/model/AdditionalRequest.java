@@ -13,7 +13,7 @@ public class AdditionalRequest {
     private String bookTitle;
     private String author;
     private String publisher;
-    private Integer isbn;
+    private String isbn;
     private Integer year;
     private double price;
 

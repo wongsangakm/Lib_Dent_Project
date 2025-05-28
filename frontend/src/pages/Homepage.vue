@@ -590,7 +590,7 @@
       </section>
 
       <!-- Why Shop with Us?? Section. -->
-      <section id="why" class=" bg-purple-100 w-full">
+      <section id="why" class="bg-purple-100 w-full">
         <div
           class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center gap-6"
         >
@@ -931,11 +931,6 @@ const submitRequest = async () => {
     globalError.value =
       "❌ Please fill in the following fields:\n- " +
       missingFields.join("\n- ");
-    return;
-  }
-
-  if (!/^\d+$/.test(trimmed.isbn)) {
-    globalError.value = "❌ ISBN must be an integer.";
     return;
   }
 
