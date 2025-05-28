@@ -23,6 +23,19 @@ import AdminResetPassword from "./pages/AdminResetPassword.vue";
 import FavoritesDashboard from "./pages/FavoritesDashboard.vue";
 const authStore = useAuthStore();
 // authStore.loadFromStorage();
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+onMounted(() => {
+  if (authStore.isAuthenticated && authStore.role === "ADMIN") {
+    // ถ้าอยู่หน้า root "/" แล้วเป็น admin -> redirect ไป /admin
+    if (router.currentRoute.value.path === "/") {
+      router.push("/admin/dashboard");
+    }
+  }
+});
 </script>
 
 <style scoped></style>
