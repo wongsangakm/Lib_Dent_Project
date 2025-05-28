@@ -165,6 +165,7 @@ const fetchRequestHistory = async () => {
 onMounted(async () => {
   try {
     await favouritesStore.fetchFavourites();
+    console.log("📚 Fetched favourites:", favourites.value);
     await fetchRequestHistory(); // โหลด request history จริงจาก backend
   } catch (error) {
     console.error("❌ Error fetching data:", error);

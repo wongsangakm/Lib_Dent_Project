@@ -959,7 +959,10 @@ const submitRequest = async () => {
     };
 
     await axios.post(`${baseURL}/api/requests`, payload, {
-      headers: authStore.getAuthHeader(),
+      headers: {
+        ...authStore.getAuthHeader(),
+        "Content-Type": "application/json",
+      },
     });
 
     alert("✅ Request submitted successfully!");
