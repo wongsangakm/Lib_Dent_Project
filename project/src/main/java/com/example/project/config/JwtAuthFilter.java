@@ -55,6 +55,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 User user = userRepository.findByUsernameIgnoreCase(username)
                         .orElseThrow(() -> new RuntimeException("User not found"));
 
+                System.out.println("✅ Authenticated as: " + username + " with role: " + role);
+
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(user, null, jwtUtil.getAuthorities(role));
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
