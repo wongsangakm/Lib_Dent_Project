@@ -596,7 +596,7 @@
         >
           <div class="w-full md:w-1/2 mb-6 md:mb-0">
             <img
-              src="libdent"
+              :src="libdent"
               alt="Books"
               class="rounded-lg shadow-lg w-full h-auto"
             />
