@@ -60,7 +60,7 @@ const fetchEmail = async () => {
 const updateEmail = async () => {
   try {
     await axios.post(
-      "http://localhost:8080/api/admin/settings/update-email",
+      `${baseURL}/api/admin/settings/update-email`,
       { email: newEmail.value },
       { withCredentials: true }
     );
