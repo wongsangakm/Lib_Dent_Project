@@ -782,7 +782,7 @@ const addToFavorite = async (book) => {
         "Content-Type": "application/json",
       },
     });
-
+    console.log("💡 Header ที่ส่งไป:", authStore.getAuthHeader());
     if (!response.ok) throw new Error("Failed to add favorite");
 
     const result = await response.json();

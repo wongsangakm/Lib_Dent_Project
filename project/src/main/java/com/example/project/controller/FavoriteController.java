@@ -8,10 +8,6 @@ import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.EmailService;
 import com.example.project.util.JwtUtil;
-
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
