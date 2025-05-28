@@ -17,7 +17,9 @@ export const useFavouritesStore = defineStore("favourites", {
   actions: {
     async fetchAllBooks() {
       try {
-        const response = await axios.get(`${baseURL}/api/books`);
+        const response = await axios.get(`${baseURL}/api/books`, {
+          headers: getAuthHeader(),
+        });
         this.allBooks = response.data.map((book) => ({
           ...book,
           isFavorited: false,
