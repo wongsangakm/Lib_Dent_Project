@@ -7,8 +7,10 @@ import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.EmailService;
+import com.example.project.util.JwtUtil;
 
-
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,24 +37,40 @@ public class FavoriteController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
 
     //  เพิ่ม favorite (หากยังไม่เคยกด)
   @PostMapping("/{bookId}")
-    public ResponseEntity<?> addFavorite(@PathVariable Long bookId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-            System.out.println("💡 userId from session = " + userId);
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+    public ResponseEntity<?> addFavorite(
+        @PathVariable Long bookId,
+        HttpServletRequest request
+    ) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Unauthorized: missing token");
+        }
 
-        if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) {
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = jwtUtil.validateToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Unauthorized: invalid token");
+        }
+
+        String username = claims.getSubject();
+        User user = userRepository.findByUsernameIgnoreCase(username).orElse(null);
+        if (user == null) return ResponseEntity.status(404).body("User not found");
+
+        if (favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId)) {
             return ResponseEntity.ok(Map.of("message", "Already favorited"));
         }
 
-        User user = userRepository.findById(userId).orElseThrow();
         Book book = bookRepository.findById(bookId).orElseThrow();
-        // ถ้าหนังสือยังไม่มีสถานะ กำหนดให้เป็น popular_request
         if (book.getStatus() == null || book.getStatus().isBlank()) {
             book.setStatus("popular_request");
-            bookRepository.save(book); // Save updated status
+            bookRepository.save(book);
         }
 
         BookFavorite favorite = new BookFavorite();
@@ -65,34 +83,84 @@ public class FavoriteController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 
+
     // ✅ ตรวจสอบว่า user เคย favorite หรือยัง
     @GetMapping("/check/{bookId}")
-    public Map<String, Object> isFavorited(@PathVariable Long bookId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        boolean isFav = userId != null && favoriteRepository.existsByUserIdAndBookId(userId, bookId);
-        return Map.of("isFavorited", isFav);
+    public ResponseEntity<?> isFavorited(@PathVariable Long bookId, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("isFavorited", false));
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims;
+        try {
+            claims = jwtUtil.validateToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("isFavorited", false));
+        }
+
+        String username = claims.getSubject();
+        Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+        if (userOpt.isEmpty()) return ResponseEntity.status(404).body(Map.of("isFavorited", false));
+
+        User user = userOpt.get();
+        boolean isFav = favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId);
+        return ResponseEntity.ok(Map.of("isFavorited", isFav));
     }
 
     // ✅ ดูรายการหนังสือทั้งหมดที่ user คนนั้นเคยกด favorite
-    @GetMapping
-    public ResponseEntity<?> getUserFavorites(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
-
-        List<BookFavorite> favs = favoriteRepository.findByUserId(userId);
-        List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
-
-        return ResponseEntity.ok(books);
+@GetMapping
+public ResponseEntity<?> getUserFavorites(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.status(401).body("Unauthorized");
     }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
-
-        boolean isFav = favoriteRepository.existsByUserIdAndBookId(userId, bookId);
-        return ResponseEntity.ok(Map.of("isFavorited", isFav));
+    String token = authHeader.substring(7);
+    Claims claims;
+    try {
+        claims = jwtUtil.validateToken(token);
+    } catch (Exception e) {
+        return ResponseEntity.status(401).body("Invalid token");
     }
+
+    String username = claims.getSubject();
+    Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+    if (userOpt.isEmpty()) return ResponseEntity.status(404).body("User not found");
+
+    Long userId = userOpt.get().getId();
+    List<BookFavorite> favs = favoriteRepository.findByUserId(userId);
+    List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
+
+    return ResponseEntity.ok(books);
+}
+
+
+@GetMapping("/{bookId}")
+public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    String token = authHeader.substring(7);
+    Claims claims;
+    try {
+        claims = jwtUtil.validateToken(token);
+    } catch (Exception e) {
+        return ResponseEntity.status(401).body("Invalid token");
+    }
+
+    String username = claims.getSubject();
+    Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+    if (userOpt.isEmpty()) return ResponseEntity.status(404).body("User not found");
+
+    Long userId = userOpt.get().getId();
+    boolean isFav = favoriteRepository.existsByUserIdAndBookId(userId, bookId);
+    return ResponseEntity.ok(Map.of("isFavorited", isFav));
+}
+
 
     @GetMapping("/popular")
     public ResponseEntity<?> getMostFavoritedBooks() {
@@ -126,16 +194,31 @@ public class FavoriteController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/ids")
-    public ResponseEntity<?> getFavoriteBookIds(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body("Unauthorized");
+@GetMapping("/ids")
+public ResponseEntity<?> getFavoriteBookIds(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        return ResponseEntity.status(401).body("Unauthorized");
+    }
+
+    String token = authHeader.substring(7);
+    try {
+        Claims claims = jwtUtil.validateToken(token);
+        String username = claims.getSubject();
+
+        Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found");
         }
 
+        Long userId = userOpt.get().getId();
         List<Long> bookIds = favoriteRepository.findBookIdsByUserId(userId);
         return ResponseEntity.ok(bookIds);
+    } catch (Exception e) {
+        return ResponseEntity.status(401).body("Invalid token");
     }
+}
+
 
     @GetMapping("/book/{bookId}/users")
     public ResponseEntity<?> getUsersWhoFavorited(@PathVariable Long bookId) {
