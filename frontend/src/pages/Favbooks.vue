@@ -163,6 +163,7 @@ const fetchRequestHistory = async () => {
 };
 
 onMounted(async () => {
+  console.log("📦 JWT จาก authStore:", authStore.jwt);
   try {
     await favouritesStore.fetchFavourites();
     console.log("📚 Fetched favourites:", favourites.value);

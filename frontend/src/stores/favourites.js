@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "axios";
-
+import { useAuthStore } from "@/stores/useAuthStore";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const getAuthHeader = () => {
@@ -15,6 +15,10 @@ export const useFavouritesStore = defineStore("favourites", {
     userId: "1",
   }),
   actions: {
+    getAuthHeader() {
+      const authStore = useAuthStore(); // ✅ ดึงจาก store ที่ reactive
+      return authStore.jwt ? { Authorization: `Bearer ${authStore.jwt}` } : {};
+    },
     async fetchAllBooks() {
       try {
         const response = await axios.get(`${baseURL}/api/books`, {
@@ -44,7 +48,7 @@ export const useFavouritesStore = defineStore("favourites", {
           method: "GET",
           headers: {
             Accept: "application/json",
-            ...getAuthHeader(),
+            ...this.getAuthHeader(),
           },
         });
 
