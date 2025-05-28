@@ -2,8 +2,12 @@ package com.example.project.controller;
 
 import com.example.project.model.Book;
 import com.example.project.model.BookFavorite;
+import com.example.project.payload.request.BudgetReportDTO;
 import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
+import com.example.project.service.BudgetService;
+
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -29,6 +33,10 @@ public class AdminFavoriteController {
 
     @Autowired
     private FavoriteRepository favoriteRepository;
+
+    @Autowired
+    private BudgetService budgetService;
+
 
     /**
      * นับจำนวนผู้ที่ favorite หนังสือแต่ละเล่ม (เฉพาะเล่มที่มีคนกด)
@@ -295,5 +303,15 @@ public ResponseEntity<?> markBooksAsPopularRequest() {
     return ResponseEntity.ok(Map.of("updated", books.size()));
 }
 
+@GetMapping("/budget-report")
+public ResponseEntity<BudgetReportDTO> getBudgetReport(
+        @RequestParam Integer year,
+        @RequestParam(required = false) Integer term,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) Integer month
+) {
+    BudgetReportDTO report = budgetService.generateReport(year, term, month, status);
+    return ResponseEntity.ok(report);
+}
 
 }
