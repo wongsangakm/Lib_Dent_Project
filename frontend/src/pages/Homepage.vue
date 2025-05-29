@@ -857,12 +857,15 @@ const isLoading = ref(false);
 
 // watch validations
 watch(
-  () => request.value.isbn, 
+  () => request.value.isbn,
   (val) => {
     const cleaned = val.replace(/[^0-9Xx]/g, "");
     isbnError.value =
-      /^\d{9}[\dXx]$/.test(cleaned) || /^\d{13}$/.test(cleaned) ? "" : "❌ Invalid ISBN (must be 10 or 13 digits)";
-});
+      /^\d{9}[\dXx]$/.test(cleaned) || /^\d{13}$/.test(cleaned)
+        ? ""
+        : "❌ Invalid ISBN (must be 10 or 13 digits)";
+  }
+);
 watch(
   () => request.value.year,
   (val) => {
@@ -905,7 +908,6 @@ watch(
 
 // submitRequest method
 const submitRequest = async () => {
-
   globalError.value = "";
 
   const trimmed = {
@@ -945,12 +947,13 @@ const submitRequest = async () => {
     return;
   }
 
-  const isbnRegex = /^(\d{9}[\dXx]|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dXx]|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
-if (!isbnRegex.test(trimmed.isbn)) {
-  globalError.value = "❌ Invalid ISBN format (ISBN-10 or ISBN-13, with or without dashes)";
-  return;
-}
-
+  const isbnRegex =
+    /^(\d{9}[\dXx]|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dXx]|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
+  if (!isbnRegex.test(trimmed.isbn)) {
+    globalError.value =
+      "❌ Invalid ISBN format (ISBN-10 or ISBN-13, with or without dashes)";
+    return;
+  }
 
   if (!/^\d+$/.test(trimmed.year)) {
     globalError.value = "❌ Year must be an integer.";
@@ -972,7 +975,7 @@ if (!isbnRegex.test(trimmed.isbn)) {
       price: parseFloat(trimmed.price),
     };
 
-    await axios.post("http://localhost:8080/api/requests", payload, {
+    await axios.post(`${baseURL}/api/requests`, payload, {
       withCredentials: true,
     });
 
@@ -1010,22 +1013,25 @@ const onISBNInput = (event) => {
   const raw = event.target.value.replace(/[^0-9Xx]/g, "");
   let formatted = "";
 
-  // ISBN-13 Format: 978-3-16-148410-0
+  //* ISBN-13 Format: 978-3-16-148410-0
   if (raw.length >= 13) {
-    formatted = `${raw.slice(0, 3)}-${raw.slice(3, 4)}-${raw.slice(4, 7)}-${raw.slice(7, 12)}-${raw.slice(12, 13)}`;
+    formatted = `${raw.slice(0, 3)}-${raw.slice(3, 4)}-${raw.slice(
+      4,
+      7
+    )}-${raw.slice(7, 12)}-${raw.slice(12, 13)}`;
   }
   // ISBN-10 Format: 0-306-40615-2
   else if (raw.length === 10) {
-    formatted = `${raw.slice(0, 1)}-${raw.slice(1, 4)}-${raw.slice(4, 9)}-${raw.slice(9, 10)}`;
-  }
-  else {
+    formatted = `${raw.slice(0, 1)}-${raw.slice(1, 4)}-${raw.slice(
+      4,
+      9
+    )}-${raw.slice(9, 10)}`;
+  } else {
     formatted = raw;
   }
 
   request.value.isbn = formatted;
 };
-
-
 </script>
 
 <style scoped>
