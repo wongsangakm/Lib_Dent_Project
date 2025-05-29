@@ -215,11 +215,11 @@
                 <span class="text-gray-700">ISBN</span
                 ><span class="text-red-500">*</span>
                 <input
-                  v-model="request.isbn"
-                  type="text"
-                  inputmode="numeric"
-                  pattern="\d*"
-                  class="form-input"
+                    v-model="request.isbn"
+                    type="text"
+                    class="form-input"
+                    placeholder="e.g. 978-3-16-148410-0"
+                    @input="onISBNInput"
                 />
                 <p v-if="isbnError" class="text-red-500 text-sm mt-1">
                   {{ isbnError }}
@@ -788,9 +788,17 @@ const globalError = ref("");
 const isLoading = ref(false);
 
 // watch validations
-watch(() => request.value.isbn, val => {
-  isbnError.value = /^\d*$/.test(val) ? "" : "❌ ISBN must be an integer.";
-});
+watch(
+  () => request.value.isbn,
+  (val) => {
+    const cleaned = val.replace(/[^0-9Xx]/g, "");
+    const isbnRegex =
+      /^(?:\d{9}[\dXx]|\d{13})$/;
+    isbnError.value = isbnRegex.test(cleaned)
+      ? ""
+      : "❌ Invalid ISBN-10 or ISBN-13 format.";
+  }
+);
 watch(() => request.value.year, val => {
   yearError.value = /^\d*$/.test(val) ? "" : "❌ Year must be an integer.";
 });
@@ -843,8 +851,10 @@ const submitRequest = async () => {
     return;
   }
 
-  if (!/^\d+$/.test(trimmed.isbn)) {
-    globalError.value = "❌ ISBN must be an integer.";
+  const isbnRegex =
+    /^(?:\d{9}[\dXx]|\d{13}|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
+  if (!isbnRegex.test(trimmed.isbn)) {
+    globalError.value = "❌ Invalid ISBN format (e.g. 978-3-16-148410-0)";
     return;
   }
 
@@ -863,7 +873,6 @@ const submitRequest = async () => {
   try {
     const payload = {
       ...trimmed,
-      isbn: parseInt(trimmed.isbn),
       year: parseInt(trimmed.year),
       price: parseFloat(trimmed.price),
     };
@@ -901,6 +910,27 @@ const submitRequest = async () => {
     isLoading.value = false;
   }
 };
+
+const onISBNInput = (event) => {
+  const raw = event.target.value.replace(/[^0-9Xx]/g, "");
+  let formatted = "";
+
+  // ISBN-13 Format: 978-3-16-148410-0
+  if (raw.length >= 13) {
+    formatted = `${raw.slice(0, 3)}-${raw.slice(3, 4)}-${raw.slice(4, 7)}-${raw.slice(7, 12)}-${raw.slice(12, 13)}`;
+  }
+  // ISBN-10 Format: 0-306-40615-2
+  else if (raw.length === 10) {
+    formatted = `${raw.slice(0, 1)}-${raw.slice(1, 4)}-${raw.slice(4, 9)}-${raw.slice(9, 10)}`;
+  }
+  else {
+    formatted = raw;
+  }
+
+  request.value.isbn = formatted;
+};
+
+
 
 </script>
 
