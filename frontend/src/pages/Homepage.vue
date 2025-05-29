@@ -857,16 +857,12 @@ const isLoading = ref(false);
 
 // watch validations
 watch(
-  () => request.value.isbn,
+  () => request.value.isbn, 
   (val) => {
     const cleaned = val.replace(/[^0-9Xx]/g, "");
-    const isbnRegex =
-      /^(?:\d{9}[\dXx]|\d{13})$/;
-    isbnError.value = isbnRegex.test(cleaned)
-      ? ""
-      : "❌ Invalid ISBN-10 or ISBN-13 format.";
-  }
-);
+    isbnError.value =
+      /^\d{9}[\dXx]$/.test(cleaned) || /^\d{13}$/.test(cleaned) ? "" : "❌ Invalid ISBN (must be 10 or 13 digits)";
+});
 watch(
   () => request.value.year,
   (val) => {
@@ -909,6 +905,16 @@ watch(
 
 // submitRequest method
 const submitRequest = async () => {
+  const rawISBN = trimmed.isbn.replace(/[^0-9Xx]/g, ""); // ลบขีด, ช่องว่าง, อักษรนอกจากเลข/X
+  const isbn10 = /^\d{9}[\dXx]$/;
+  const isbn13 = /^\d{13}$/;
+
+if (!isbn10.test(rawISBN) && !isbn13.test(rawISBN)) {
+  globalError.value =
+    "❌ Invalid ISBN: must be ISBN-10 or ISBN-13, with or without dashes";
+  return;
+}
+
   globalError.value = "";
 
   const trimmed = {
@@ -938,12 +944,12 @@ const submitRequest = async () => {
     return;
   }
 
-  const isbnRegex =
-    /^(?:\d{9}[\dXx]|\d{13}|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
-  if (!isbnRegex.test(trimmed.isbn)) {
-    globalError.value = "❌ Invalid ISBN format (e.g. 978-3-16-148410-0)";
-    return;
-  }
+  const isbnRegex = /^(\d{9}[\dXx]|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dXx]|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
+if (!isbnRegex.test(trimmed.isbn)) {
+  globalError.value = "❌ Invalid ISBN format (ISBN-10 or ISBN-13, with or without dashes)";
+  return;
+}
+
 
   if (!/^\d+$/.test(trimmed.year)) {
     globalError.value = "❌ Year must be an integer.";
@@ -960,6 +966,7 @@ const submitRequest = async () => {
   try {
     const payload = {
       ...trimmed,
+      isbn: rawISBN,
       year: parseInt(trimmed.year),
       price: parseFloat(trimmed.price),
     };
