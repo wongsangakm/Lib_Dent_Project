@@ -771,7 +771,7 @@ const addToFavorite = async (book) => {
 
   if (!confirmed) return;
 
-  // Set loading state
+  // Set loading state.
   book.isLoading = true;
 
   try {
