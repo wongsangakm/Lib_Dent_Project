@@ -976,7 +976,7 @@ const submitRequest = async () => {
     };
 
     await axios.post(`${baseURL}/api/requests`, payload, {
-      withCredentials: true,
+      headers: authStore.getAuthHeader(),
     });
 
     alert("✅ Request submitted successfully!");
