@@ -1009,7 +1009,7 @@ const onISBNInput = (event) => {
   const raw = event.target.value.replace(/[^0-9Xx]/g, "");
   let formatted = "";
 
-  // ISBN-13 Format: 978-3-16-148410-0
+  //* ISBN-13 Format: 978-3-16-148410-0
   if (raw.length >= 13) {
     formatted = `${raw.slice(0, 3)}-${raw.slice(3, 4)}-${raw.slice(4, 7)}-${raw.slice(7, 12)}-${raw.slice(12, 13)}`;
   }
