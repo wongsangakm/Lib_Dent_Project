@@ -905,15 +905,6 @@ watch(
 
 // submitRequest method
 const submitRequest = async () => {
-  const rawISBN = trimmed.isbn.replace(/[^0-9Xx]/g, ""); // ลบขีด, ช่องว่าง, อักษรนอกจากเลข/X
-  const isbn10 = /^\d{9}[\dXx]$/;
-  const isbn13 = /^\d{13}$/;
-
-if (!isbn10.test(rawISBN) && !isbn13.test(rawISBN)) {
-  globalError.value =
-    "❌ Invalid ISBN: must be ISBN-10 or ISBN-13, with or without dashes";
-  return;
-}
 
   globalError.value = "";
 
@@ -927,6 +918,16 @@ if (!isbn10.test(rawISBN) && !isbn13.test(rawISBN)) {
     description: request.value.description.trim(),
     reason: request.value.reason.trim(),
   };
+
+  const rawISBN = trimmed.isbn.replace(/[^0-9Xx]/g, "");
+  const isbn10 = /^\d{9}[\dXx]$/;
+  const isbn13 = /^\d{13}$/;
+
+  if (!isbn10.test(rawISBN) && !isbn13.test(rawISBN)) {
+  globalError.value =
+    "❌ Invalid ISBN: must be ISBN-10 or ISBN-13, with or without dashes";
+  return;
+}
 
   const missingFields = [];
   if (!trimmed.bookTitle) missingFields.push("Book Title");
