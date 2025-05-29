@@ -778,7 +778,7 @@ const addToFavorite = async (book) => {
     const response = await fetch(`${baseURL}/api/auth/favorites/${book.id}`, {
       method: "POST",
       headers: {
-        ...authStore.getAuthHeader(), // ✅ ต้องแน่ใจว่า getAuthHeader ส่ง token
+        ...authStore.getAuthHeader(), // ✅ ต้องแน่ใจว่า getAuthHeader ส่ง token.
         "Content-Type": "application/json",
       },
     });
