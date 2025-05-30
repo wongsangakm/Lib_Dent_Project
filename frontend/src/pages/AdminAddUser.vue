@@ -273,11 +273,12 @@
 
 <script setup>
 import { ref, watch, onMounted } from "vue";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
 
 const STORAGE_KEY = "user-form";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // Form state
 const form = ref({

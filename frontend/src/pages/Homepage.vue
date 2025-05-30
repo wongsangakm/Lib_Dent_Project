@@ -631,12 +631,11 @@ import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {

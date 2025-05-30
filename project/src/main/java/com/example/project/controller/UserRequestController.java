@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Date;
 
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
+@CrossOrigin(origins = {
+    "https://requestbooks-dentkku.vercel.app",
+    "http://localhost:5173"
+}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/requests")
 public class UserRequestController {

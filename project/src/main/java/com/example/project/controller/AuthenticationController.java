@@ -10,21 +10,22 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import io.jsonwebtoken.ExpiredJwtException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
+@CrossOrigin(origins = {
+    "http://localhost:5173",
+    "https://requestbooks-dentkku.vercel.app"
+}, allowCredentials = "true")
 public class AuthenticationController {
 
     @Autowired
@@ -34,33 +35,30 @@ public class AuthenticationController {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
     private JwtUtil jwtUtil;
 
-@PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
-    Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
-    if (userOpt.isEmpty()) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+        Optional<User> userOpt = userService.authenticate(request.getUsername(), request.getPassword());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+
+        User user = userOpt.get();
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+
+        // ใส่ token ลง header (optional)
+        response.setHeader("Authorization", "Bearer " + token);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", "Login success");
+        body.put("username", user.getUsername());
+        body.put("role", user.getRole());
+        body.put("token", token);
+        body.put("requireChangePassword", request.getPassword().equals("123456")); // เงื่อนไขเปลี่ยนรหัส
+
+        return ResponseEntity.ok(body);
     }
-
-    User user = userOpt.get();
-    String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-
-    response.setHeader("Authorization", "Bearer " + token);
-
-    Map<String, Object> body = new HashMap<>();
-    body.put("message", "Login success");
-    body.put("username", user.getUsername());
-    body.put("role", user.getRole());
-    body.put("token", token); // ✅ ส่งให้ frontend เก็บเอง
-    body.put("requireChangePassword", request.getPassword().equals("123456"));
-
-    return ResponseEntity.ok(body);
-}
-
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
@@ -93,38 +91,38 @@ public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRes
         }
     }
 
-@PostMapping("/change-password")
-public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body, HttpServletRequest request) {
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        return ResponseEntity.status(401).body("Unauthorized");
-    }
-
-    try {
-        String jwt = authHeader.substring(7);
-        Claims claims = jwtUtil.validateToken(jwt);
-        String username = claims.getSubject();
-
-        Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(404).body("User not found");
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> body, HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("Unauthorized");
         }
 
-        String newPassword = body.get("newPassword");
-        if (newPassword == null || newPassword.length() < 6) {
-            return ResponseEntity.badRequest().body("Password too short");
+        try {
+            String jwt = authHeader.substring(7);
+            Claims claims = jwtUtil.validateToken(jwt);
+            String username = claims.getSubject();
+
+            Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+
+            String newPassword = body.get("newPassword");
+            if (newPassword == null || newPassword.length() < 6) {
+                return ResponseEntity.badRequest().body("Password too short");
+            }
+
+            User user = userOpt.get();
+            user.setPassword(newPassword); // 👈 อย่าลืมเข้ารหัสถ้าใช้ bcrypt
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("message", "Password changed"));
+
+        } catch (ExpiredJwtException ex) {
+            return ResponseEntity.status(401).body("Token expired");
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid token");
         }
-
-        User user = userOpt.get();
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-
-        return ResponseEntity.ok(Map.of("message", "Password changed"));
-
-    } catch (io.jsonwebtoken.ExpiredJwtException ex) {
-        return ResponseEntity.status(401).body("Token expired");
-    } catch (Exception e) {
-        return ResponseEntity.status(401).body("Invalid token");
     }
-}
 }

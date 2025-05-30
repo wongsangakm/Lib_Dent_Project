@@ -101,10 +101,9 @@ import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
-
 const router = useRouter();
 const favouritesStore = useFavouritesStore();
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const book = ref({
   bookTitle: "",

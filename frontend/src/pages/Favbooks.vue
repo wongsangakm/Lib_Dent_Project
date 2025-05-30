@@ -141,11 +141,10 @@ import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
 const favouritesStore = useFavouritesStore();
 const favourites = computed(() => favouritesStore.favourites);
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // Request history (ดึงจาก backend จริง)
 const requestHistory = ref([]);
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const fetchRequestHistory = async () => {
   try {
     const response = await axios.get(`${baseURL}/api/requests/history`, {

@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const getAuthHeader = () => {
   const token = localStorage.getItem("jwt");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export const useFavouritesStore = defineStore("favourites", {
   state: () => ({

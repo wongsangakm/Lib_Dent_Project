@@ -279,14 +279,13 @@
 import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่ม
 const authStore = useAuthStore(); // เพิ่ม
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const users = ref([]);
 const searchText = ref("");
 const loading = ref(true);
 const error = ref(null);
 const resetting = ref(null);
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {

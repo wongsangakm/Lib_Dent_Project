@@ -524,6 +524,7 @@ const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const requestId = route.params.id;
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const request = ref(null);
 const loading = ref(true);
@@ -531,8 +532,6 @@ const showApproveDialog = ref(false);
 const finalStatus = ref("");
 const successMessage = ref("");
 const isUpdating = ref(false);
-const baseURL = import.meta.env.VITE_API_BASE_URL;
-
 // โหลดคำขอ
 const loadRequest = async () => {
   try {

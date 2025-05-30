@@ -10,4 +10,5 @@ import com.example.project.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsernameIgnoreCase(String username);
+    
 }

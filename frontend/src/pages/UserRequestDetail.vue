@@ -562,10 +562,9 @@ const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 const requestId = route.params.id;
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const request = ref(null);
 const loading = ref(true);
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const loadRequest = async () => {
   try {
     const res = await fetch(`${baseURL}/api/requests/${requestId}`, {

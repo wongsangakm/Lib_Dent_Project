@@ -16,6 +16,7 @@ export const useAuthStore = defineStore("auth", {
       this.role = role;
       this.jwt = jwt;
       this.favBooks = favBooks;
+      localStorage.setItem("token",jwt)
     },
 
     logout() {

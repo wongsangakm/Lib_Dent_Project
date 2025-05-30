@@ -224,6 +224,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่มบรรทัดนี้
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const authStore = useAuthStore();
 const activeTab = ref("admin");
 const allRequests = ref([]);
@@ -231,7 +232,6 @@ const additionalRequests = ref([]);
 const filters = ref({ search: "", status: "" });
 const isMobile = ref(window.innerWidth <= 768);
 const currentPage = ref(1);
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth <= 768;

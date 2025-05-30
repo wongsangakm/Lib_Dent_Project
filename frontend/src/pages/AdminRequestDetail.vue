@@ -114,7 +114,6 @@ import { useFavouritesStore } from "@/stores/favourites";
 import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่มบรรทัดนี้
 const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
-
 const route = useRoute();
 const favouritesStore = useFavouritesStore();
 

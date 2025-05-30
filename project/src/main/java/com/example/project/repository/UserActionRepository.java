@@ -14,14 +14,5 @@ public interface UserActionRepository extends JpaRepository<UserAction, Long> {
     boolean existsByUserAndBookAndActionType(User user, Book book, String actionType);
     List<UserAction> findByUserAndActionType(User user, String string);
     Optional<UserAction> findByUserAndBookAndActionType(User user, Book book, String actionType);
-    static Object findByUsername(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUsername'");
-    }
-    static Object findByUsernameIgnoreCase(String username) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUsernameIgnoreCase'");
-    }
 
-    
 }

@@ -11,7 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
+@CrossOrigin(origins = {
+    "https://requestbooks-dentkku.vercel.app",
+    "http://localhost:5173"
+}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/admin/request-table")
 public class AdminRequestController {

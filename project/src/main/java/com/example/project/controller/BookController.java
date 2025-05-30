@@ -19,7 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.*;
 
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
+@CrossOrigin(origins = {
+    "https://requestbooks-dentkku.vercel.app",
+    "http://localhost:5173"
+}, allowCredentials = "true")
 @RestController
 @RequestMapping("/api/books")
 public class BookController {

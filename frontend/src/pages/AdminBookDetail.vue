@@ -104,7 +104,6 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
-
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const route = useRoute();

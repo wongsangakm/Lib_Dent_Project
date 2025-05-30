@@ -14,8 +14,15 @@ export default defineConfig({
   },
   server: {
     historyApiFallback: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
-   build: {
-    outDir: 'dist' // 💡 ให้ Vercel รู้ว่า static อยู่ที่นี่
-  }
+  build: {
+    outDir: "dist", // 💡 ให้ Vercel รู้ว่า static อยู่ที่นี่
+  },
 });

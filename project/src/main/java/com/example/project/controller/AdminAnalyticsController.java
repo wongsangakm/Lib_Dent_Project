@@ -7,7 +7,11 @@ import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/admin")
-@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
+@CrossOrigin(origins = {
+    "https://requestbooks-dentkku.vercel.app",
+    "http://localhost:5173"
+}, allowCredentials = "true")
+
 public class AdminAnalyticsController {
 
     @Autowired

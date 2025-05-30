@@ -71,23 +71,23 @@ import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const formData = reactive({
   username: "",
   password: "",
 });
+console.log("🌐 baseURL =", baseURL);
 async function handleSubmit() {
   try {
     const response = await fetch(`${baseURL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...authStore.getAuthHeader(),
       },
       body: JSON.stringify(formData),
+      credentials: "include"
     });
 
     if (!response.ok) {

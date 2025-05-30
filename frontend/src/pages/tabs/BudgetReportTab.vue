@@ -160,12 +160,11 @@ import { ref } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const selectedMonth = ref("");
 const selectedYear = ref(new Date().getFullYear());
 const selectedStatus = ref("");
 const selectedTerm = ref("");
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const reportData = ref({
   totalBooks: 0,
   totalAmount: 0,

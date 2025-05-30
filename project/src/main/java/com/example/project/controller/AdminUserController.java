@@ -24,7 +24,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = {
+    "https://requestbooks-dentkku.vercel.app",
+    "http://localhost:5173"
+}, allowCredentials = "true")
 
 public class AdminUserController {
 
@@ -86,7 +89,10 @@ public class AdminUserController {
 
 
     @CrossOrigin(
-    origins = "https://requestbooks-dentkku.vercel.app",
+origins = {
+    "https://requestbooks-dentkku.vercel.app",
+    "http://localhost:5173"
+},
     methods = {RequestMethod.PATCH, RequestMethod.OPTIONS},
     allowedHeaders = "*",
     allowCredentials = "true"

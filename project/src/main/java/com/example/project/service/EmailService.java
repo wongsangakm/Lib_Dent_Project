@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.project.model.AdditionalRequest;
 import com.example.project.model.User;
-
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 @Service

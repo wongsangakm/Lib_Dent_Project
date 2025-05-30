@@ -186,10 +186,10 @@ import Footer from "@/component/Footer.vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const newPassword = ref("");
 const confirmPassword = ref("");
 const showPassword = ref(false);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // ✅ ตรวจสอบว่ารหัสผ่านตรงกันไหม
 const passwordsMatch = computed(() => {

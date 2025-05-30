@@ -191,8 +191,8 @@ import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
-
 const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 const isbnError = ref("");
 const yearError = ref("");
 const priceError = ref("");

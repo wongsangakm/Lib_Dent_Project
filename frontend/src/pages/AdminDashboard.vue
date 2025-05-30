@@ -102,10 +102,10 @@ const topBooks = ref([]);
 const insights = ref([]);
 const heatmapData = ref({ columns: [], rows: [] });
 const selectedField = ref("");
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const mostPopular = topBooks.value?.[0];
 import { useAuthStore } from "@/stores/useAuthStore";
 const authStore = useAuthStore();
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {
