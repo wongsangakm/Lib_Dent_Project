@@ -61,7 +61,6 @@
 <script setup>
 import { useFavouritesStore } from "@/stores/favourites";
 import { computed, onMounted, ref } from "vue";
-
 const favouritesStore = useFavouritesStore();
 const allBooks = computed(() => favouritesStore.allBooks);
 const searchText = ref("");

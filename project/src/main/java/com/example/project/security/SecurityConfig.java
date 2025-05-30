@@ -15,6 +15,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 import java.util.List;
 import static org.springframework.security.config.Customizer.withDefaults;
+
+import com.example.project.config.JwtAuthFilter;
 import com.example.project.security.SessionUserFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.http.HttpMethod;
@@ -30,9 +32,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    private final JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(sessionUserFilter, UsernamePasswordAuthenticationFilter.class) // ✅ เพิ่มตรงนี้
             .cors(withDefaults())
             .csrf(csrf -> csrf.disable())
@@ -43,10 +52,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/auth/favorites/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/requests/**").authenticated()
+                // ใส่ใน SecurityFilterChain หรือใช้ annotation
+                .requestMatchers("/api/admin/request-table/**").hasRole("ADMIN")
+
                 .anyRequest().permitAll()
             )
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             );
 
         return http.build();
@@ -55,10 +67,11 @@ public class SecurityConfig {
    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOriginPatterns(List.of("https://requestbooks-dentkku.vercel.app"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        config.setExposedHeaders(List.of("Authorization")); // ถ้าอยากให้ client อ่าน header กลับได้
+        config.setAllowCredentials(true); // ถ้าไม่ได้ใช้ cookie สามารถลบได้
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

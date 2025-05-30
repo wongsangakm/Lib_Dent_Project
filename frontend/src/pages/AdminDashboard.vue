@@ -102,13 +102,23 @@ const topBooks = ref([]);
 const insights = ref([]);
 const heatmapData = ref({ columns: [], rows: [] });
 const selectedField = ref("");
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+const mostPopular = topBooks.value?.[0];
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 
 onMounted(async () => {
   try {
     const [fieldRes, bookRes, topRes] = await Promise.all([
-      axios.get("http://localhost:8080/api/admin/active-users-by-field"),
-      axios.get("http://localhost:8080/api/admin/favorite-books-by-field"),
-      axios.get("http://localhost:8080/api/admin/top-books-matrix"),
+      axios.get(`${baseURL}/api/admin/active-users-by-field`, {
+        headers: authStore.getAuthHeader(),
+      }),
+      axios.get(`${baseURL}/api/admin/favorite-books-by-field`, {
+        headers: authStore.getAuthHeader(),
+      }),
+      axios.get(`${baseURL}/api/admin/top-books-matrix`, {
+        headers: authStore.getAuthHeader(),
+      }),
     ]);
 
     heatmapData.value = {
@@ -130,9 +140,9 @@ onMounted(async () => {
       }
     }
 
-    if (topBooks.value.length > 0) {
+    if (mostPopular?.title && mostPopular?.favorites != null) {
       insightList.push(
-        `หนังสือ "${topBooks.value[0].name}" ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน (${topBooks.value[0].value} คน)`
+        `หนังสือ "${mostPopular.title}" ได้รับความนิยมสูงสุดจากทุกสาขารวมกัน (${mostPopular.favorites} คน)`
       );
     }
 

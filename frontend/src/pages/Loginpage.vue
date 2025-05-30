@@ -26,6 +26,8 @@
             <input
               type="text"
               v-model="formData.username"
+              autocomplete="off"
+              required
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               placeholder="Enter your username"
             />
@@ -35,6 +37,8 @@
             <input
               type="password"
               v-model="formData.password"
+              autocomplete="off"
+              required
               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
               placeholder="Enter your password"
             />
@@ -67,6 +71,7 @@ import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -74,47 +79,62 @@ const formData = reactive({
   username: "",
   password: "",
 });
-
 async function handleSubmit() {
   try {
-    const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
-        }),
-        credentials: "include"
+    const response = await fetch(`${baseURL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authStore.getAuthHeader(),
+      },
+      body: JSON.stringify(formData),
     });
 
-    if (response.ok) {
-      await response.text(); 
-      const res = await fetch("http://localhost:8080/api/auth/me", { credentials: "include" });
-      const data = await res.json();
-      authStore.login(data.username, data.role);
+    if (!response.ok) {
+      const text = await response.text();
+      alert("❌ Login ล้มเหลว: " + text);
+      return;
+    }
 
-      // 🔄 ดึง favBooks ของผู้ใช้
-      const favRes = await fetch("http://localhost:8080/api/auth/favorites", {method: 'GET', credentials: "include" });
-      authStore.setFavBooks(await favRes.json());
+    const data = await response.json();
+    const token = data.token;
 
-      if (data.role === "ADMIN") {
-        router.push("/admin"); // ไปหน้า system ถ้า role เป็น ADMIN
-      } else if (data.role === "MEMBER") {
-        router.push("/"); // ไปหน้า Home ถ้า role เป็น MEMBER
-      }
+    if (!token) {
+      alert("❌ ไม่ได้รับ JWT token จากเซิร์ฟเวอร์");
+      return;
+    }
+
+    // ✅ เก็บ token ใน Pinia store
+    authStore.login(data.username, data.role, token);
+
+    // 🔄 ดึง favBooks ของผู้ใช้
+    const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
+      headers: authStore.getAuthHeader(),
+    });
+
+    if (favRes.ok) {
+      const favBooks = await favRes.json();
+      authStore.setFavBooks(favBooks);
+    }
+
+    if (data.role === "ADMIN") {
+      router.push("/admin");
+    } else if (data.role === "MEMBER") {
+      router.push("/");
     } else {
-      alert("❌ Username หรือ Password ไม่ถูกต้อง");
+      alert("ไม่สามารถเข้าระบบได้: บทบาทไม่ถูกต้อง");
     }
   } catch (err) {
-    alert("❌ เกิดข้อผิดพลาด: " + err.message);
+    const errorMessage =
+      err instanceof Error ? err.message : JSON.stringify(err);
+    alert("❌ เกิดข้อผิดพลาด: " + errorMessage);
+    console.error("🛠️ Debug Info:", {
+      userAgent: navigator.userAgent,
+      error: errorMessage,
+    });
   }
 }
 </script>
-
-
-
 
 <style>
 @import "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css";

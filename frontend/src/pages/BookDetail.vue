@@ -200,6 +200,7 @@ const bookData = ref(null);
 const isLoading = ref(false);
 const isFavorited = ref(false);
 const isLoadingData = ref(true);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 // Mobile detection
 const isMobile = ref(window.innerWidth < 640);
@@ -237,8 +238,10 @@ onMounted(async () => {
 
 const fetchBookData = async (bookId) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`, {
-      credentials: "include",
+    const response = await fetch(`${baseURL}/api/books/${bookId}`, {
+      headers: {
+        ...authStore.getAuthHeader(),
+      },
     });
     if (!response.ok) throw new Error("Failed to fetch book data");
     const data = await response.json();
@@ -273,10 +276,13 @@ const addToFavorite = async () => {
   isLoading.value = true;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${bookData.value.id}`,
+      `${baseURL}/api/auth/favorites/${bookData.value.id}`,
       {
         method: "POST",
-        credentials: "include",
+        headers: {
+          ...authStore.getAuthHeader(),
+          "Content-Type": "application/json",
+        },
       }
     );
 
@@ -297,12 +303,11 @@ const fetchFavoriteStatus = async (bookId) => {
   if (!isLoggedIn.value) return;
 
   try {
-    const response = await fetch(
-      `http://localhost:8080/api/auth/favorites/${bookId}`,
-      {
-        credentials: "include",
-      }
-    );
+    const response = await fetch(`${baseURL}/api/auth/favorites/${bookId}`, {
+      headers: {
+        ...authStore.getAuthHeader(),
+      },
+    });
     if (!response.ok) throw new Error("Failed to fetch favorite status");
 
     const data = await response.json();

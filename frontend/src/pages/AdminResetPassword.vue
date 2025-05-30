@@ -277,6 +277,8 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่ม
+const authStore = useAuthStore(); // เพิ่ม
 
 const users = ref([]);
 const searchText = ref("");
@@ -284,15 +286,16 @@ const loading = ref(true);
 const error = ref(null);
 const resetting = ref(null);
 
-const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {
     loading.value = true;
-    const res = await fetch(`${baseUrl}/api/admin/users`, {
+    const res = await fetch(`${baseURL}/api/admin/users`, {
       credentials: "include",
       headers: {
         Accept: "application/json",
+        ...authStore.getAuthHeader(),
       },
     });
 
@@ -336,14 +339,14 @@ const resetPassword = async (userId) => {
     resetting.value = userId;
 
     const res = await fetch(
-      `${baseUrl}/api/admin/users/${userId}/reset-password`,
+      `${baseURL}/api/admin/users/${userId}/reset-password`,
       {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          ...authStore.getAuthHeader(),
         },
-        credentials: "include",
       }
     );
 

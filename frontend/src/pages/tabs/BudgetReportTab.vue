@@ -5,7 +5,11 @@
         <label class="block text-sm font-medium">เลือกเดือน</label>
         <select v-model="selectedMonth" class="border px-3 py-1 rounded">
           <option value="">ทั้งหมด</option>
-          <option v-for="month in months" :key="month.value" :value="month.value">
+          <option
+            v-for="month in months"
+            :key="month.value"
+            :value="month.value"
+          >
             {{ month.label }}
           </option>
         </select>
@@ -52,7 +56,13 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>จำนวนเล่มรวม: {{ reportData.totalBooks }} เล่ม</div>
         <div>
-          ยอดรวม: {{ reportData.totalAmount ? reportData.totalAmount.toLocaleString() : '-' }} บาท
+          ยอดรวม:
+          {{
+            reportData.totalAmount
+              ? reportData.totalAmount.toLocaleString()
+              : "-"
+          }}
+          บาท
         </div>
         <div>ปีงบประมาณ: {{ reportData.budgetYear }}</div>
         <div>สถานะ: {{ statusText(reportData.status) }}</div>
@@ -76,17 +86,22 @@
             <tr v-for="book in reportData.books" :key="book.isbn">
               <td class="border px-2 py-1">{{ book.title }}</td>
               <td class="border px-2 py-1">{{ book.isbn }}</td>
-              <td class="border px-2 py-1">{{ book.price?.toLocaleString() }} บาท</td>
+              <td class="border px-2 py-1">
+                {{ book.price?.toLocaleString() }} บาท
+              </td>
               <td class="border px-2 py-1">{{ book.publisher }}</td>
               <td class="border px-2 py-1">
-                <span class="px-2 py-1 rounded inline-block"
+                <span
+                  class="px-2 py-1 rounded inline-block"
                   :class="{
                     'bg-green-100 text-green-700': book.status === 'in_shelf',
                     'bg-blue-100 text-blue-800': book.status === 'ordered',
-                    'bg-purple-100 text-purple-800': book.status === 'popular_request',
+                    'bg-purple-100 text-purple-800':
+                      book.status === 'popular_request',
                     'bg-yellow-100 text-yellow-800': book.status === 'PENDING',
-                    'bg-red-100 text-red-700': book.status === 'REJECTED'
-                  }">
+                    'bg-red-100 text-red-700': book.status === 'REJECTED',
+                  }"
+                >
                   {{ displayStatus(book.status) }}
                 </span>
               </td>
@@ -114,16 +129,21 @@
             <tr v-for="req in reportData.additionalRequests" :key="req.id">
               <td class="border px-2 py-1">{{ req.title }}</td>
               <td class="border px-2 py-1">{{ req.isbn }}</td>
-              <td class="border px-2 py-1">{{ req.price?.toLocaleString() }} บาท</td>
+              <td class="border px-2 py-1">
+                {{ req.price?.toLocaleString() }} บาท
+              </td>
               <td class="border px-2 py-1">{{ req.publisher }}</td>
               <td class="border px-2 py-1">
-                <span class="px-2 py-1 rounded inline-block"
+                <span
+                  class="px-2 py-1 rounded inline-block"
                   :class="{
                     'bg-green-100 text-green-700': req.status === 'in_shelf',
                     'bg-blue-100 text-blue-800': req.status === 'ordered',
-                    'bg-purple-100 text-purple-800': req.status === 'popular_request',
-                    'bg-yellow-100 text-yellow-800': req.status === 'PENDING'
-                  }">
+                    'bg-purple-100 text-purple-800':
+                      req.status === 'popular_request',
+                    'bg-yellow-100 text-yellow-800': req.status === 'PENDING',
+                  }"
+                >
                   {{ displayStatus(req.status) }}
                 </span>
               </td>
@@ -131,7 +151,6 @@
           </tbody>
         </table>
       </div>
-
     </div>
   </div>
 </template>
@@ -139,7 +158,9 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
-
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const selectedMonth = ref("");
 const selectedYear = ref(new Date().getFullYear());
 const selectedStatus = ref("");
@@ -196,7 +217,7 @@ const displayStatus = (status) => {
 const fetchReport = async () => {
   console.log("🔍 เรียก fetchReport แล้ว");
   try {
-    const res = await axios.get("http://localhost:8080/api/admin/budget-report", {
+    const res = await axios.get(`${baseURL}/api/admin/budget-report`, {
       params: {
         month: selectedMonth.value ? parseInt(selectedMonth.value) : undefined,
         term: selectedTerm.value ? parseInt(selectedTerm.value) : undefined,
@@ -213,7 +234,7 @@ const fetchReport = async () => {
       totalAmount: data.totalBudget,
       books: data.books || [],
       additionalRequests: (data.additionalRequests || []).filter(
-        (req) => req.status?.toLowerCase() !== 'rejected'
+        (req) => req.status?.toLowerCase() !== "rejected"
       ),
     };
   } catch (err) {

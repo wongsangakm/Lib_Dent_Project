@@ -223,13 +223,15 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-
+import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่มบรรทัดนี้
+const authStore = useAuthStore();
 const activeTab = ref("admin");
 const allRequests = ref([]);
 const additionalRequests = ref([]);
 const filters = ref({ search: "", status: "" });
 const isMobile = ref(window.innerWidth <= 768);
 const currentPage = ref(1);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const checkIsMobile = () => {
   isMobile.value = window.innerWidth <= 768;
@@ -237,9 +239,9 @@ const checkIsMobile = () => {
 
 const handleStatusChange = async (book) => {
   try {
-    const res = await fetch(`http://localhost:8080/api/books/${book.id}/status`, {
+    const res = await fetch(`${baseURL}/api/books/${book.id}/status`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { ...authStore.getAuthHeader(),"Content-Type": "application/json" },
       body: JSON.stringify({ status: book.status }),
     });
     if (!res.ok) throw new Error("Failed to update status");
@@ -252,8 +254,8 @@ const handleStatusChange = async (book) => {
 
 const loadAdditionalRequests = async () => {
   try {
-    const res = await fetch("http://localhost:8080/api/admin/request-table", {
-      credentials: "include",
+    const res = await fetch(`${baseURL}/api/admin/request-table`, {
+      headers: authStore.getAuthHeader(),
     });
     const data = await res.json();
     additionalRequests.value = data;
@@ -305,10 +307,11 @@ watch(activeTab, (tab) => {
 onMounted(async () => {
   window.addEventListener("resize", checkIsMobile);
   try {
-    const resBooks = await fetch("http://localhost:8080/api/books");
+    const resBooks = await fetch(`${baseURL}/api/books`, {
+      headers: authStore.getAuthHeader()});
     const books = await resBooks.json();
-    const resCounts = await fetch("http://localhost:8080/api/admin/favorite-counts", {
-      credentials: "include",
+    const resCounts = await fetch(`${baseURL}/api/admin/favorite-counts`, {
+      headers: authStore.getAuthHeader(),
     });
     const counts = await resCounts.json();
 

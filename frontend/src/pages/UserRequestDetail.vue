@@ -10,7 +10,7 @@
   >
     <Header />
 
-    <div class="container mx-auto px-4 pt-24 pb-8 w-full max-w-5xl flex-1">
+    <div class="container mx-auto px-4 pt-24 pb-8 w-full max-w-3xl flex-1">
       <!-- Page Header -->
       <div class="text-center mb-8">
         <h1
@@ -463,7 +463,7 @@
             <div v-if="request.reason" class="pt-6 border-t border-slate-100">
               <!-- description section -->
               <label
-                class=" block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"
+                class="block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"
               >
                 <svg
                   class="w-4 h-4 text-slate-500"
@@ -556,18 +556,20 @@ import { useRoute, useRouter } from "vue-router";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 
 const route = useRoute();
 const router = useRouter();
 const requestId = route.params.id;
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const request = ref(null);
 const loading = ref(true);
 
 const loadRequest = async () => {
   try {
-    const res = await fetch(`http://localhost:8080/api/requests/${requestId}`, {
-      credentials: "include",
+    const res = await fetch(`${baseURL}/api/requests/${requestId}`, {
+      headers: authStore.getAuthHeader(),
     });
     if (!res.ok) throw new Error("Request not found");
     request.value = await res.json();

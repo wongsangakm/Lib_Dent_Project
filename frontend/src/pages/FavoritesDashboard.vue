@@ -88,9 +88,9 @@
           <BarChart3 class="mr-2 h-5 w-5 text-gray-700" />
           สัดส่วนสถานะหนังสือในระบบ
         </h2>
-        <div class="h-6 bg-gray-200 rounded-full overflow-hidden flex">
+        <div class="h-6 bg-pink-100 rounded-full overflow-hidden flex">
           <div
-            v-if="inShelfCount > 0"
+            v-if="overallSummary.inShelf > 0"
             class="h-full bg-green-500"
             :style="{
               width: `${
@@ -101,7 +101,7 @@
             }"
           ></div>
           <div
-            v-if="orderedCount > 0"
+            v-if="overallSummary.ordered > 0"
             class="h-full bg-blue-500"
             :style="{
               width: `${
@@ -112,7 +112,7 @@
             }"
           ></div>
           <div
-            v-if="requestedCount > 0"
+            v-if="overallSummary.requested > 0"
             class="h-full bg-purple-500"
             :style="{
               width: `${
@@ -344,15 +344,13 @@ const userFavorites = ref([]);
 const books = ref([]);
 const overallSummary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
 const summary = ref({ inShelf: 0, ordered: 0, requested: 0, total: 0 });
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get(
-      "http://localhost:8080/api/user/dashboard",
-      {
-        withCredentials: true,
-      }
-    );
+    const { data } = await axios.get(`${baseURL}/api/user/dashboard`, {
+      headers: authStore.getAuthHeader(),
+    });
 
     // เพิ่ม fallback กรณีไม่ได้ค่าอะไรเลย (guest หรือ error ฝั่ง backend)
     if (!booksWithFavorites.value || booksWithFavorites.value === 0) {

@@ -16,7 +16,7 @@ import com.example.project.repository.BookRepository;
 @RestController
 @RequestMapping("/api/fields")
 
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
 public class FieldController {
 
      @Autowired

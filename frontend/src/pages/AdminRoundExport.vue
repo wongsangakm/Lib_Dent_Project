@@ -51,6 +51,9 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const exportRounds = [
   { id: 1, name: "รอบที่ 1", deadline: "30 December", label: "May–December" },
@@ -60,15 +63,19 @@ const exportRounds = [
     deadline: "28 Febuary",
     label: "January–Febuary",
   },
-  { id: 3, name: "รอบที่ 3", deadline: "30 Aprill", label: "March–April" },
+  { id: 3, name: "รอบที่ 3", deadline: "30 April", label: "March–April" },
 ];
 
 const exportToExcel = async (round) => {
   try {
     const year = new Date().getFullYear();
     const res = await fetch(
-      `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
-      { credentials: "include" }
+      `${baseURL}/api/admin/export/favorites?round=${round.id}&year=${year}`,
+      {
+        headers: {
+          ...authStore.getAuthHeader(),
+        },
+      }
     );
     const data = await res.json();
 
@@ -122,8 +129,12 @@ const exportToPDF = async (round) => {
   try {
     const year = new Date().getFullYear(); // ✅ ดึง year จาก system
     const res = await fetch(
-      `http://localhost:8080/api/admin/export/favorites?round=${round.id}&year=${year}`,
-      { credentials: "include" }
+      `${baseURL}/api/admin/export/favorites?round=${round.id}&year=${year}`,
+      {
+        headers: {
+          ...authStore.getAuthHeader(),
+        },
+      }
     );
     const data = await res.json();
 

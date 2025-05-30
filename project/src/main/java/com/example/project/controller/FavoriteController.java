@@ -7,17 +7,16 @@ import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.EmailService;
-
-
-import jakarta.servlet.http.HttpSession;
+import com.example.project.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
 @RestController
 @RequestMapping("/api/auth/favorites")
 
@@ -35,64 +34,67 @@ public class FavoriteController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
 
     //  เพิ่ม favorite (หากยังไม่เคยกด)
-  @PostMapping("/{bookId}")
-    public ResponseEntity<?> addFavorite(@PathVariable Long bookId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-            System.out.println("💡 userId from session = " + userId);
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+@PostMapping("/{bookId}")
+public ResponseEntity<?> addFavorite(@PathVariable Long bookId, @AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
 
-        if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) {
-            return ResponseEntity.ok(Map.of("message", "Already favorited"));
-        }
+    Long userId = user.getId();
 
-        User user = userRepository.findById(userId).orElseThrow();
-        Book book = bookRepository.findById(bookId).orElseThrow();
-        // ถ้าหนังสือยังไม่มีสถานะ กำหนดให้เป็น popular_request
-        if (book.getStatus() == null || book.getStatus().isBlank()) {
-            book.setStatus("popular_request");
-            bookRepository.save(book); // Save updated status
-        }
-
-        BookFavorite favorite = new BookFavorite();
-        favorite.setUser(user);
-        favorite.setBook(book);
-        favoriteRepository.save(favorite);
-
-        emailService.sendNotificationToAdmin(book.getBookTitle(), user);
-
-        return ResponseEntity.ok(Map.of("success", true));
+    if (favoriteRepository.existsByUserIdAndBookId(userId, bookId)) {
+        return ResponseEntity.ok(Map.of("message", "Already favorited"));
     }
+
+    Book book = bookRepository.findById(bookId).orElseThrow();
+    if (book.getStatus() == null || book.getStatus().isBlank()) {
+        book.setStatus("popular_request");
+        bookRepository.save(book);
+    }
+
+    BookFavorite favorite = new BookFavorite();
+    favorite.setUser(user);
+    favorite.setBook(book);
+    favoriteRepository.save(favorite);
+
+    emailService.sendNotificationToAdmin(book.getBookTitle(), user);
+
+    return ResponseEntity.ok(Map.of("success", true));
+}
+
+
 
     // ✅ ตรวจสอบว่า user เคย favorite หรือยัง
-    @GetMapping("/check/{bookId}")
-    public Map<String, Object> isFavorited(@PathVariable Long bookId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        boolean isFav = userId != null && favoriteRepository.existsByUserIdAndBookId(userId, bookId);
-        return Map.of("isFavorited", isFav);
+
+@GetMapping
+public ResponseEntity<?> getUserFavorites(@AuthenticationPrincipal User user) {
+    if (user == null) {
+        return ResponseEntity.status(401).body("Unauthorized");
     }
 
-    // ✅ ดูรายการหนังสือทั้งหมดที่ user คนนั้นเคยกด favorite
-    @GetMapping
-    public ResponseEntity<?> getUserFavorites(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+    Long userId = user.getId();
+    List<BookFavorite> favs = favoriteRepository.findByUserId(userId);
+    List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
 
-        List<BookFavorite> favs = favoriteRepository.findByUserId(userId);
-        List<Book> books = favs.stream().map(BookFavorite::getBook).toList();
+    return ResponseEntity.ok(books);
+}
 
-        return ResponseEntity.ok(books);
-    }
 
-    @GetMapping("/{bookId}")
-    public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) return ResponseEntity.status(401).body("Unauthorized");
+    
 
-        boolean isFav = favoriteRepository.existsByUserIdAndBookId(userId, bookId);
-        return ResponseEntity.ok(Map.of("isFavorited", isFav));
-    }
+
+@GetMapping("/{bookId}")
+public ResponseEntity<?> checkFavorite(@PathVariable Long bookId, @AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
+
+    boolean isFav = favoriteRepository.existsByUserIdAndBookId(user.getId(), bookId);
+    return ResponseEntity.ok(Map.of("isFavorited", isFav));
+}
+
+
+
 
     @GetMapping("/popular")
     public ResponseEntity<?> getMostFavoritedBooks() {
@@ -126,16 +128,16 @@ public class FavoriteController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/ids")
-    public ResponseEntity<?> getFavoriteBookIds(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+@GetMapping("/ids")
+public ResponseEntity<?> getFavoriteBookIds(@AuthenticationPrincipal User user) {
+    if (user == null) return ResponseEntity.status(401).body("Unauthorized");
 
-        List<Long> bookIds = favoriteRepository.findBookIdsByUserId(userId);
-        return ResponseEntity.ok(bookIds);
-    }
+    List<Long> bookIds = favoriteRepository.findBookIdsByUserId(user.getId());
+    return ResponseEntity.ok(bookIds);
+}
+
+
+
 
     @GetMapping("/book/{bookId}/users")
     public ResponseEntity<?> getUsersWhoFavorited(@PathVariable Long bookId) {

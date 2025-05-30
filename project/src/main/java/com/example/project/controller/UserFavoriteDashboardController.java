@@ -19,14 +19,17 @@ import com.example.project.repository.BookRepository;
 import com.example.project.repository.FavoriteRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.BookAnalyticsService;
+import com.example.project.util.JwtUtil;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://requestbooks-dentkku.vercel.app")
 public class UserFavoriteDashboardController {
-
+    @Autowired
+    private JwtUtil jwtUtil;
     @Autowired private FavoriteRepository favoriteRepository;
     @Autowired private BookRepository bookRepository;
     @Autowired private UserRepository userRepository;
@@ -38,7 +41,6 @@ public class UserFavoriteDashboardController {
         User user = null;
         List<Long> userFavoriteIds = List.of(); // Default ว่าง
 
-        // ดึงรายการเพิ่มเติมทั้งหมดจากผู้ใช้
         List<AdditionalRequest> additionalBooks = additionalRequestRepository.findAll();
         long additionalRequested = additionalBooks.size();
         long additionalInShelf = additionalBooks.stream().filter(b -> "in_shelf".equals(b.getStatus())).count();
@@ -46,18 +48,24 @@ public class UserFavoriteDashboardController {
         long additionalPopularRequest = additionalBooks.stream().filter(b -> "popular_request".equals(b.getStatus())).count();
 
         List<Book> books = List.of();
-        try {
-            String username = request.getUserPrincipal().getName();
-            Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
-            if (userOpt.isPresent()) {
-                user = userOpt.get();
-                List<BookFavorite> favs = favoriteRepository.findByUserId(user.getId());
-                userFavoriteIds = favs.stream().map(f -> f.getBook().getId()).distinct().toList();
-                books = favs.stream().map(BookFavorite::getBook).filter(Objects::nonNull).distinct().toList();
+            try {
+                String authHeader = request.getHeader("Authorization");
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    String token = authHeader.substring(7);
+                    Claims claims = jwtUtil.validateToken(token);
+                    String username = claims.getSubject();
+                    Optional<User> userOpt = userRepository.findByUsernameIgnoreCase(username);
+
+                    if (userOpt.isPresent()) {
+                        user = userOpt.get();
+                        List<BookFavorite> favs = favoriteRepository.findByUserId(user.getId());
+                        userFavoriteIds = favs.stream().map(f -> f.getBook().getId()).distinct().toList();
+                        books = favs.stream().map(BookFavorite::getBook).filter(Objects::nonNull).distinct().toList();
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("❌ JWT error: " + e.getMessage());
             }
-        } catch (Exception e) {
-            // Guest user ไม่มี session
-        }
 
         // นับจำนวน Favorite ต่อหนังสือ
         Map<Long, Long> favoriteCounts = favoriteRepository.findAll().stream()

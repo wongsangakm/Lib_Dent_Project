@@ -41,7 +41,10 @@ public class Book {
     @Column(name = "publisher")
     private String publisher;
 
-    @Column(columnDefinition = "LONGTEXT")
+    /**
+     *
+     */
+    @Column(columnDefinition = "TEXT") // หรือ VARCHAR(4000) แล้วแต่ฐานข้อมูล
     private String description;
 
 }

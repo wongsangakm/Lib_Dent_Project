@@ -189,7 +189,10 @@ import axios from "axios";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const isbnError = ref("");
 const yearError = ref("");
 const priceError = ref("");
@@ -319,8 +322,8 @@ const submitRequest = async () => {
       price: parseFloat(trimmed.price),
     };
 
-    await axios.post("http://localhost:8080/api/requests", payload, {
-      withCredentials: true,
+    await axios.post(`${baseURL}/api/requests`, payload, {
+      headers: authStore.getAuthHeader(),
     });
 
     alert("✅ Request submitted successfully!");

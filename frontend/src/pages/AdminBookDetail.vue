@@ -48,16 +48,22 @@
             />
           </label>
 
-
-
           <div class="flex felx-row gap-8">
             <label class="block">
               <span class="text-gray-700">ISBN</span>
-              <input v-model="editableBook.isbn" type="text" class="w-full border rounded px-3 py-2 mt-1" />
+              <input
+                v-model="editableBook.isbn"
+                type="text"
+                class="w-full border rounded px-3 py-2 mt-1"
+              />
             </label>
             <label class="block">
               <span class="text-gray-700">Year</span>
-              <input v-model="editableBook.year" type="text" class="w-full border rounded px-3 py-2 mt-1" />
+              <input
+                v-model="editableBook.year"
+                type="text"
+                class="w-full border rounded px-3 py-2 mt-1"
+              />
             </label>
           </div>
 
@@ -96,6 +102,10 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
+import { useAuthStore } from "@/stores/useAuthStore";
+const authStore = useAuthStore();
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const route = useRoute();
 const book = ref(null);
@@ -111,7 +121,9 @@ const editableBook = ref({
 const fetchBookById = async () => {
   const bookId = route.params.id;
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`);
+    const response = await fetch(`${baseURL}/api/books/${bookId}`, {
+      headers: authStore.getAuthHeader(),
+    });
     const data = await response.json();
     book.value = data;
     editableBook.value = { ...data };
@@ -126,9 +138,12 @@ onMounted(fetchBookById);
 const saveChanges = async () => {
   const bookId = route.params.id;
   try {
-    const response = await fetch(`http://localhost:8080/api/books/${bookId}`, {
+    const response = await fetch(`${baseURL}/api/books/${bookId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        ...authStore.getAuthHeader(),
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(editableBook.value),
     });
 

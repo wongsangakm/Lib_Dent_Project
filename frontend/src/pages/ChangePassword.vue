@@ -186,7 +186,7 @@ import Footer from "@/component/Footer.vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const newPassword = ref("");
 const confirmPassword = ref("");
 const showPassword = ref(false);
@@ -253,9 +253,12 @@ const submitForm = async () => {
   }
 
   try {
-    const res = await fetch("http://localhost:8080/api/auth/change-password", {
+    const res = await fetch(`${baseURL}/api/auth/change-password`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        ...authStore.getAuthHeader(),
+        "Content-Type": "application/json",
+      },
       credentials: "include",
       body: JSON.stringify({ newPassword: newPassword.value }),
     });
@@ -267,8 +270,10 @@ const submitForm = async () => {
     }
 
     // ✅ ดึงข้อมูลผู้ใช้ใหม่
-    const meRes = await fetch("http://localhost:8080/api/auth/me", {
-      credentials: "include",
+    const meRes = await fetch(`${baseURL}/api/auth/me`, {
+      headers: {
+        ...authStore.getAuthHeader(),
+      },
     });
 
     if (meRes.ok) {
