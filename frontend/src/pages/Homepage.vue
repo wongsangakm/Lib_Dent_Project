@@ -57,7 +57,10 @@
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
       >
         <!-- Book Request Form (Above Search Bar) -->
-        <div v-if="isLoggedIn" class="relative z-10 p-6 md:p-8 border-b border-gray-200">
+        <div
+          v-if="isLoggedIn"
+          class="relative z-10 p-6 md:p-8 border-b border-gray-200"
+        >
           <div class="max-w-4xl mx-auto">
             <div class="mb-6">
               <h2
@@ -385,6 +388,162 @@
           </div>
         </div>
         <!-- Additional Request Form -->
+        <div
+          v-if="isLoggedIn"
+          class="mt-10 bg-white p-6 rounded-xl shadow-md relative z-10 pt-8"
+        >
+          <h1 class="text-2xl font-bold text-purple-700 mb-4 text-center">
+            Additional Book Request
+          </h1>
+
+          <form @submit.prevent="submitRequest" class="space-y-4">
+            <label class="block">
+              <span class="text-gray-700">Book Title</span
+              ><span class="text-red-500">*</span>
+              <input
+                v-model="request.bookTitle"
+                type="text"
+                class="form-input"
+              />
+              <p v-if="bookTitleError" class="text-red-500 text-sm mt-1">
+                {{ bookTitleError }}
+              </p>
+            </label>
+            <label class="block">
+              <span class="text-gray-700">Author</span
+              ><span class="text-red-500">*</span>
+              <input v-model="request.author" type="text" class="form-input" />
+              <p v-if="authorError" class="text-red-500 text-sm mt-1">
+                {{ authorError }}
+              </p>
+            </label>
+
+            <label class="block">
+              <span class="text-gray-700">Publisher</span
+              ><span class="text-red-500">*</span>
+              <input
+                v-model="request.publisher"
+                type="text"
+                class="form-input"
+              />
+              <p v-if="publisherError" class="text-red-500 text-sm mt-1">
+                {{ publisherError }}
+              </p>
+            </label>
+
+            <div class="flex flex-row gap-8">
+              <label class="block flex-1">
+                <span class="text-gray-700">ISBN</span
+                ><span class="text-red-500">*</span>
+                <input
+                  v-model="request.isbn"
+                  type="text"
+                  class="form-input"
+                  placeholder="e.g. 978-3-16-148410-0"
+                  @input="onISBNInput"
+                />
+                <p v-if="isbnError" class="text-red-500 text-sm mt-1">
+                  {{ isbnError }}
+                </p>
+              </label>
+              <label class="block flex-1">
+                <span class="text-gray-700">Year</span
+                ><span class="text-red-500">*</span>
+                <input
+                  v-model="request.year"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="\d*"
+                  class="form-input"
+                />
+                <p v-if="yearError" class="text-red-500 text-sm mt-1">
+                  {{ yearError }}
+                </p>
+              </label>
+            </div>
+
+            <label class="block">
+              <span class="text-gray-700">Price</span
+              ><span class="text-red-500">*</span>
+              <input
+                v-model="request.price"
+                type="text"
+                inputmode="decimal"
+                class="form-input"
+              />
+              <p v-if="priceError" class="text-red-500 text-sm mt-1">
+                {{ priceError }}
+              </p>
+            </label>
+
+            <label class="block">
+              <span class="text-gray-700"
+                >Description (หรือ Link สำหรับดูเพิ่มเติม)</span
+              >
+              <textarea
+                v-model="request.description"
+                class="w-full border rounded px-3 py-2 mt-1 resize-none"
+                rows="4"
+              ></textarea>
+            </label>
+
+            <label class="block">
+              <span class="text-gray-700">Reason / Notes</span
+              ><span class="text-red-500">*</span>
+              <textarea
+                v-model="request.reason"
+                class="w-full border rounded px-3 py-2 mt-1 resize-none"
+                rows="4"
+                placeholder="Why do you need this book?"
+              ></textarea>
+              <p v-if="reasonError" class="text-red-500 text-sm mt-1">
+                {{ reasonError }}
+              </p>
+            </label>
+
+            <div class="text-right">
+              <div class="text-right flex justify-end">
+                <button
+                  type="submit"
+                  :disabled="isLoading"
+                  class="bg-purple-600 text-white px-6 py-2 rounded transition flex items-center gap-2 ml-auto"
+                  :class="{ 'opacity-60 cursor-not-allowed': isLoading }"
+                >
+                  <svg
+                    v-if="isLoading"
+                    class="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    />
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 000 16v4l3.5-3.5L12 20v-4a8 8 0 01-8-8z"
+                    />
+                  </svg>
+                  <span>{{
+                    isLoading ? "Submitting..." : "Submit Request"
+                  }}</span>
+                </button>
+              </div>
+              <p
+                v-if="globalError"
+                class="text-red-600 text-sm mt-2 whitespace-pre-line"
+              >
+                {{ globalError }}
+              </p>
+            </div>
+          </form>
+        </div>
       </section>
 
       <!-- Favourite by Publisher -->
@@ -857,7 +1016,11 @@ const isLoading = ref(false);
 watch(
   () => request.value.isbn,
   (val) => {
-    isbnError.value = /^\d*$/.test(val) ? "" : "❌ ISBN must be an integer.";
+    const cleaned = val.replace(/[^0-9Xx]/g, "");
+    const isbnRegex = /^(?:\d{9}[\dXx]|\d{13})$/;
+    isbnError.value = isbnRegex.test(cleaned)
+      ? ""
+      : "❌ Invalid ISBN-10 or ISBN-13 format.";
   }
 );
 watch(
@@ -931,8 +1094,10 @@ const submitRequest = async () => {
     return;
   }
 
-  if (!/^\d+$/.test(trimmed.isbn)) {
-    globalError.value = "❌ ISBN must be an integer.";
+  const isbnRegex =
+    /^(?:\d{9}[\dXx]|\d{13}|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
+  if (!isbnRegex.test(trimmed.isbn)) {
+    globalError.value = "❌ Invalid ISBN format (e.g. 978-3-16-148410-0)";
     return;
   }
 
@@ -951,7 +1116,6 @@ const submitRequest = async () => {
   try {
     const payload = {
       ...trimmed,
-      isbn: parseInt(trimmed.isbn),
       year: parseInt(trimmed.year),
       price: parseFloat(trimmed.price),
     };
@@ -988,6 +1152,30 @@ const submitRequest = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const onISBNInput = (event) => {
+  const raw = event.target.value.replace(/[^0-9Xx]/g, "");
+  let formatted = "";
+
+  // ISBN-13 Format: 978-3-16-148410-0
+  if (raw.length >= 13) {
+    formatted = `${raw.slice(0, 3)}-${raw.slice(3, 4)}-${raw.slice(
+      4,
+      7
+    )}-${raw.slice(7, 12)}-${raw.slice(12, 13)}`;
+  }
+  // ISBN-10 Format: 0-306-40615-2
+  else if (raw.length === 10) {
+    formatted = `${raw.slice(0, 1)}-${raw.slice(1, 4)}-${raw.slice(
+      4,
+      9
+    )}-${raw.slice(9, 10)}`;
+  } else {
+    formatted = raw;
+  }
+
+  request.value.isbn = formatted;
 };
 </script>
 
