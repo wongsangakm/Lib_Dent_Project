@@ -231,7 +231,6 @@ public ResponseEntity<?> getTopBooksByFieldHeatmap() {
 
     List<Long> topBookIds = bookCounts.entrySet().stream()
         .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
-        .limit(5)
         .map(Map.Entry::getKey)
         .toList();
 

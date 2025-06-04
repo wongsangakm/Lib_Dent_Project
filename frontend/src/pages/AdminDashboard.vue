@@ -78,7 +78,7 @@
 
     <!-- Insight -->
     <div class="mt-8 bg-gray-50 p-4 rounded-lg">
-      <h2 class="text-lg font-medium text-gray-700 mb-2">คำแนะนำจากข้อมูล</h2>
+      <h2 class="text-lg font-medium text-gray-700 mb-2">สรุปข้อมูลความสนใจหนังสือ</h2>
       <ul class="list-disc pl-5 space-y-1 text-gray-600">
         <li v-for="(insight, idx) in insights" :key="idx">
           {{ insight }}
