@@ -48,8 +48,10 @@ public class AdminRequestController {
 
     // ❌ ยกเลิกคำขอ
     @PutMapping("/{id}/reject")
-    public ResponseEntity<String> rejectRequest(@PathVariable Long id) {
-        service.rejectRequest(id);
-        return ResponseEntity.ok("Request rejected");
-    }
+    public ResponseEntity<String> rejectRequest(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    String reason = body.get("reason");
+    service.rejectRequest(id, reason);
+    return ResponseEntity.ok("Request rejected with reason: " + reason);
+}
+
 }

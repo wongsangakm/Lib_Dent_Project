@@ -58,4 +58,12 @@ public class AdditionalRequestService {
         return repository.findById(id)
             .orElseThrow(() -> new RuntimeException("Request not found"));
     }
+
+    public void rejectRequest(Long id, String reason) {
+    AdditionalRequest request = getRequestById(id);
+    request.setStatus("REJECTED");
+    request.setRejectReason(reason);
+    repository.save(request);
+}
+
 }

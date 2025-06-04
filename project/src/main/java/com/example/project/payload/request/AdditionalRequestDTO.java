@@ -22,6 +22,7 @@ public class AdditionalRequestDTO {
     private String requestedBy;
     private Date requestDate;
     private String status;
+    private String rejectReason;
 
     public AdditionalRequestDTO(AdditionalRequest request) {
         this.id = request.getId();
@@ -36,5 +37,6 @@ public class AdditionalRequestDTO {
         this.requestedBy = request.getRequestedBy();
         this.status = request.getStatus();
         this.requestDate = request.getRequestDate();
+        this.rejectReason = request.getRejectReason();
     }
 }

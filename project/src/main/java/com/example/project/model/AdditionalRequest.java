@@ -16,6 +16,8 @@ public class AdditionalRequest {
     private String isbn;
     private Integer year;
     private double price;
+    private String rejectReason;
+
 
     @Column(length = 1000)
     private String description;

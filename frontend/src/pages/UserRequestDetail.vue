@@ -505,13 +505,18 @@
                 </svg>
                 Request Reason
               </label>
-
               <div
                 class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100"
               >
                 <p class="text-slate-700 whitespace-pre-line leading-relaxed">
                   {{ request.reason }}
                 </p>
+              </div>
+              <!-- ✅ reject reason -->
+              <div v-if="request.status === 'REJECTED' && request.rejectReason" class="mt-6">
+                <label class="text-sm font-semibold text-red-700 block mb-2">Reject Reason</label>
+                <div class="bg-red-50 text-red-800 p-4 rounded-xl border border-red-200">
+                {{ request.rejectReason }}</div>
               </div>
             </div>
           </div>
