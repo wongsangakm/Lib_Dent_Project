@@ -67,7 +67,7 @@ public class SecurityConfig {
    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("https://requestbooks-dentkku.vercel.app"));
+        config.setAllowedOriginPatterns(List.of("https://requestbooks-dentkku.vercel.app","http://localhost:5173"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization")); // ถ้าอยากให้ client อ่าน header กลับได้

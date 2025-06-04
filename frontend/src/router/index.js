@@ -21,7 +21,7 @@ import AdditionalRequest from "@/pages/AdditionalRequest.vue";
 import AdditionalRequestDetail from "@/pages/AdditionalRequestDetail.vue";
 import UserRequestDetail from "@/pages/UserRequestDetail.vue";
 import AdminEditEmail from "@/pages/AdminEditEmail.vue";
-
+import AddminLibraryBook from "@/pages/AddminLibraryBook.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -41,8 +41,8 @@ const router = createRouter({
       name: "FavoritesDashboard",
       component: FavoritesDashboard,
     },
-    { path: "/additional", name:"Additional", component: AdditionalRequest},
-    { path: "/request/:id", name: "Request", component: UserRequestDetail},
+    { path: "/additional", name: "Additional", component: AdditionalRequest },
+    { path: "/request/:id", name: "Request", component: UserRequestDetail },
 
     {
       path: "/admin",
@@ -53,7 +53,10 @@ const router = createRouter({
         { path: "allbooks/add-book", component: AdminAddBook },
         { path: "request-table", component: AdminRequestTable },
         { path: "request/:id", component: AdminRequestDetail },
-        { path: "/admin/additional-request/:id", component: AdditionalRequestDetail},
+        {
+          path: "/admin/additional-request/:id",
+          component: AdditionalRequestDetail,
+        },
         { path: "adminbookdetail/:id", component: AdminBookDetail },
         { path: "round-export", component: AdminRoundExport },
         { path: "", redirect: "/admin/dashboard" },
@@ -62,7 +65,8 @@ const router = createRouter({
           path: "/admin/reset-password",
           component: AdminResetPasswords,
         },
-        {path: "/admin/change-email", component: AdminEditEmail},
+        { path: "/admin/change-email", component: AdminEditEmail },
+        { path: "/admin/LibraryBook", component: AddminLibraryBook },
       ],
     },
   ],

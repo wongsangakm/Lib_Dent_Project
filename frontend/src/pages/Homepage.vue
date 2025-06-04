@@ -631,6 +631,7 @@ import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import Fuse from "fuse.js";
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
@@ -905,8 +906,31 @@ watch(
     reasonError.value = val.trim() === "" ? "❌ Reason is required." : "";
   }
 );
+function normalizeString(str) {
+  return str
+    .toLowerCase()
+    .replace(/[\.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
 
-// submitRequest method
+function reverseAuthorName(author) {
+  if (author.includes(",")) {
+    const [last, first] = author.split(",");
+    return `${first.trim()} ${last.trim()}`;
+  }
+  return author;
+}
+
+function titleOverlapScore(inputTitle, candidateTitle) {
+  const inputWords = normalizeString(inputTitle).split(" ");
+  const candidateWords = normalizeString(candidateTitle).split(" ");
+  const matchCount = inputWords.filter((word) =>
+    candidateWords.includes(word)
+  ).length;
+  return matchCount / inputWords.length;
+}
+
 const submitRequest = async () => {
   globalError.value = "";
 
@@ -926,10 +950,9 @@ const submitRequest = async () => {
   const isbn13 = /^\d{13}$/;
 
   if (!isbn10.test(rawISBN) && !isbn13.test(rawISBN)) {
-  globalError.value =
-    "❌ Invalid ISBN: must be ISBN-10 or ISBN-13, with or without dashes";
-  return;
-}
+    globalError.value = "❌ Invalid ISBN: must be ISBN-10 or ISBN-13.";
+    return;
+  }
 
   const missingFields = [];
   if (!trimmed.bookTitle) missingFields.push("Book Title");
@@ -947,21 +970,13 @@ const submitRequest = async () => {
     return;
   }
 
-  const isbnRegex =
-    /^(\d{9}[\dXx]|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dXx]|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
-  if (!isbnRegex.test(trimmed.isbn)) {
-    globalError.value =
-      "❌ Invalid ISBN format (ISBN-10 or ISBN-13, with or without dashes)";
-    return;
-  }
-
   if (!/^\d+$/.test(trimmed.year)) {
     globalError.value = "❌ Year must be an integer.";
     return;
   }
 
   if (!/^\d+(\.\d+)?$/.test(trimmed.price)) {
-    globalError.value = "❌ Price must be a valid number (float).";
+    globalError.value = "❌ Price must be a valid number.";
     return;
   }
 
@@ -974,6 +989,69 @@ const submitRequest = async () => {
       year: parseInt(trimmed.year),
       price: parseFloat(trimmed.price),
     };
+
+    const normalizedInput = {
+      title: normalizeString(payload.bookTitle),
+      author: normalizeString(payload.author),
+    };
+
+    const res = await axios.get(`${baseURL}/api/library-books/similar-lite`, {
+      params: { title: payload.bookTitle },
+      headers: authStore.getAuthHeader(),
+    });
+
+    const shortlist = res.data;
+
+    const normalizedShortlist = shortlist.map((book) => ({
+      ...book,
+      title: normalizeString(book.title),
+      author: normalizeString(reverseAuthorName(book.author || "")),
+    }));
+
+    const fuseTitle = new Fuse(normalizedShortlist, {
+      keys: ["title"],
+      threshold: 0.35,
+      includeScore: true,
+    });
+
+    const fuseAuthor = new Fuse(normalizedShortlist, {
+      keys: ["author"],
+      threshold: 0.4,
+      includeScore: true,
+    });
+
+    const rawResults = fuseTitle.search(normalizedInput.title);
+
+    const finalMatches = rawResults.filter((r) => {
+      const overlap = titleOverlapScore(payload.bookTitle, r.item.title);
+      if (overlap >= 0.5) return true;
+
+      if (normalizedInput.author.length >= 4) {
+        const authorMatch = fuseAuthor
+          .search(normalizedInput.author)
+          .find((a) => a.item.title === r.item.title);
+        return authorMatch && authorMatch.score <= 0.4;
+      }
+
+      return false;
+    });
+
+    if (finalMatches.length > 0) {
+      const confirmSend = confirm(
+        "⚠️ พบหนังสือชื่อและ/หรือผู้แต่งคล้ายกันในห้องสมุด:\n" +
+          finalMatches
+            .slice(0, 5)
+            .map(
+              (r, i) =>
+                `${i + 1}. ${r.item.title} (${
+                  r.item.author || "ไม่ระบุผู้แต่ง"
+                })` + ` — similarity: ${(1 - r.score).toFixed(2)}`
+            )
+            .join("\n") +
+          "\n\nคุณยังต้องการส่งคำขอนี้อยู่หรือไม่?"
+      );
+      if (!confirmSend) return;
+    }
 
     await axios.post(`${baseURL}/api/requests`, payload, {
       headers: authStore.getAuthHeader(),
@@ -993,10 +1071,9 @@ const submitRequest = async () => {
     };
   } catch (err) {
     if (err.response?.status === 400 && err.response?.data?.errors) {
-      const messages = err.response.data.errors
+      globalError.value = err.response.data.errors
         .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
         .join("\n");
-      globalError.value = messages;
     } else {
       globalError.value =
         "❌ Failed to submit request: " +
