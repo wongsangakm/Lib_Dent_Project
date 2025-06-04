@@ -278,6 +278,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่ม
+import { ElMessage } from "element-plus";
 const authStore = useAuthStore(); // เพิ่ม
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const users = ref([]);
@@ -352,15 +353,24 @@ const resetPassword = async (userId) => {
     const data = await res.json();
 
     if (res.ok) {
-      alert("✅ รีเซ็ตรหัสผ่านเรียบร้อยแล้ว");
-    } else {
-      alert(`❌ เกิดข้อผิดพลาด: ${data.error || "ไม่ทราบสาเหตุ"}`);
-    }
-  } catch (err) {
-    console.error("Reset password failed:", err);
-    alert(`❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: ${err.message}`);
-  } finally {
-    resetting.value = null;
+    ElMessage({
+      type: "success",
+      message: "รีเซ็ตรหัสผ่านเรียบร้อยแล้ว",
+    });
+  } else {
+    ElMessage({
+      type: "error",
+      message: `เกิดข้อผิดพลาด: ${data.error || "ไม่ทราบสาเหตุ"}`,
+    });
   }
+} catch (err) {
+  console.error("Reset password failed:", err);
+  ElMessage({
+    type: "error",
+    message: `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${err.message}`,
+  });
+} finally {
+  resetting.value = null;
+}
 };
 </script>

@@ -631,6 +631,7 @@ import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from "element-plus";
 const router = useRouter();
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
@@ -978,34 +979,52 @@ const submitRequest = async () => {
       headers: authStore.getAuthHeader(),
     });
 
-    alert("✅ Request submitted successfully!");
-    globalError.value = "";
-    request.value = {
-      bookTitle: "",
-      author: "",
-      publisher: "",
-      isbn: "",
-      year: "",
-      price: "",
-      description: "",
-      reason: "",
-    };
-  } catch (err) {
-    if (err.response?.status === 400 && err.response?.data?.errors) {
-      const messages = err.response.data.errors
-        .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
-        .join("\n");
-      globalError.value = messages;
-    } else {
-      globalError.value =
+    ElMessage({
+    type: "success",
+    message: "Request submitted successfully!",
+  });
+
+  globalError.value = "";
+  request.value = {
+    bookTitle: "",
+    author: "",
+    publisher: "",
+    isbn: "",
+    year: "",
+    price: "",
+    description: "",
+    reason: "",
+  };
+
+} catch (err) {
+  if (err.response?.status === 400 && err.response?.data?.errors) {
+    const messages = err.response.data.errors
+      .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
+      .join("\n");
+
+    ElMessage({
+      type: "error",
+      message: messages,
+      duration: 5000, // แสดงนานหน่อยกรณี error หลายบรรทัด
+      showClose: true
+    });
+
+  } else {
+    ElMessage({
+      type: "error",
+      message:
         "❌ Failed to submit request: " +
         (err.response?.data?.message ||
           JSON.stringify(err.response?.data) ||
-          err.message);
-    }
-  } finally {
-    isLoading.value = false;
+          err.message),
+      duration: 5000,
+      showClose: true
+    });
   }
+
+} finally {
+  isLoading.value = false;
+}
 };
 
 const onISBNInput = (event) => {

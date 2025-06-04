@@ -2,10 +2,6 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 
-const getAuthHeader = () => {
-  const token = localStorage.getItem("jwt");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 export const useFavouritesStore = defineStore("favourites", {
@@ -16,13 +12,14 @@ export const useFavouritesStore = defineStore("favourites", {
   }),
   actions: {
     getAuthHeader() {
-      const authStore = useAuthStore(); // ✅ ดึงจาก store ที่ reactive
+      const authStore = useAuthStore();
       return authStore.jwt ? { Authorization: `Bearer ${authStore.jwt}` } : {};
     },
+
     async fetchAllBooks() {
       try {
         const response = await axios.get(`${baseURL}/api/books`, {
-          headers: getAuthHeader(),
+          headers: this.getAuthHeader(),
         });
         this.allBooks = response.data.map((book) => ({
           ...book,
@@ -31,6 +28,18 @@ export const useFavouritesStore = defineStore("favourites", {
         }));
       } catch (error) {
         console.error("Error fetching books:", error.message);
+      }
+    },
+
+    async deleteAllBooks() {
+      try {
+        await axios.delete(`${baseURL}/api/admin/allbooks`, {
+          headers: this.getAuthHeader(),
+        });
+        this.allBooks = [];
+      } catch (error) {
+        console.error("Error deleting all books:", error.message);
+        throw error;
       }
     },
 
@@ -71,7 +80,7 @@ export const useFavouritesStore = defineStore("favourites", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...getAuthHeader(),
+            ...this.getAuthHeader(),
           },
         });
 

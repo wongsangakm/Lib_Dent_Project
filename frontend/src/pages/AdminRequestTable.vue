@@ -39,7 +39,7 @@
         <div class="flex flex-col sm:flex-row justify-between gap-2 p-4 border-b">
           <div class="w-full sm:w-auto">
             <select
-              v-model="filters.status"
+              v-model="adminFilters.status"
               class="border rounded px-3 py-1 text-sm w-full"
             >
               <option value="">All Status</option>
@@ -49,7 +49,7 @@
             </select>
           </div>
           <input
-            v-model="filters.search"
+            v-model="adminFilters.search"
             type="text"
             placeholder="Search..."
             class="border rounded px-3 py-1 text-sm w-full sm:w-auto"
@@ -167,57 +167,76 @@
       </div>
     </div>
 
-    <!-- Tab: USER (Additional Requests) -->
-    <div
-      v-if="activeTab === 'user'"
-      class="bg-white shadow-md rounded-xl overflow-hidden p-4"
-    >
-      <div class="text-lg font-semibold mb-3 text-purple-700">Additional Requests</div>
-
-      <div v-if="additionalRequests.length === 0" class="text-center text-gray-500 py-8">
-        No additional requests yet.
-      </div>
-
-      <div v-else class="overflow-auto">
-        <table class="table-auto w-full text-sm text-left border border-gray-200">
-          <thead class="bg-gray-100 text-gray-700">
-            <tr>
-              <th class="px-4 py-2">Book Title</th>
-              <th class="px-4 py-2">Author</th>
-              <th class="px-4 py-2">Publisher</th>
-              <th class="px-4 py-2">Requested By</th>
-              <th class="px-4 py-2">Status</th>
-              <th class="px-4 py-2 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="req in additionalRequests"
-              :key="req.id"
-              class="border-t hover:bg-gray-50"
-            >
-              <td class="px-4 py-2">{{ req.bookTitle }}</td>
-              <td class="px-4 py-2">{{ req.author || '-' }}</td>
-              <td class="px-4 py-2">{{ req.publisher || '-' }}</td>
-              <td class="px-4 py-2">{{ req.requestedBy || 'N/A' }}</td>
-              <td class="px-4 py-2">
-                <span :class="{
-                  'text-yellow-500 font-semibold': req.status === 'PENDING',
-                  'text-green-600 font-semibold': isApprovedStatus(req.status),
-                  'text-red-600 font-semibold': req.status === 'REJECTED'
-                }">{{ displayStatus(req.status) }}</span>
-              </td>
-              <td class="px-4 py-2 text-center">
-                <router-link
-                  :to="`/admin/additional-request/${req.id}`"
-                  class="text-purple-600 hover:text-purple-800 underline text-sm"
-                >View</router-link>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<!-- Tab: USER (Additional Requests) -->
+<div
+  v-if="activeTab === 'user'"
+  class="bg-white shadow-md rounded-xl overflow-hidden p-4"
+>
+  <!-- Filter Controls -->
+  <div class="flex flex-col sm:flex-row justify-between gap-2 mb-4">
+    <div class="w-full sm:w-auto">
+      <select
+        v-model="additionalFilters.status"
+        class="border rounded px-3 py-1 text-sm w-full"
+      >
+        <option value="">All Status</option>
+        <option value="PENDING">PENDING</option>
+        <option value="APPROVED">APPROVED</option>
+        <option value="REJECTED">REJECTED</option>
+      </select>
     </div>
+    <input
+      v-model="additionalFilters.search"
+      type="text"
+      placeholder="Search..."
+      class="border rounded px-3 py-1 text-sm w-full sm:w-auto"
+    />
+  </div>
+
+  <div v-if="filteredAdditionalRequests.length === 0" class="text-center text-gray-500 py-8">
+    No additional requests found.
+  </div>
+
+  <div v-else class="overflow-auto">
+    <table class="table-auto w-full text-sm text-left border border-gray-200">
+      <thead class="bg-gray-100 text-gray-700">
+        <tr>
+          <th class="px-4 py-2">Book Title</th>
+          <th class="px-4 py-2">Author</th>
+          <th class="px-4 py-2">Publisher</th>
+          <th class="px-4 py-2">Requested By</th>
+          <th class="px-4 py-2">Status</th>
+          <th class="px-4 py-2 text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="req in filteredAdditionalRequests"
+          :key="req.id"
+          class="border-t hover:bg-gray-50"
+        >
+          <td class="px-4 py-2">{{ req.bookTitle }}</td>
+          <td class="px-4 py-2">{{ req.author || '-' }}</td>
+          <td class="px-4 py-2">{{ req.publisher || '-' }}</td>
+          <td class="px-4 py-2">{{ req.requestedBy || 'N/A' }}</td>
+          <td class="px-4 py-2">
+            <span :class="{
+              'text-yellow-500 font-semibold': req.status === 'PENDING',
+              'text-green-600 font-semibold': isApprovedStatus(req.status),
+              'text-red-600 font-semibold': req.status === 'REJECTED'
+            }">{{ displayStatus(req.status) }}</span>
+          </td>
+          <td class="px-4 py-2 text-center">
+            <router-link
+              :to="`/admin/additional-request/${req.id}`"
+              class="text-purple-600 hover:text-purple-800 underline text-sm"
+            >View</router-link>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
   </div>
 </template>
 
@@ -229,7 +248,8 @@ const authStore = useAuthStore();
 const activeTab = ref("admin");
 const allRequests = ref([]);
 const additionalRequests = ref([]);
-const filters = ref({ search: "", status: "" });
+const adminFilters = ref({ search: "", status: "" }); // สำหรับ All Book Requested
+const additionalFilters = ref({ search: "", status: "" }); // สำหรับ Additional Requests
 const isMobile = ref(window.innerWidth <= 768);
 const currentPage = ref(1);
 
@@ -277,15 +297,33 @@ const pageSize = computed(() => (isMobile.value ? 5 : 10));
 
 const filtered = computed(() =>
   allRequests.value.filter((b) => {
-    const s = filters.value.search.toLowerCase();
-    return (!filters.value.status || b.status === filters.value.status) &&
-      (!filters.value.search ||
+    const s = adminFilters.value.search.toLowerCase();
+    return (!adminFilters.value.status || b.status === adminFilters.value.status) &&
+      (!adminFilters.value.search ||
         b.name.toLowerCase().includes(s) ||
         (b.publisher && b.publisher.toLowerCase().includes(s)) ||
         (b.isbn && b.isbn.includes(s)) ||
-        b.bookNo.toString().includes(filters.value.search));
+        b.bookNo.toString().includes(adminFilters.value.search));
   })
 );
+
+const filteredAdditionalRequests = computed(() =>
+  additionalRequests.value
+    .filter((r) => !!r)
+    .filter((r) => {
+      const s = additionalFilters.value.search.toLowerCase();
+      const status = additionalFilters.value.status;
+      const display = displayStatus(r.status);
+
+      return (!status || display === status) &&
+        (!s ||
+          r.bookTitle?.toLowerCase().includes(s) ||
+          r.publisher?.toLowerCase().includes(s) ||
+          r.author?.toLowerCase().includes(s) ||
+          r.requestedBy?.toLowerCase().includes(s));
+    })
+);
+
 
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filtered.value.length / pageSize.value))
@@ -299,7 +337,14 @@ const paginatedData = computed(() => {
   );
 });
 
-watch(() => filters.value, () => currentPage.value = 1, { deep: true });
+watch(() => adminFilters.value, () => {
+  if (activeTab.value === 'admin') currentPage.value = 1;
+}, { deep: true });
+
+watch(() => additionalFilters.value, () => {
+  if (activeTab.value === 'user') currentPage.value = 1;
+}, { deep: true });
+
 watch(activeTab, (tab) => {
   if (tab === "user") loadAdditionalRequests();
 });

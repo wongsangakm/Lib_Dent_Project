@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.project.model.User;
+import com.example.project.repository.BookRepository;
 import com.example.project.repository.UserRepository;
 import com.example.project.service.AdminSettingsService;
 
@@ -40,6 +42,8 @@ public class AdminUserController {
     @Autowired
     private AdminSettingsService adminSettingsService;
 
+    @Autowired
+    private BookRepository bookRepository;
 
     @PatchMapping("/admin/users/{id}/change-password")
     public ResponseEntity<?> changePasswordByAdmin(
@@ -86,9 +90,7 @@ public class AdminUserController {
     .toList();
 
     }
-
-
-    @CrossOrigin(
+@CrossOrigin(
 origins = {
     "https://requestbooks-dentkku.vercel.app",
     "http://localhost:5173"
@@ -124,5 +126,14 @@ origins = {
         return ResponseEntity.ok(Map.of("recipientEmail", email));
     }
 
+    @DeleteMapping("/admin/allbooks")
+    public ResponseEntity<?> deleteAllBooks() {
+        try {
+            bookRepository.deleteAll();
+            return ResponseEntity.ok(Map.of("message", "All books deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to delete books"));
+        }
+    }
 
 }

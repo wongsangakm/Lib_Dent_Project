@@ -559,6 +559,7 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from "element-plus";
 const authStore = useAuthStore();
 
 const route = useRoute();
@@ -616,14 +617,22 @@ const confirmApprove = async () => {
     await loadRequest();
 
     // แสดงข้อความสำเร็จแบบ toast หรือ alert
-    alert("✅ Request updated successfully!");
+  ElMessage({
+    type: "success",
+    message: "Request updated successfully!",
+  });
 
-  } catch (err) {
-    console.error("❌ Approval error:", err);
-    alert("Update failed. Please try again.");
-  } finally {
-    isUpdating.value = false;
-  }
+} catch (err) {
+  console.error("❌ Approval error:", err);
+
+  ElMessage({
+    type: "error",
+    message: "Update failed. Please try again.",
+  });
+
+} finally {
+  isUpdating.value = false;
+}
 };
 
 // ปฏิเสธคำขอ
@@ -642,16 +651,24 @@ const confirmReject = async () => {
 
     if (!res.ok) throw new Error("Reject failed");
 
-    alert("🚫 Request rejected successfully.");
-    await loadRequest();
-    showRejectDialog.value = false;
-    rejectReason.value = "";
-  } catch (err) {
-    console.error("❌ Reject error:", err);
-    alert("Reject failed. Please try again.");
-  }
-};
+    ElMessage({
+    type: "success",
+    message: "Request rejected successfully.",
+  });
 
+  await loadRequest();
+  showRejectDialog.value = false;
+  rejectReason.value = "";
+
+} catch (err) {
+  console.error("❌ Reject error:", err);
+
+  ElMessage({
+    type: "error",
+    message: "Reject failed. Please try again.",
+  });
+};
+}
 
 // แสดงสถานะในภาษาไทย
 const displayStatus = (status) => {

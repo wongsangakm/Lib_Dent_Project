@@ -190,6 +190,7 @@ import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from "element-plus";
 const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -326,34 +327,53 @@ const submitRequest = async () => {
       headers: authStore.getAuthHeader(),
     });
 
-    alert("✅ Request submitted successfully!");
-    globalError.value = "";
-    request.value = {
-      bookTitle: "",
-      author: "",
-      publisher: "",
-      isbn: "",
-      year: "",
-      price: "",
-      description: "",
-      reason: "",
-    };
-  } catch (err) {
-    if (err.response?.status === 400 && err.response?.data?.errors) {
-      const messages = err.response.data.errors
-        .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
-        .join("\n");
-      globalError.value = messages;
-    } else {
-      globalError.value =
+    ElMessage({
+    type: "success",
+    message: "✅ Request submitted successfully!",
+  });
+
+  globalError.value = "";
+  request.value = {
+    bookTitle: "",
+    author: "",
+    publisher: "",
+    isbn: "",
+    year: "",
+    price: "",
+    description: "",
+    reason: "",
+  };
+
+} catch (err) {
+  if (err.response?.status === 400 && err.response?.data?.errors) {
+    const messages = err.response.data.errors
+      .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
+      .join("\n");
+
+    ElMessage({
+      type: "error",
+      message: messages,
+      duration: 5000, // แสดงนานหน่อยกรณี error หลายบรรทัด
+      showClose: true
+    });
+
+  } else {
+    ElMessage({
+      type: "error",
+      message:
         "❌ Failed to submit request: " +
         (err.response?.data?.message ||
           JSON.stringify(err.response?.data) ||
-          err.message);
-    }
-  } finally {
-    isLoading.value = false;
+          err.message),
+      duration: 5000,
+      showClose: true
+    });
   }
+
+} finally {
+  isLoading.value = false;
+}
+
 };
 </script>
 
