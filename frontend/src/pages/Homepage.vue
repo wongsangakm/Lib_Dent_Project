@@ -262,132 +262,100 @@
           </div>
         </div>
         <div class="p-4 md:p-12 max-w-lg mx-auto">
-          <!-- Search Bar -->
-          <div class="flex w-full items-center space-x-2">
-            <div class="relative w-full">
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search book..."
-                class="bg-gradient-to-r from-purple-200 via-white-100 to-white-100 text-gray-800 w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
-                @keyup.enter="searchBooks"
+    <!-- Search Bar -->
+    <div class="flex w-full items-center space-x-2">
+      <div class="relative w-full">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search book..."
+          class="bg-gradient-to-r from-purple-200 via-white-100 to-white-100 text-gray-800 w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
+          @keyup.enter="searchBooks"
+        />
+        <svg
+          class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+      </div>
+      <button
+        @click="searchBooks"
+        class="px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
+      >
+        Search
+      </button>
+    </div>
+
+    <!-- Search Results -->
+    <div v-if="hasSearched && searchQuery.trim()" class="mt-6">
+      <div v-if="filteredBooks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div v-for="book in filteredBooks" :key="book.id" class="text-center">
+          <div class="relative">
+            <router-link :to="`/book/${book.id}`">
+              <img
+                :src="validCoverImage(book.coverImage)"
+                alt="Book Cover"
+                class="w-[120px] h-[170px] md:w-[150px] md:h-[200px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
               />
+            </router-link>
+            <button
+              @click="addToFavorite(book)"
+              :disabled="book.isFavorited || book.isLoading"
+              class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
+              :class="{
+                'text-red-500': book.isFavorited,
+                'text-gray-400 hover:text-red-300': !book.isFavorited && !book.isLoading,
+                'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
+              }"
+            >
+              <i :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"></i>
+            </button>
+          </div>
+          <router-link :to="`/book/${book.id}`" class="block">
+            <p class="text-gray-500 text-xs italic truncate mt-2">By {{ book.author }}</p>
+            <p class="mt-0 text-black-600 text-sm md:text-base font-bold truncate">{{ book.bookTitle }}</p>
+            <p class="text-gray-500 italic truncate text-xs">price {{ book.price?.toLocaleString() || "N/A" }} THB</p>
+          </router-link>
+          <div class="flex justify-center mt-2">
+            <button
+              @click="addToFavorite(book)"
+              :disabled="book.isFavorited || book.isLoading"
+              class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
+              :class="{
+                'bg-purple-600 hover:bg-purple-700': !book.isFavorited && !book.isLoading,
+                'bg-gray-400': book.isFavorited,
+                'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
+              }"
+            >
+              <span class="text-xs md:text-sm">{{ book.isFavorited ? "Added" : "Add to Favorite" }}</span>
               <svg
-                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                class="ml-1 md:ml-2 w-4 h-4 md:w-6 md:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                ></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
-            </div>
-            <button
-              @click="searchBooks"
-              class="px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
-            >
-              Search
             </button>
           </div>
-
-          <!-- Search Results -->
-          <div v-if="filteredBooks.length > 0" class="mt-6">
-            <div
-              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
-            >
-              <div
-                v-for="book in filteredBooks"
-                :key="book.id"
-                class="text-center"
-              >
-                <div class="relative">
-                  <router-link :to="`/book/${book.id}`">
-                    <img
-                      :src="validCoverImage(book.coverImage)"
-                      alt="Book Cover"
-                      class="w-[120px] h-[170px] md:w-[150px] md:h-[200px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                    />
-                  </router-link>
-                  <button
-                    @click="addToFavorite(book)"
-                    :disabled="book.isFavorited || book.isLoading"
-                    class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
-                    :class="{
-                      'text-red-500': book.isFavorited,
-                      'text-gray-400 hover:text-red-300':
-                        !book.isFavorited && !book.isLoading,
-                      'opacity-50 cursor-not-allowed':
-                        book.isLoading || book.isFavorited,
-                    }"
-                  >
-                    <i
-                      :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"
-                    ></i>
-                  </button>
-                </div>
-                <router-link :to="`/book/${book.id}`" class="block">
-                  <p class="text-gray-500 text-xs italic truncate mt-2">
-                    By {{ book.author }}
-                  </p>
-                  <p
-                    class="mt-0 text-black-600 text-sm md:text-base font-bold truncate"
-                  >
-                    {{ book.bookTitle }}
-                  </p>
-                  <p class="text-gray-500 italic truncate text-xs">
-                    price {{ book.price.toLocaleString() }} THB
-                  </p>
-                </router-link>
-
-                <div class="flex justify-center mt-2">
-                  <button
-                    @click="addToFavorite(book)"
-                    :disabled="book.isFavorited || book.isLoading"
-                    class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
-                    :class="{
-                      'bg-purple-600 hover:bg-purple-700':
-                        !book.isFavorited && !book.isLoading,
-                      'bg-gray-400': book.isFavorited,
-                      'opacity-50 cursor-not-allowed':
-                        book.isLoading || book.isFavorited,
-                    }"
-                  >
-                    <span class="text-xs md:text-sm">{{
-                      book.isFavorited ? "Added" : "Add to Favorite"
-                    }}</span>
-                    <svg
-                      class="ml-1 md:ml-2 w-4 h-4 md:w-6 md:h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            v-else-if="hasSearched && searchQuery && filteredBooks.length === 0"
-            class="mt-6 text-center"
-          >
-            <p class="text-gray-600">No books found for "{{ searchQuery }}".</p>
-          </div>
         </div>
-        <!-- Additional Request Form -->
-      </section>
+      </div>
+      <div v-else class="text-center text-gray-600 mt-4">
+        <p>No books found for "{{ searchQuery }}".</p>
+      </div>
+    </div>
+  </div>
+</section>
 
       <!-- Favourite by Publisher -->
       <section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
@@ -489,104 +457,86 @@
         </div>
       </section>
 
-      <!-- All Books Section -->
-      <section id="all-books" class="py-6 md:py-12">
-        <div class="container mx-auto px-4">
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-8">
-            {{
-              selectedPublisher === "All Books"
-                ? "All Books"
-                : selectedPublisher
-            }}
-          </h2>
-          <div
-            v-if="filteredBooksByPublisher.length > 0"
-            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
+<!-- All Books Section -->
+<section id="all-books" class="py-6 md:py-12">
+  <div class="container mx-auto px-4">
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-8">
+      {{ selectedPublisher === 'All Books' ? 'All Books' : selectedPublisher }}
+    </h2>
+
+    <div
+      v-if="filteredBooksByPublisher.length > 0"
+      class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
+    >
+      <div
+        v-for="book in filteredBooksByPublisher"
+        :key="book.id"
+        class="text-center"
+      >
+        <div class="relative">
+          <router-link :to="`/book/${book.id}`">
+            <img
+              :src="validCoverImage(book.coverImage)"
+              alt="Book Cover"
+              class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
+            />
+          </router-link>
+          <!-- Heart Button -->
+          <button
+            @click="addToFavorite(book)"
+            :disabled="book.isFavorited || book.isLoading"
+            class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
+            :class="{
+              'text-red-500': book.isFavorited,
+              'text-gray-400 hover:text-red-300': !book.isFavorited && !book.isLoading,
+              'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
+            }"
           >
-            <div
-              v-for="book in filteredBooksByPublisher"
-              :key="book.id"
-              class="text-center"
-            >
-              <div class="relative">
-                <router-link :to="`/book/${book.id}`">
-                  <img
-                    :src="validCoverImage(book.coverImage)"
-                    alt="Book Cover"
-                    class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                  />
-                </router-link>
-                <!-- Heart Button -->
-                <button
-                  @click="addToFavorite(book)"
-                  :disabled="book.isFavorited || book.isLoading"
-                  class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
-                  :class="{
-                    'text-red-500': book.isFavorited,
-                    'text-gray-400 hover:text-red-300':
-                      !book.isFavorited && !book.isLoading,
-                    'opacity-50 cursor-not-allowed':
-                      book.isLoading || book.isFavorited,
-                  }"
-                >
-                  <i
-                    :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"
-                  ></i>
-                </button>
-              </div>
-              <router-link :to="`/book/${book.id}`" class="block">
-                <p class="text-gray-500 text-xs italic truncate mt-2">
-                  By {{ book.author }}
-                </p>
-                <p
-                  class="mt-0 text-black-600 text-xs md:text-base font-bold truncate"
-                >
-                  {{ book.bookTitle }}
-                </p>
-                <p class="text-gray-500 italic truncate text-xs">
-                  price {{ book.price.toLocaleString() }} THB
-                </p>
-              </router-link>
-              <!-- Add to Favorite Button -->
-              <div class="flex justify-center mt-2">
-                <button
-                  @click="addToFavorite(book)"
-                  :disabled="book.isFavorited || book.isLoading"
-                  class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
-                  :class="{
-                    'bg-purple-600 hover:bg-purple-700':
-                      !book.isFavorited && !book.isLoading,
-                    'bg-gray-400': book.isFavorited,
-                    'opacity-50 cursor-not-allowed':
-                      book.isLoading || book.isFavorited,
-                  }"
-                >
-                  <span class="text-xs">{{
-                    book.isFavorited ? "Added" : "Add to Favorite"
-                  }}</span>
-                  <svg
-                    class="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    ></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div v-else class="text-center text-gray-600">
-            <p>No books found for this publisher.</p>
-          </div>
+            <i :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"></i>
+          </button>
         </div>
-      </section>
+        <router-link :to="`/book/${book.id}`" class="block">
+          <p class="text-gray-500 text-xs italic truncate mt-2">By {{ book.author }}</p>
+          <p class="mt-0 text-black-600 text-xs md:text-base font-bold truncate">{{ book.bookTitle }}</p>
+          <p class="text-gray-500 italic truncate text-xs">price {{ book.price?.toLocaleString() || 'N/A' }} THB</p>
+        </router-link>
+        <!-- Add to Favorite Button -->
+        <div class="flex justify-center mt-2">
+          <button
+            @click="addToFavorite(book)"
+            :disabled="book.isFavorited || book.isLoading"
+            class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
+            :class="{
+              'bg-purple-600 hover:bg-purple-700': !book.isFavorited && !book.isLoading,
+              'bg-gray-400': book.isFavorited,
+              'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
+            }"
+          >
+            <span class="text-xs">{{ book.isFavorited ? 'Added' : 'Add to Favorite' }}</span>
+            <svg
+              class="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="text-center text-gray-600">
+      <p>No books found for this publisher.</p>
+    </div>
+  </div>
+</section>
 
       <!-- Why Shop with Us?? Section. -->
       <section id="why" class="bg-purple-100 w-full">
@@ -693,7 +643,7 @@ const searchQuery = ref("");
 const hasSearched = ref(false);
 
 // Use allBooks from Pinia Store
-const allBooks = computed(() => favouritesStore.allBooks);
+const allBooks = computed(() => favouritesStore.allBooks || []);
 
 // Update publisher items count based on allBooks
 onMounted(async () => {
@@ -744,9 +694,11 @@ const fetchAllFavoriteStatuses = async () => {
       return;
     }
 
-    favouritesStore.allBooks.forEach((book) => {
-      book.isFavorited = favBookIds.includes(book.id);
-    });
+    favouritesStore.allBooks
+  .filter((book) => book && book.id)
+  .forEach((book) => {
+    book.isFavorited = favBookIds.includes(book.id);
+  });
   } catch (err) {
     console.error("❌ Failed to load favorite status list:", err);
   }
@@ -1050,6 +1002,16 @@ const onISBNInput = (event) => {
 
   request.value.isbn = formatted;
 };
+
+const filteredBooksSafe = computed(() => {
+  if (hasSearched.value && searchQuery.value.trim()) {
+    return filteredBooks.value;
+  } else {
+    return filteredBooksByPublisher.value;
+  }
+});
+
+
 </script>
 
 <style scoped>

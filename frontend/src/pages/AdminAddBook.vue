@@ -15,14 +15,23 @@
             class="mt-1 block w-full text-sm text-gray-600"
           />
         </label>
+        <div v-if="isUploading" class="flex items-center gap-2 text-blue-600 justify-center">
+  <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" />
+  </svg>
+  Uploading...
+</div>
+
 
         <div class="text-right">
           <button
-            type="submit"
-            class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition"
-          >
-            Upload File
-          </button>
+  type="submit"
+  class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  :disabled="isUploading"
+>
+  {{ isUploading ? "Uploading..." : "Upload File" }}
+</button>
         </div>
       </form>
     </div>
@@ -99,6 +108,8 @@ import { useRouter } from "vue-router";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from "element-plus";
+const isUploading = ref(false);
 const authStore = useAuthStore();
 
 const router = useRouter();
@@ -121,14 +132,14 @@ const saveBook = async () => {
     const response = await axios.post(`${baseURL}/api/books`, book.value, {
       headers: authStore.getAuthHeader(),
     });
-    alert("✅ Book added successfully!");
+    ElMessage.success("📘 Upload successful!");
 
     // ดึงข้อมูลใหม่หลังเพิ่ม (optional)
     await favouritesStore.fetchAllBooks();
 
     router.push("/admin/allbooks");
   } catch (error) {
-    alert("❌ Failed to add book: " + (error.response?.data || error.message));
+    ElMessage.error("❌ Upload failed: " + (error.response?.data || error.message));
   }
 };
 
@@ -140,12 +151,13 @@ function handleFile(event) {
 
 async function uploadExcel() {
   if (!selectedFile.value) {
-    alert("Please select an Excel (.xlsx) file.");
+    ElMessage.warning("Please select an Excel (.xlsx) file.");
     return;
   }
 
   const formData = new FormData();
   formData.append("file", selectedFile.value);
+  isUploading.value = true;
 
   try {
     const response = await axios.post(`${baseURL}/api/books/upload`, formData, {
@@ -154,11 +166,14 @@ async function uploadExcel() {
         "Content-Type": "multipart/form-data",
       },
     });
-    alert("Upload successful: " + response.data);
+    ElMessage.success("📘 Upload successful!");
   } catch (error) {
-    alert("Upload failed: " + (error.response?.data || error.message));
+    ElMessage.error("❌ Upload failed: " + (error.response?.data || error.message));
+  } finally {
+    isUploading.value = false;
   }
 }
+
 </script>
 
 <style scoped>

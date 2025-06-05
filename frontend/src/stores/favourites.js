@@ -60,7 +60,7 @@ export const useFavouritesStore = defineStore("favourites", {
             ...this.getAuthHeader(),
           },
         });
-
+        
         if (!res.ok) throw new Error("Failed to fetch favbooks");
         const data = await res.json();
         this.favourites = data;
