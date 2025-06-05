@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,12 @@ public class LibraryBookController {
     public List<LibraryBook> findSimilarLite(@RequestParam String title) {
         return repository.findTop100ByTitleContainingIgnoreCase(title);
     }
+    @DeleteMapping("/all")
+    public ResponseEntity<?> deleteAllLibraryBooks() {
+        repository.deleteAll();
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 }

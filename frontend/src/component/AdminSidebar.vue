@@ -129,8 +129,8 @@
               $route.path.includes('/admin/LibraryBook'),
           }"
         >
-          <i class="fa-solid fa-envelope"></i>
-          Change Email
+          <i class="fa-solid fa-address-book"></i>
+          Library Book
         </RouterLink>
       </nav>
 

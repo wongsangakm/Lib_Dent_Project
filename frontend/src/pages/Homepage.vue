@@ -56,6 +56,12 @@
         id="searchbook"
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
       >
+        <SimilarBooksPopup
+          :visible="showPopup"
+          :similarBooks="similarBooks"
+          @cancel="handlePopupCancel"
+          @confirm="handlePopupConfirm"
+        />
         <!-- Book Request Form (Above Search Bar) -->
         <div
           v-if="isLoggedIn"
@@ -632,12 +638,15 @@ import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
 import Fuse from "fuse.js";
+import SimilarBooksPopup from "./SimilarBooksPopup.vue";
+const showPopup = ref(false);
+const similarBooks = ref([]);
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const router = useRouter();
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
-
+const pendingRequest = ref(null);
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {
@@ -906,32 +915,122 @@ watch(
     reasonError.value = val.trim() === "" ? "❌ Reason is required." : "";
   }
 );
-function normalizeString(str) {
-  return str
-    .toLowerCase()
-    .replace(/[\.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
+
+// ฟังก์ชันทำความสะอาดข้อความเพื่อการเปรียบเทียบที่แม่นยำยิ่งขึ้น
+function normalizeTextAdvanced(text) {
+  if (!text) return "";
+
+  return (
+    text
+      .toLowerCase()
+      .trim()
+      // ลบเครื่องหมายวรรคตอนและสัญลักษณ์พิเศษ
+      .replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, "")
+      // ลบคำที่ไม่สำคัญ (stop words)
+      .replace(
+        /\b(และ|หรือ|ใน|ของ|สำหรับ|เพื่อ|กับ|โดย|ที่|แล้ว|ไป|มา|ได้|จะ|ให้|ถึง|จาก|ตาม|about|for|and|or|the|a|an|in|on|at|to|from|by|with)\b/g,
+        ""
+      )
+      // ลบช่องว่างที่เกินมา
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
-function reverseAuthorName(author) {
-  if (author.includes(",")) {
-    const [last, first] = author.split(",");
-    return `${first.trim()} ${last.trim()}`;
+// ฟังก์ชันแยกคำหลักจากชื่อหนังสือ
+function extractKeywords(title) {
+  if (!title) return [];
+
+  const normalized = normalizeTextAdvanced(title);
+  // แยกคำและกรองคำที่มีความยาวอย่างน้อย 3 ตัวอักษร
+  return normalized.split(/\s+/).filter((word) => word.length >= 3);
+}
+
+// ฟังก์ชันคำนวณความคล้ายกันของคำหลัก
+function calculateKeywordSimilarity(keywords1, keywords2) {
+  if (keywords1.length === 0 || keywords2.length === 0) return 0;
+
+  let matchCount = 0;
+
+  keywords1.forEach((word1) => {
+    keywords2.forEach((word2) => {
+      // ตรวจสอบว่าคำนั้นเหมือนกันหรือมีส่วนที่เหมือนกัน
+      if (word1.includes(word2) || word2.includes(word1)) {
+        matchCount++;
+      }
+    });
+  });
+
+  // คำนวณเปอร์เซ็นต์ความคล้าย
+  return matchCount / Math.max(keywords1.length, keywords2.length);
+}
+
+// ฟังก์ชันตรวจสอบชื่อหนังสือที่คล้ายกัน (ปรับปรุงแล้ว)
+function advancedTitleSimilarity(inputTitle, libraryTitle) {
+  if (!inputTitle || !libraryTitle) return 0;
+
+  const input = normalizeTextAdvanced(inputTitle);
+  const library = normalizeTextAdvanced(libraryTitle);
+
+  // 1. ตรวจสอบความเหมือนกันโดยตรง
+  if (input === library) return 1.0;
+
+  // 2. ตรวจสอบว่าชื่อหนึ่งอยู่ในอีกชื่อหนึ่ง
+  if (input.includes(library) || library.includes(input)) {
+    return 0.8;
   }
-  return author;
+
+  // 3. เปรียบเทียบคำหลัก
+  const inputKeywords = extractKeywords(inputTitle);
+  const libraryKeywords = extractKeywords(libraryTitle);
+
+  const keywordSimilarity = calculateKeywordSimilarity(
+    inputKeywords,
+    libraryKeywords
+  );
+
+  // 4. ใช้ Levenshtein distance สำหรับการเปรียบเทียบที่ละเอียดขึ้น
+  const levenshteinSimilarity =
+    1 -
+    levenshteinDistance(input, library) /
+      Math.max(input.length, library.length);
+
+  // รวมคะแนนด้วยน้ำหนักที่เหมาะสม
+  return keywordSimilarity * 0.7 + levenshteinSimilarity * 0.3;
 }
 
-function titleOverlapScore(inputTitle, candidateTitle) {
-  const inputWords = normalizeString(inputTitle).split(" ");
-  const candidateWords = normalizeString(candidateTitle).split(" ");
-  const matchCount = inputWords.filter((word) =>
-    candidateWords.includes(word)
-  ).length;
-  return matchCount / inputWords.length;
+// ฟังก์ชัน Levenshtein Distance
+function levenshteinDistance(str1, str2) {
+  const matrix = [];
+
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[str2.length][str1.length];
 }
 
-const submitRequest = async () => {
+// ฟังก์ชันหลักสำหรับตรวจสอบหนังสือที่คล้ายกัน (แทนที่ส่วนเดิม)
+// ฟังก์ชันหลักสำหรับตรวจสอบหนังสือที่คล้ายกัน (แก้ไขแล้ว)
+async function submitRequest() {
   globalError.value = "";
 
   const trimmed = {
@@ -945,6 +1044,7 @@ const submitRequest = async () => {
     reason: request.value.reason.trim(),
   };
 
+  // ตรวจสอบ ISBN
   const rawISBN = trimmed.isbn.replace(/[^0-9Xx]/g, "");
   const isbn10 = /^\d{9}[\dXx]$/;
   const isbn13 = /^\d{13}$/;
@@ -954,6 +1054,7 @@ const submitRequest = async () => {
     return;
   }
 
+  // ตรวจสอบฟิลด์ที่จำเป็น
   const missingFields = [];
   if (!trimmed.bookTitle) missingFields.push("Book Title");
   if (!trimmed.author) missingFields.push("Author");
@@ -970,6 +1071,7 @@ const submitRequest = async () => {
     return;
   }
 
+  // ตรวจสอบรูปแบบปีและราคา
   if (!/^\d+$/.test(trimmed.year)) {
     globalError.value = "❌ Year must be an integer.";
     return;
@@ -990,11 +1092,13 @@ const submitRequest = async () => {
       price: parseFloat(trimmed.price),
     };
 
-    const normalizedInput = {
-      title: normalizeString(payload.bookTitle),
-      author: normalizeString(payload.author),
-    };
+    // ถ้าเป็นการยืนยันจาก popup ให้ส่งคำขอทันที
+    if (showPopup.value && similarBooks.value.length > 0) {
+      await sendRequestDirectly(payload);
+      return;
+    }
 
+    // ดึงข้อมูลหนังสือที่คล้ายกัน
     const res = await axios.get(`${baseURL}/api/library-books/similar-lite`, {
       params: { title: payload.bookTitle },
       headers: authStore.getAuthHeader(),
@@ -1002,57 +1106,126 @@ const submitRequest = async () => {
 
     const shortlist = res.data;
 
-    const normalizedShortlist = shortlist.map((book) => ({
-      ...book,
-      title: normalizeString(book.title),
-      author: normalizeString(reverseAuthorName(book.author || "")),
-    }));
+    // ตรวจสอบความคล้ายกันด้วยอัลกอริทึมที่ปรับปรุงแล้ว
+    const foundSimilarBooks = [];
 
-    const fuseTitle = new Fuse(normalizedShortlist, {
-      keys: ["title"],
-      threshold: 0.35,
-      includeScore: true,
-    });
-
-    const fuseAuthor = new Fuse(normalizedShortlist, {
-      keys: ["author"],
-      threshold: 0.4,
-      includeScore: true,
-    });
-
-    const rawResults = fuseTitle.search(normalizedInput.title);
-
-    const finalMatches = rawResults.filter((r) => {
-      const overlap = titleOverlapScore(payload.bookTitle, r.item.title);
-      if (overlap >= 0.5) return true;
-
-      if (normalizedInput.author.length >= 4) {
-        const authorMatch = fuseAuthor
-          .search(normalizedInput.author)
-          .find((a) => a.item.title === r.item.title);
-        return authorMatch && authorMatch.score <= 0.4;
-      }
-
-      return false;
-    });
-
-    if (finalMatches.length > 0) {
-      const confirmSend = confirm(
-        "⚠️ พบหนังสือชื่อและ/หรือผู้แต่งคล้ายกันในห้องสมุด:\n" +
-          finalMatches
-            .slice(0, 5)
-            .map(
-              (r, i) =>
-                `${i + 1}. ${r.item.title} (${
-                  r.item.author || "ไม่ระบุผู้แต่ง"
-                })` + ` — similarity: ${(1 - r.score).toFixed(2)}`
-            )
-            .join("\n") +
-          "\n\nคุณยังต้องการส่งคำขอนี้อยู่หรือไม่?"
+    shortlist.forEach((book) => {
+      const titleSimilarity = advancedTitleSimilarity(
+        payload.bookTitle,
+        book.title
       );
-      if (!confirmSend) return;
+
+      // กำหนดเกณฑ์ความคล้ายที่เข้มงวดขึ้น
+      if (titleSimilarity >= 0.6) {
+        // ตรวจสอบผู้แต่งเพิ่มเติม (ถ้ามี)
+        let authorMatch = false;
+
+        if (book.author && payload.author) {
+          const normalizedInputAuthor = normalizeTextAdvanced(payload.author);
+          const normalizedLibraryAuthor = normalizeTextAdvanced(book.author);
+
+          // ตรวจสอบความคล้ายของผู้แต่ง
+          if (
+            normalizedInputAuthor.includes(normalizedLibraryAuthor) ||
+            normalizedLibraryAuthor.includes(normalizedInputAuthor)
+          ) {
+            authorMatch = true;
+          }
+        }
+
+        // เพิ่มในรายการหนังสือที่คล้ายกัน
+        // กรณีที่ชื่อคล้ายมากและไม่มีผู้แต่งในระบบ หรือผู้แต่งก็คล้ายกัน
+        if (
+          book.author === null ||
+          book.author === "" ||
+          authorMatch ||
+          titleSimilarity >= 0.8
+        ) {
+          foundSimilarBooks.push({
+            ...book,
+            similarity: titleSimilarity,
+            authorMatch: authorMatch,
+          });
+        }
+      }
+    });
+
+    // เรียงลำดับตามความคล้าย
+    foundSimilarBooks.sort((a, b) => b.similarity - a.similarity);
+
+    // แสดงคำเตือนถ้าพบหนังสือที่คล้ายกัน
+    if (foundSimilarBooks.length > 0) {
+      // เก็บข้อมูลสำหรับแสดงใน Vue component
+      similarBooks.value = foundSimilarBooks.slice(0, 5);
+      pendingRequest.value = payload; // เก็บ payload สำหรับใช้ภายหลัง
+      showPopup.value = true; // แสดง Vue component popup
+      return;
     }
 
+    // ส่งคำขอถ้าไม่พบหนังสือที่คล้ายกัน
+    await sendRequestDirectly(payload);
+  } catch (err) {
+    globalError.value =
+      "❌ Failed to submit request: " +
+      (err.response?.data?.message ||
+        JSON.stringify(err.response?.data) ||
+        err.message);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// ฟังก์ชันส่งคำขอโดยตรง
+async function sendRequestDirectly(payload) {
+  try {
+    await axios.post(`${baseURL}/api/requests`, payload, {
+      headers: authStore.getAuthHeader(),
+    });
+
+    alert("✅ Request submitted successfully!");
+    globalError.value = "";
+
+    // รีเซ็ตฟอร์ม
+    request.value = {
+      bookTitle: "",
+      author: "",
+      publisher: "",
+      isbn: "",
+      year: "",
+      price: "",
+      description: "",
+      reason: "",
+    };
+
+    // รีเซ็ต popup state
+    showPopup.value = false;
+    similarBooks.value = [];
+    pendingRequest.value = null;
+  } catch (err) {
+    globalError.value =
+      "❌ Failed to submit request: " +
+      (err.response?.data?.message ||
+        JSON.stringify(err.response?.data) ||
+        err.message);
+  }
+}
+
+// ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้ยืนยันจาก popup
+function handlePopupConfirm() {
+  if (pendingRequest.value) {
+    submitRequest(); // เรียกใช้อีกครั้งเพื่อส่งคำขอ
+  }
+}
+
+// ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้ยกเลิกจาก popup
+function handlePopupCancel() {
+  showPopup.value = false;
+  similarBooks.value = [];
+  pendingRequest.value = null;
+  isLoading.value = false;
+}
+async function sendRequestAfterPopupConfirmed(payload) {
+  try {
     await axios.post(`${baseURL}/api/requests`, payload, {
       headers: authStore.getAuthHeader(),
     });
@@ -1070,21 +1243,62 @@ const submitRequest = async () => {
       reason: "",
     };
   } catch (err) {
-    if (err.response?.status === 400 && err.response?.data?.errors) {
-      globalError.value = err.response.data.errors
-        .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
-        .join("\n");
-    } else {
-      globalError.value =
-        "❌ Failed to submit request: " +
-        (err.response?.data?.message ||
-          JSON.stringify(err.response?.data) ||
-          err.message);
-    }
+    globalError.value =
+      "❌ Failed to submit request: " +
+      (err.response?.data?.message ||
+        JSON.stringify(err.response?.data) ||
+        err.message);
   } finally {
     isLoading.value = false;
+    showPopup.value = false;
   }
-};
+}
+function showPopupWithSimilarBooks(similarBooks) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.innerHTML = renderPopupHTML(similarBooks);
+    document.body.appendChild(overlay);
+
+    overlay.querySelector("#cancelBtn").addEventListener("click", () => {
+      overlay.remove();
+      resolve(false);
+    });
+
+    overlay.querySelector("#confirmBtn").addEventListener("click", () => {
+      overlay.remove();
+      resolve(true);
+    });
+  });
+}
+
+// ฟังก์ชันสร้าง HTML สำหรับ popup แสดงหนังสือที่คล้ายกัน
+function renderPopupHTML(books) {
+  return `
+  <div class="overlay" style="z-index:9999;position:fixed;top:0;left:0;width:100vw;height:100vh;background-color:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center">
+    <div class="popup" style="background:#fff;padding:24px;border-radius:12px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto">
+      <h2 style="font-size:20px;margin-bottom:16px;color:#c0392b">⚠️ พบหนังสือที่คล้ายกันในห้องสมุด</h2>
+      <div>
+        ${books
+          .map(
+            (book, i) => `
+          <div style="margin-bottom:16px;border-bottom:1px solid #eee;padding-bottom:8px">
+            <strong>${i + 1}. ${book.title}</strong><br>
+            ผู้แต่ง: ${book.author || "ไม่ระบุผู้แต่ง"} ${
+              book.authorMatch ? "<em>(ผู้แต่งคล้าย)</em>" : ""
+            }<br>
+            ความคล้าย: ${(book.similarity * 100).toFixed(0)}%
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+      <div style="margin-top:24px;text-align:center">
+        <button id="cancelBtn" style="padding:10px 20px;margin-right:12px">ยกเลิก</button>
+        <button id="confirmBtn" style="padding:10px 20px;background:#28a745;color:white">ส่งคำขอต่อไป</button>
+      </div>
+    </div>
+  </div>`;
+}
 
 const onISBNInput = (event) => {
   const raw = event.target.value.replace(/[^0-9Xx]/g, "");
