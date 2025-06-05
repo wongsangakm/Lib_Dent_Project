@@ -10,6 +10,7 @@
         class="absolute top-[500px] bottom-0 left-0 right-0 bg-repeat-y"
         style="background-image: url('/images/bg_repeat.png')"
       ></div>
+
       <Header />
       <!-- Hero Section -->
       <section class="pt-16 md:pt-28">
@@ -522,6 +523,20 @@
                     class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
                   />
                 </router-link>
+                <!-- 🎯 Ribbon Status -->
+                <div
+                  v-if="book.status === 'in_shelf' || book.status === 'ordered'"
+                  class="ribbon"
+                  :class="{ ordered: book.status === 'ordered' }"
+                >
+                  <span v-if="book.status === 'in_shelf'"
+                    ><i class="fa-solid fa-book-open-reader mr-2"></i
+                    >มีในชั้นหนังสือ</span
+                  >
+                  <span v-else-if="book.status === 'ordered'"
+                    ><i class="fa-solid fa-cart-plus mr-2"></i>กำลังสั่งซื้อ</span
+                  >
+                </div>
                 <!-- Heart Button -->
                 <button
                   @click="addToFavorite(book)"
@@ -539,6 +554,7 @@
                     :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"
                   ></i>
                 </button>
+                <!-- แสดงเฉพาะ in_shelf และ ordered เท่านั้น -->
               </div>
               <router-link :to="`/book/${book.id}`" class="block">
                 <p class="text-gray-500 text-xs italic truncate mt-2">
@@ -647,6 +663,17 @@ const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
 const pendingRequest = ref(null);
+function getStatusLabel(status) {
+  switch (status) {
+    case "in_shelf":
+      return " มีในชั้นหนังสือ";
+    case "ordered":
+      return "🛒 กำลังสั่งซื้อ";
+    default:
+      return "";
+  }
+}
+
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {
@@ -1360,5 +1387,24 @@ img {
   border-radius: 0.375rem;
   margin-top: 0.25rem;
   background-color: white;
+}
+.ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #28965a; /* เขียว */
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ribbon.ordered {
+  background-color: #f59e0b; /* ส้ม */
 }
 </style>
