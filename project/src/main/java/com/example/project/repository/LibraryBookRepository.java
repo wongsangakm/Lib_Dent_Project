@@ -18,7 +18,7 @@ public interface LibraryBookRepository extends JpaRepository<LibraryBook, Long> 
 
     List<LibraryBook> findTop100ByTitleContainingIgnoreCase(String title);
 
-       @Modifying
+    @Modifying
     @Transactional
     @Query(value = "DELETE FROM library_book", nativeQuery = true)
     void deleteAllBooksNative();
