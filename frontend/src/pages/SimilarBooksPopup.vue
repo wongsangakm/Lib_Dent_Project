@@ -210,6 +210,9 @@ onUnmounted(() => {
   max-height: 80vh;
   overflow: hidden;
   animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  display: flex;
+  flex-direction: column;
 }
 
 .popup-header {
@@ -247,6 +250,9 @@ onUnmounted(() => {
   padding: 0;
   max-height: 400px;
   overflow-y: auto;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0;
 }
 
 .popup-content::-webkit-scrollbar {
@@ -454,6 +460,7 @@ onUnmounted(() => {
 }
 
 .popup-footer {
+  flex-shrink: 0;
   padding: 24px;
   background: #f8f9fa;
   display: flex;
