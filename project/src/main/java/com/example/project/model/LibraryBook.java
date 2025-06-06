@@ -23,8 +23,12 @@ public class LibraryBook {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    private String title;
-    private String author;
+    @Column(columnDefinition = "TEXT")
+private String title;
+
+@Column(columnDefinition = "TEXT")
+private String author;
+
     private String lang;
     private String pubbeyear;
 
