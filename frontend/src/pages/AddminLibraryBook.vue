@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br p-6"
-  >
+  <div class="min-h-screen bg-gradient-to-br p-6">
     <div class="max-w-4xl mx-auto">
       <!-- Header Section -->
       <div class="text-center mb-8 mt-10">
@@ -308,7 +306,7 @@
 import axios from "axios";
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore";
-
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 export default {
   name: "AdminLibraryBook",
 
@@ -345,7 +343,7 @@ export default {
       if (!confirm("⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบรายการทั้งหมด?")) return;
 
       try {
-        await axios.delete("http://localhost:8080/api/library-books/all", {
+        await axios.delete(`${baseURL}/api/library-books/all`, {
           headers: authStore.getAuthHeader(),
         });
         this.uploadStatus = "✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว";
@@ -364,7 +362,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/library-books/import",
+          `${baseURL}/api/library-books/import`,
           formData,
           {
             headers: {
