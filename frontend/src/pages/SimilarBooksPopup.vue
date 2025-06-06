@@ -248,7 +248,7 @@ onUnmounted(() => {
 
 .popup-content {
   padding: 0;
-  max-height: 400px;
+  max-height: none;
   overflow-y: auto;
   flex: 1 1 auto;
   overflow-y: auto;
@@ -361,7 +361,8 @@ onUnmounted(() => {
     max-width: 95%; /* ขยายให้เต็มหน้าจอมากขึ้น */
     width: 95%;
     padding: 16px; /* ลด padding */
-    max-height: 85vh; /* ลดความสูง */
+    max-height: 80vh; /* ลดความสูง */
+    overflow: hidden;
   }
 
   .popup h2 {
