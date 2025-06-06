@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.example.project.model.LibraryBook;
 import com.example.project.repository.LibraryBookRepository;
 import com.example.project.service.LibraryBookImportService;
@@ -20,16 +20,19 @@ import com.example.project.service.LibraryBookImportService;
 @RestController
 @RequestMapping("/api/library-books")
 public class LibraryBookController {
+     private final JdbcTemplate jdbcTemplate;
  private final LibraryBookRepository repository;
     private final LibraryBookImportService importService;
 
     // ✅ รวม constructor เดียว
     public LibraryBookController(
         LibraryBookRepository repository,
-        LibraryBookImportService importService
+        LibraryBookImportService importService,
+        JdbcTemplate jdbcTemplate
     ) {
         this.repository = repository;
         this.importService = importService;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @PostMapping( value = "/import",
