@@ -52,7 +52,7 @@
         </div>
       </section>
 
-      <!-- Search Bar and Search Results -->
+      <!-- Search Bar and Search Results. -->
       <section
         id="searchbook"
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
