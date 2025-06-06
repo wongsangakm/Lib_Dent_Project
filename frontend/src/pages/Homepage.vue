@@ -1264,7 +1264,7 @@ const filteredBooksSafe = computed(() => {
 
 </script>
 
-<style scoped>
+<style >
 /* Hide scrollbar but keep functionality */
 .overflow-x-auto::-webkit-scrollbar {
   display: none;

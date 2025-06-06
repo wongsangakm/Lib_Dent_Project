@@ -5,6 +5,7 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  safelist: ["ribbon", "ribbon.ordered"],
   variants: {
     extend: {
       translate: ["responsive"],
