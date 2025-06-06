@@ -103,6 +103,7 @@
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from 'element-plus';
 const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -136,24 +137,33 @@ onMounted(fetchBookById);
 // ✅ Save changes to backend
 const saveChanges = async () => {
   const bookId = route.params.id;
-  try {
-    const response = await fetch(`${baseURL}/api/books/${bookId}`, {
-      method: "PUT",
-      headers: {
-        ...authStore.getAuthHeader(),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(editableBook.value),
-    });
+  
+try {
+  const response = await fetch(`${baseURL}/api/books/${bookId}`, {
+    method: "PUT",
+    headers: {
+      ...authStore.getAuthHeader(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(editableBook.value),
+  });
 
-    if (!response.ok) throw new Error("Failed to update");
-    const updated = await response.json();
-    book.value = updated;
+  if (!response.ok) throw new Error("Failed to update");
+  const updated = await response.json();
+  book.value = updated;
 
-    alert("✅ Book updated successfully!");
-  } catch (error) {
-    console.error("❌ Failed to update book:", error);
-    alert("❌ Failed to update book.");
-  }
+  ElMessage({
+    type: "success",
+    message: "Book updated successfully!",
+  });
+} catch (error) {
+  console.error("❌ Failed to update book:", error);
+  ElMessage({
+    type: "error",
+    message: "❌ Failed to update book.",
+    showClose: true,
+    duration: 5000,
+  });
+}
 };
 </script>

@@ -52,6 +52,7 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from 'element-plus';
 const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -120,9 +121,9 @@ const exportToExcel = async (round) => {
     const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(blob, `BookExport_Round${round.id}_${year}.xlsx`);
   } catch (error) {
-    console.error("❌ Failed to export Excel:", error);
-    alert("เกิดข้อผิดพลาดในการ export Excel");
-  }
+  console.error("❌ Failed to export Excel:", error);
+  ElMessage.error("เกิดข้อผิดพลาดในการ export Excel");
+}
 };
 
 const exportToPDF = async (round) => {
@@ -184,8 +185,8 @@ const exportToPDF = async (round) => {
 
     doc.save(`BookExport_Round${round.id}_${year}.pdf`);
   } catch (error) {
-    console.error("❌ Failed to export PDF:", error);
-    alert("เกิดข้อผิดพลาดในการ export PDF");
-  }
+  console.error("❌ Failed to export PDF:", error);
+  ElMessage.error("เกิดข้อผิดพลาดในการ export PDF");
+}
 };
 </script>

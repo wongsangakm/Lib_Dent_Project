@@ -1,4 +1,3 @@
-<!-- AdminResetPassword.vue -->
 <template>
   <div class="min-h-screen bg-white">
     <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -169,7 +168,7 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                     <button
-                      @click="resetPassword(user.id)"
+                      @click="openResetDialog(user)"
                       class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                       :disabled="resetting === user.id"
                     >
@@ -235,7 +234,7 @@
                 </div>
                 <div class="mt-3">
                   <button
-                    @click="resetPassword(user.id)"
+                    @click="openResetDialog(user)"
                     class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                     :disabled="resetting === user.id"
                   >
@@ -272,74 +271,126 @@
         </div>
       </div>
     </div>
+
+    <!-- Confirm Reset Password Dialog -->
+<div
+  v-if="showResetDialog"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm"
+>
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-4">
+    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-6 rounded-t-2xl">
+      <h2 class="text-lg font-semibold">ยืนยันการรีเซ็ตรหัสผ่าน</h2>
+      <p class="text-sm text-indigo-100">หากกดยืนยัน รหัสผ่านจะรีเซ็ตเป็น 123456</p>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <p class="text-slate-700 text-center">
+        <strong>{{ resetItemTitle }}</strong>
+      </p>
+
+      <div class="flex justify-end gap-3">
+        <button
+          @click="showResetDialog = false"
+          :disabled="isResetting"
+          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl"
+        >
+          ยกเลิก
+        </button>
+        <button
+          @click="confirmReset"
+          :disabled="isResetting"
+          class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl flex items-center"
+        >
+          <span v-if="!isResetting">ยืนยัน</span>
+          <span v-else class="animate-spin mx-auto">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke-width="4"
+                stroke="currentColor"
+                fill="none"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from "vue";
-import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่ม
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-const authStore = useAuthStore(); // เพิ่ม
+import { useAuthStore } from "@/stores/useAuthStore";
+
+// ตัวแปรและสถานะหลัก
+const authStore = useAuthStore();
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const users = ref([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
+const resetting = ref<number | null>(null);
+
+const showResetDialog = ref(false); // ใช้ตัวนี้เปิด/ปิด dialog
+const userToReset = ref(null);
 const searchText = ref("");
-const loading = ref(true);
-const error = ref(null);
-const resetting = ref(null);
 
-
-onMounted(async () => {
+// โหลดข้อมูลผู้ใช้
+const fetchUsers = async () => {
+  loading.value = true;
+  error.value = null;
   try {
-    loading.value = true;
     const res = await fetch(`${baseURL}/api/admin/users`, {
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-        ...authStore.getAuthHeader(),
-      },
+      headers: authStore.getAuthHeader(),
     });
-
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error: ${res.status}`);
+      throw new Error("ไม่สามารถโหลดข้อมูลผู้ใช้งานได้");
     }
-
-    const data = await res.json();
-    if (Array.isArray(data)) {
-      users.value = data;
-      console.log("📦 loaded users:", users.value);
-    } else {
-      throw new Error("Server returned invalid data format");
-    }
-  } catch (err) {
-    console.error("Fetch failed:", err);
-    error.value = `ไม่สามารถโหลดข้อมูลผู้ใช้งานได้: ${err.message}`;
-    users.value = [];
+    users.value = await res.json();
+  } catch (err: any) {
+    error.value = err.message || "เกิดข้อผิดพลาด";
   } finally {
     loading.value = false;
   }
+};
+
+// กรองข้อมูลผู้ใช้ตามคำค้นหา
+const filteredUsers = computed(() => {
+  if (!searchText.value.trim()) return users.value;
+  return users.value.filter((user: any) => {
+    const keyword = searchText.value.toLowerCase();
+    return (
+      user.username.toLowerCase().includes(keyword) ||
+      user.firstName.toLowerCase().includes(keyword) ||
+      user.lastName.toLowerCase().includes(keyword)
+    );
+  });
 });
 
-const filteredUsers = computed(() =>
-  users.value.filter(
-    (u) =>
-      u.username?.toLowerCase().includes(searchText.value.toLowerCase()) ||
-      u.firstName?.toLowerCase().includes(searchText.value.toLowerCase()) ||
-      u.lastName?.toLowerCase().includes(searchText.value.toLowerCase())
-  )
-);
+// เปิด dialog รีเซ็ตรหัสผ่าน
+const openResetDialog = (user) => {
+  userToReset.value = user;
+  showResetDialog.value = true;
+};
 
-const resetPassword = async (userId) => {
+// ฟังก์ชันยืนยันรีเซ็ตรหัสผ่าน
+const confirmReset = async () => {
+  if (!userToReset.value) return;
+  resetting.value = userToReset.value.id;
+
   try {
-    const confirmed = confirm(
-      "คุณต้องการรีเซ็ตรหัสผ่านเป็น 123456 ใช่หรือไม่?"
-    );
-    if (!confirmed) return;
-
-    resetting.value = userId;
-
     const res = await fetch(
-      `${baseURL}/api/admin/users/${userId}/reset-password`,
+      `${baseURL}/api/admin/users/${userToReset.value.id}/reset-password`,
       {
         method: "PATCH",
         headers: {
@@ -349,28 +400,42 @@ const resetPassword = async (userId) => {
         },
       }
     );
-
     const data = await res.json();
 
     if (res.ok) {
-    ElMessage({
-      type: "success",
-      message: "รีเซ็ตรหัสผ่านเรียบร้อยแล้ว",
-    });
-  } else {
+      ElMessage({
+        type: "success",
+        message: "รีเซ็ตรหัสผ่านเรียบร้อยแล้ว",
+      });
+      await fetchUsers();
+    } else {
+      ElMessage({
+        type: "error",
+        message: `เกิดข้อผิดพลาด: ${data.error || "ไม่ทราบสาเหตุ"}`,
+      });
+    }
+  } catch (err: any) {
     ElMessage({
       type: "error",
-      message: `เกิดข้อผิดพลาด: ${data.error || "ไม่ทราบสาเหตุ"}`,
+      message: `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${err.message}`,
     });
+  } finally {
+    resetting.value = null;
+    showResetDialog.value = false;
+    userToReset.value = null;
   }
-} catch (err) {
-  console.error("Reset password failed:", err);
-  ElMessage({
-    type: "error",
-    message: `เกิดข้อผิดพลาดในการเชื่อมต่อ: ${err.message}`,
-  });
-} finally {
-  resetting.value = null;
-}
 };
+
+onMounted(() => {
+  fetchUsers();
+});
 </script>
+
+
+<style scoped>
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+</style>

@@ -159,6 +159,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ElMessage } from "element-plus";
 const authStore = useAuthStore();
 const selectedMonth = ref("");
 const selectedYear = ref(new Date().getFullYear());
@@ -237,8 +238,8 @@ const fetchReport = async () => {
       ),
     };
   } catch (err) {
-    alert("เกิดข้อผิดพลาดในการดึงรายงานงบประมาณ");
-    console.error(err);
-  }
+  ElMessage.error("เกิดข้อผิดพลาดในการดึงรายงานงบประมาณ");
+  console.error(err);
+}
 };
 </script>
