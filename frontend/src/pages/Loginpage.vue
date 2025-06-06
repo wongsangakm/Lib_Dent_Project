@@ -70,6 +70,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import Logo from "@/component/Logo.vue";
 import Footer from "@/component/Footer.vue";
 import bgImage from "@/image/Background.png";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -78,61 +79,60 @@ const formData = reactive({
   username: "",
   password: "",
 });
-console.log("🌐 baseURL =", baseURL);
 async function handleSubmit() {
   try {
-    const response = await fetch(`${baseURL}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-      credentials: "include"
-    });
+  const response = await fetch(`${baseURL}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+    credentials: "include"
+  });
 
-    if (!response.ok) {
-      const text = await response.text();
-      alert("❌ Login ล้มเหลว: " + text);
-      return;
-    }
-
-    const data = await response.json();
-    const token = data.token;
-
-    if (!token) {
-      alert("❌ ไม่ได้รับ JWT token จากเซิร์ฟเวอร์");
-      return;
-    }
-
-    // ✅ เก็บ token ใน Pinia store
-    authStore.login(data.username, data.role, token);
-
-    // 🔄 ดึง favBooks ของผู้ใช้
-    const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
-      headers: authStore.getAuthHeader(),
-    });
-
-    if (favRes.ok) {
-      const favBooks = await favRes.json();
-      authStore.setFavBooks(favBooks);
-    }
-
-    if (data.role === "ADMIN") {
-      router.push("/admin");
-    } else if (data.role === "MEMBER") {
-      router.push("/");
-    } else {
-      alert("ไม่สามารถเข้าระบบได้: บทบาทไม่ถูกต้อง");
-    }
-  } catch (err) {
-    const errorMessage =
-      err instanceof Error ? err.message : JSON.stringify(err);
-    alert("❌ เกิดข้อผิดพลาด: " + errorMessage);
-    console.error("🛠️ Debug Info:", {
-      userAgent: navigator.userAgent,
-      error: errorMessage,
-    });
+  if (!response.ok) {
+    const text = await response.text();
+    ElMessage.error("❌ Login ล้มเหลว: " + text);
+    return;
   }
+
+  const data = await response.json();
+  const token = data.token;
+
+  if (!token) {
+    ElMessage.error("❌ ไม่ได้รับ JWT token จากเซิร์ฟเวอร์");
+    return;
+  }
+
+  // ✅ เก็บ token ใน Pinia store
+  authStore.login(data.username, data.role, token);
+
+  // 🔄 ดึง favBooks ของผู้ใช้
+  const favRes = await fetch(`${baseURL}/api/auth/favorites`, {
+    headers: authStore.getAuthHeader(),
+  });
+
+  if (favRes.ok) {
+    const favBooks = await favRes.json();
+    authStore.setFavBooks(favBooks);
+  }
+
+  if (data.role === "ADMIN") {
+    router.push("/admin");
+  } else if (data.role === "MEMBER") {
+    router.push("/");
+  } else {
+    ElMessage.warning("ไม่สามารถเข้าระบบได้: บทบาทไม่ถูกต้อง");
+  }
+} catch (err) {
+  const errorMessage =
+    err instanceof Error ? err.message : JSON.stringify(err);
+  ElMessage.error("❌ เกิดข้อผิดพลาด: " + errorMessage);
+  console.error("🛠️ Debug Info:", {
+    userAgent: navigator.userAgent,
+    error: errorMessage,
+  });
+}
 }
 </script>
 

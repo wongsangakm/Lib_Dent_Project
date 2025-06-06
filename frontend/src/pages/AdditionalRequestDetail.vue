@@ -616,7 +616,7 @@ const confirmApprove = async () => {
     // โหลดข้อมูลใหม่
     await loadRequest();
 
-    // แสดงข้อความสำเร็จแบบ toast หรือ alert
+    // แสดงข้อความสำเร็จแบบ El
   ElMessage({
     type: "success",
     message: "Request updated successfully!",

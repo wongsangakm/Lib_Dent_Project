@@ -603,6 +603,25 @@
           <div v-else class="text-center text-gray-600">
             <p>No books found for this publisher.</p>
           </div>
+          <div v-if="showFavoriteDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-4 rounded-t-2xl">
+          <h2 class="text-lg font-semibold">ยืนยันการเพิ่มรายการโปรด</h2>
+          <p class="text-sm text-indigo-100">คุณต้องการเพิ่มหนังสือเล่มนี้เข้าสู่รายการโปรดใช่หรือไม่?</p>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <p class="text-slate-700 text-center">
+            <strong>{{ bookData?.bookTitle }}</strong>
+          </p>
+
+          <div class="flex justify-end gap-3">
+            <button @click="showFavoriteDialog = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl">ยกเลิก</button>
+            <button @click="confirmAddToFavorite" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl">ยืนยัน</button>
+          </div>
+        </div>
+      </div>
+    </div>
         </div>
       </section>
 
@@ -660,6 +679,9 @@ const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
 const pendingRequest = ref(null);
+const bookData = ref(null);
+const showFavoriteDialog = ref(false);
+
 function getStatusLabel(status) {
   switch (status) {
     case "in_shelf":
@@ -789,50 +811,51 @@ const fetchAllFavoriteStatuses = async () => {
 };
 
 // Add book to favorites
-const addToFavorite = async (book) => {
-  if (!isLoggedIn.value) {
-    alert("กรุณาเข้าสู่ระบบก่อนกด Favorite");
-    return;
-  }
+const addToFavorite = (book) => {
   if (book.isFavorited || book.isLoading) return;
 
-  /* ✅ NEW — กล่องยืนยัน */
-  const confirmed = await ElMessageBox.confirm(
-    `ต้องการเพิ่ม “${book.bookTitle}” เข้ารายการโปรดใช่หรือไม่?`,
-    "ยืนยันการเพิ่มรายการโปรด",
-    { confirmButtonText: "ยืนยัน", cancelButtonText: "ยกเลิก", type: "warning" }
-  )
-    .then(() => true)
-    .catch(() => false);
+  if (!isLoggedIn.value) {
+    ElMessage.warning("กรุณาเข้าสู่ระบบก่อนเพิ่มรายการโปรด");
+    return;
+  }
 
-  if (!confirmed) return;
+  bookData.value = book;
+  showFavoriteDialog.value = true;
+};
 
-  // Set loading state.
-  book.isLoading = true;
+
+const confirmAddToFavorite = async () => {
+  showFavoriteDialog.value = false;
+  if (!bookData.value) return;
+
+  bookData.value.isLoading = true;
 
   try {
-    const response = await fetch(`${baseURL}/api/auth/favorites/${book.id}`, {
+    const response = await fetch(`${baseURL}/api/auth/favorites/${bookData.value.id}`, {
       method: "POST",
       headers: {
-        ...authStore.getAuthHeader(), // ✅ ต้องแน่ใจว่า getAuthHeader ส่ง token.
+        ...authStore.getAuthHeader(),
         "Content-Type": "application/json",
       },
     });
-    console.log("💡 Header ที่ส่งไป:", authStore.getAuthHeader());
-    if (!response.ok) throw new Error("Failed to add favorite");
 
     const result = await response.json();
-    console.log("✅ Favorite added response:", result);
 
-    if (result.success) {
-      book.isFavorited = true;
+    if (result.success || result.message === "Already favorited") {
+      bookData.value.isFavorited = true;
+      ElMessage.success("เพิ่มหนังสือเข้ารายการโปรดเรียบร้อยแล้ว");
+    } else {
+      ElMessage.error("ไม่สามารถเพิ่มหนังสือได้");
     }
   } catch (error) {
     console.error("❌ Error adding to favorites:", error);
+    ElMessage.error("เกิดข้อผิดพลาดในการเพิ่มรายการโปรด");
   } finally {
-    book.isLoading = false;
+    bookData.value.isLoading = false;
   }
 };
+
+
 
 // Computed property to filter books by selected publisher
 const filteredBooksByPublisher = computed(() => {

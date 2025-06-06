@@ -183,6 +183,7 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/useAuthStore";
 import Header from "@/component/Header.vue";
 import Footer from "@/component/Footer.vue";
+import { ElMessage } from "element-plus";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -248,9 +249,9 @@ const passwordStrengthMessage = computed(() => {
 // ✅ ส่งข้อมูล
 const submitForm = async () => {
   if (!passwordsMatch.value) {
-    alert("รหัสผ่านไม่ตรงกัน");
-    return;
-  }
+  ElMessage.error("รหัสผ่านไม่ตรงกัน");
+  return;
+}
 
   try {
     const res = await fetch(`${baseURL}/api/auth/change-password`, {
@@ -264,10 +265,10 @@ const submitForm = async () => {
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      alert("❌ เปลี่ยนรหัสไม่สำเร็จ: " + err);
-      return;
-    }
+  const err = await res.text();
+  ElMessage.error("❌ เปลี่ยนรหัสไม่สำเร็จ: " + err);
+  return;
+}
 
     // ✅ ดึงข้อมูลผู้ใช้ใหม่
     const meRes = await fetch(`${baseURL}/api/auth/me`, {
@@ -277,15 +278,14 @@ const submitForm = async () => {
     });
 
     if (meRes.ok) {
-      const meData = await meRes.json();
-      authStore.login(meData.username, meData.role, meData.firstName || "", []);
-    }
-
-    alert("✅ เปลี่ยนรหัสผ่านเรียบร้อยแล้ว");
-    router.push("/");
-  } catch (err) {
-    console.error("Error:", err);
-    alert("เกิดข้อผิดพลาด กรุณาลองใหม่");
+    const meData = await meRes.json();
+    authStore.login(meData.username, meData.role, meData.firstName || "", []);
   }
+  ElMessage.success("✅ เปลี่ยนรหัสผ่านเรียบร้อยแล้ว");
+  router.push("/");
+} catch (err) {
+  console.error("Error:", err);
+  ElMessage.error("เกิดข้อผิดพลาด กรุณาลองใหม่");
+}
 };
 </script>

@@ -243,6 +243,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useAuthStore } from "@/stores/useAuthStore"; // เพิ่มบรรทัดนี้
+import { ElMessage } from 'element-plus';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 const authStore = useAuthStore();
 const activeTab = ref("admin");
@@ -259,30 +260,44 @@ const checkIsMobile = () => {
 
 const handleStatusChange = async (book) => {
   try {
-    const res = await fetch(`${baseURL}/api/books/${book.id}/status`, {
-      method: "PUT",
-      headers: { ...authStore.getAuthHeader(),"Content-Type": "application/json" },
-      body: JSON.stringify({ status: book.status }),
-    });
-    if (!res.ok) throw new Error("Failed to update status");
-    console.log("✅ Status updated:", book.name, "->", book.status);
-  } catch (err) {
-    console.error("❌ Error updating status:", err);
-    alert("Error saving status. Please try again.");
-  }
+  const res = await fetch(`${baseURL}/api/books/${book.id}/status`, {
+    method: "PUT",
+    headers: {
+      ...authStore.getAuthHeader(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status: book.status }),
+  });
+
+  if (!res.ok) throw new Error("Failed to update status");
+
+  console.log("✅ Status updated:", book.name, "->", book.status);
+  ElMessage({
+    type: "success",
+    message: `📘 Status updated: ${book.name} → ${book.status}`,
+  });
+} catch (err) {
+  console.error("❌ Error updating status:", err);
+  ElMessage({
+    type: "error",
+    message: "❌ Error saving status. Please try again.",
+    showClose: true,
+    duration: 5000,
+  });
+}
 };
 
 const loadAdditionalRequests = async () => {
   try {
-    const res = await fetch(`${baseURL}/api/admin/request-table`, {
-      headers: authStore.getAuthHeader(),
-    });
-    const data = await res.json();
-    additionalRequests.value = data;
-  } catch (err) {
-    console.error("❌ Failed to load additional requests:", err);
-    alert("ไม่สามารถโหลดคำขอเพิ่มเติมได้");
-  }
+  const res = await fetch(`${baseURL}/api/admin/request-table`, {
+    headers: authStore.getAuthHeader(),
+  });
+  const data = await res.json();
+  additionalRequests.value = data;
+} catch (err) {
+  console.error("❌ Failed to load additional requests:", err);
+  ElMessage.error('ไม่สามารถโหลดคำขอเพิ่มเติมได้');
+}
 };
 
 const isApprovedStatus = (status) => {
