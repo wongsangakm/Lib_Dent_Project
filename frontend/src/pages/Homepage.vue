@@ -269,100 +269,128 @@
           </div>
         </div>
         <div class="p-4 md:p-12 max-w-lg mx-auto">
-    <!-- Search Bar -->
-    <div class="flex w-full items-center space-x-2">
-      <div class="relative w-full">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search book..."
-          class="bg-gradient-to-r from-purple-200 via-white-100 to-white-100 text-gray-800 w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
-          @keyup.enter="searchBooks"
-        />
-        <svg
-          class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          ></path>
-        </svg>
-      </div>
-      <button
-        @click="searchBooks"
-        class="px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
-      >
-        Search
-      </button>
-    </div>
-
-    <!-- Search Results -->
-    <div v-if="hasSearched && searchQuery.trim()" class="mt-6">
-      <div v-if="filteredBooks.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        <div v-for="book in filteredBooks" :key="book.id" class="text-center">
-          <div class="relative">
-            <router-link :to="`/book/${book.id}`">
-              <img
-                :src="validCoverImage(book.coverImage)"
-                alt="Book Cover"
-                class="w-[120px] h-[170px] md:w-[150px] md:h-[200px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
+          <!-- Search Bar -->
+          <div class="flex w-full items-center space-x-2">
+            <div class="relative w-full">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search book..."
+                class="bg-gradient-to-r from-purple-200 via-white-100 to-white-100 text-gray-800 w-full px-4 py-2 pl-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-purple-600"
+                @keyup.enter="searchBooks"
               />
-            </router-link>
-            <button
-              @click="addToFavorite(book)"
-              :disabled="book.isFavorited || book.isLoading"
-              class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
-              :class="{
-                'text-red-500': book.isFavorited,
-                'text-gray-400 hover:text-red-300': !book.isFavorited && !book.isLoading,
-                'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
-              }"
-            >
-              <i :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"></i>
-            </button>
-          </div>
-          <router-link :to="`/book/${book.id}`" class="block">
-            <p class="text-gray-500 text-xs italic truncate mt-2">By {{ book.author }}</p>
-            <p class="mt-0 text-black-600 text-sm md:text-base font-bold truncate">{{ book.bookTitle }}</p>
-            <p class="text-gray-500 italic truncate text-xs">price {{ book.price?.toLocaleString() || "N/A" }} THB</p>
-          </router-link>
-          <div class="flex justify-center mt-2">
-            <button
-              @click="addToFavorite(book)"
-              :disabled="book.isFavorited || book.isLoading"
-              class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
-              :class="{
-                'bg-purple-600 hover:bg-purple-700': !book.isFavorited && !book.isLoading,
-                'bg-gray-400': book.isFavorited,
-                'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
-              }"
-            >
-              <span class="text-xs md:text-sm">{{ book.isFavorited ? "Added" : "Add to Favorite" }}</span>
               <svg
-                class="ml-1 md:ml-2 w-4 h-4 md:w-6 md:h-6"
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
               </svg>
+            </div>
+            <button
+              @click="searchBooks"
+              class="px-4 md:px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors text-sm md:text-base"
+            >
+              Search
             </button>
           </div>
+
+          <!-- Search Results -->
+          <div v-if="hasSearched && searchQuery.trim()" class="mt-6">
+            <div
+              v-if="filteredBooks.length > 0"
+              class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
+            >
+              <div
+                v-for="book in filteredBooks"
+                :key="book.id"
+                class="text-center"
+              >
+                <div class="relative">
+                  <router-link :to="`/book/${book.id}`">
+                    <img
+                      :src="validCoverImage(book.coverImage)"
+                      alt="Book Cover"
+                      class="w-[120px] h-[170px] md:w-[150px] md:h-[200px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                    />
+                  </router-link>
+                  <button
+                    @click="addToFavorite(book)"
+                    :disabled="book.isFavorited || book.isLoading"
+                    class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
+                    :class="{
+                      'text-red-500': book.isFavorited,
+                      'text-gray-400 hover:text-red-300':
+                        !book.isFavorited && !book.isLoading,
+                      'opacity-50 cursor-not-allowed':
+                        book.isLoading || book.isFavorited,
+                    }"
+                  >
+                    <i
+                      :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"
+                    ></i>
+                  </button>
+                </div>
+                <router-link :to="`/book/${book.id}`" class="block">
+                  <p class="text-gray-500 text-xs italic truncate mt-2">
+                    By {{ book.author }}
+                  </p>
+                  <p
+                    class="mt-0 text-black-600 text-sm md:text-base font-bold truncate"
+                  >
+                    {{ book.bookTitle }}
+                  </p>
+                  <p class="text-gray-500 italic truncate text-xs">
+                    price {{ book.price?.toLocaleString() || "N/A" }} THB
+                  </p>
+                </router-link>
+                <div class="flex justify-center mt-2">
+                  <button
+                    @click="addToFavorite(book)"
+                    :disabled="book.isFavorited || book.isLoading"
+                    class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
+                    :class="{
+                      'bg-purple-600 hover:bg-purple-700':
+                        !book.isFavorited && !book.isLoading,
+                      'bg-gray-400': book.isFavorited,
+                      'opacity-50 cursor-not-allowed':
+                        book.isLoading || book.isFavorited,
+                    }"
+                  >
+                    <span class="text-xs md:text-sm">{{
+                      book.isFavorited ? "Added" : "Add to Favorite"
+                    }}</span>
+                    <svg
+                      class="ml-1 md:ml-2 w-4 h-4 md:w-6 md:h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div v-else class="text-center text-gray-600 mt-4">
+              <p>No books found for "{{ searchQuery }}".</p>
+            </div>
+          </div>
         </div>
-      </div>
-      <div v-else class="text-center text-gray-600 mt-4">
-        <p>No books found for "{{ searchQuery }}".</p>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       <!-- Favourite by Publisher. -->
       <section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
@@ -751,10 +779,10 @@ const fetchAllFavoriteStatuses = async () => {
     }
 
     favouritesStore.allBooks
-  .filter((book) => book && book.id)
-  .forEach((book) => {
-    book.isFavorited = favBookIds.includes(book.id);
-  });
+      .filter((book) => book && book.id)
+      .forEach((book) => {
+        book.isFavorited = favBookIds.includes(book.id);
+      });
   } catch (err) {
     console.error("❌ Failed to load favorite status list:", err);
   }
@@ -1180,10 +1208,55 @@ async function sendRequestDirectly(payload) {
       headers: authStore.getAuthHeader(),
     });
 
-   ElMessage({
-    type: "success",
-    message: "Request submitted successfully!",
-  });
+    alert("✅ Request submitted successfully!");
+    globalError.value = "";
+
+    // รีเซ็ตฟอร์ม
+    request.value = {
+      bookTitle: "",
+      author: "",
+      publisher: "",
+      isbn: "",
+      year: "",
+      price: "",
+      description: "",
+      reason: "",
+    };
+
+    // รีเซ็ต popup state
+    showPopup.value = false;
+    similarBooks.value = [];
+    pendingRequest.value = null;
+  } catch (err) {
+    globalError.value =
+      "❌ Failed to submit request: " +
+      (err.response?.data?.message ||
+        JSON.stringify(err.response?.data) ||
+        err.message);
+  }
+}
+
+// ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้ยืนยันจาก popup
+function handlePopupConfirm() {
+  if (pendingRequest.value) {
+    submitRequest(); // เรียกใช้อีกครั้งเพื่อส่งคำขอ
+  }
+}
+
+// ฟังก์ชันสำหรับจัดการเมื่อผู้ใช้ยกเลิกจาก popup
+function handlePopupCancel() {
+  showPopup.value = false;
+  similarBooks.value = [];
+  pendingRequest.value = null;
+  isLoading.value = false;
+}
+async function sendRequestAfterPopupConfirmed(payload) {
+  try {
+    await axios.post(`${baseURL}/api/requests`, payload, {
+      headers: authStore.getAuthHeader(),
+    });
+
+    alert("✅ Request submitted successfully!");
     globalError.value = "";
     request.value = {
       bookTitle: "",
@@ -1195,40 +1268,63 @@ async function sendRequestDirectly(payload) {
       description: "",
       reason: "",
     };
-    // รีเซ็ต popup state
-    showPopup.value = false;
-    similarBooks.value = [];
-    pendingRequest.value = null;
   } catch (err) {
-  if (err.response?.status === 400 && err.response?.data?.errors) {
-    const messages = err.response.data.errors
-      .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
-      .join("\n");
-
-    ElMessage({
-      type: "error",
-      message: messages,
-      duration: 5000, // แสดงนานหน่อยกรณี error หลายบรรทัด
-      showClose: true
-    });
-
-  } else {
-    ElMessage({
-      type: "error",
-      message:
-        "❌ Failed to submit request: " +
-        (err.response?.data?.message ||
-          JSON.stringify(err.response?.data) ||
-          err.message),
-      duration: 5000,
-      showClose: true
-    });
-    }
+    globalError.value =
+      "❌ Failed to submit request: " +
+      (err.response?.data?.message ||
+        JSON.stringify(err.response?.data) ||
+        err.message);
   } finally {
     isLoading.value = false;
+    showPopup.value = false;
   }
-};
+}s
 
+function showPopupWithSimilarBooks(similarBooks) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.innerHTML = renderPopupHTML(similarBooks);
+    document.body.appendChild(overlay);
+
+    overlay.querySelector("#cancelBtn").addEventListener("click", () => {
+      overlay.remove();
+      resolve(false);
+    });
+
+    overlay.querySelector("#confirmBtn").addEventListener("click", () => {
+      overlay.remove();
+      resolve(true);
+    });
+  });
+}
+// ฟังก์ชันสร้าง HTML สำหรับ popup แสดงหนังสือที่คล้ายกัน
+function renderPopupHTML(books) {
+  return `
+  <div class="overlay" style="z-index:9999;position:fixed;top:0;left:0;width:100vw;height:100vh;background-color:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center">
+    <div class="popup" style="background:#fff;padding:24px;border-radius:12px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto">
+      <h2 style="font-size:20px;margin-bottom:16px;color:#c0392b">⚠️ พบหนังสือที่คล้ายกันในห้องสมุด</h2>
+      <div>
+        ${books
+          .map(
+            (book, i) => `
+          <div style="margin-bottom:16px;border-bottom:1px solid #eee;padding-bottom:8px">
+            <strong>${i + 1}. ${book.title}</strong><br>
+            ผู้แต่ง: ${book.author || "ไม่ระบุผู้แต่ง"} ${
+              book.authorMatch ? "<em>(ผู้แต่งคล้าย)</em>" : ""
+            }<br>
+            ความคล้าย: ${(book.similarity * 100).toFixed(0)}%
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+      <div style="margin-top:24px;text-align:center">
+        <button id="cancelBtn" style="padding:10px 20px;margin-right:12px">ยกเลิก</button>
+        <button id="confirmBtn" style="padding:10px 20px;background:#28a745;color:white">ส่งคำขอต่อไป</button>
+      </div>
+    </div>
+  </div>`;
+}
 const onISBNInput = (event) => {
   const raw = event.target.value.replace(/[^0-9Xx]/g, "");
   let formatted = "";
@@ -1260,11 +1356,9 @@ const filteredBooksSafe = computed(() => {
     return filteredBooksByPublisher.value;
   }
 });
-
-
 </script>
 
-<style >
+<style>
 /* Hide scrollbar but keep functionality */
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
