@@ -1278,8 +1278,7 @@ async function sendRequestAfterPopupConfirmed(payload) {
     isLoading.value = false;
     showPopup.value = false;
   }
-}s
-
+}
 function showPopupWithSimilarBooks(similarBooks) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
@@ -1297,6 +1296,7 @@ function showPopupWithSimilarBooks(similarBooks) {
     });
   });
 }
+
 // ฟังก์ชันสร้าง HTML สำหรับ popup แสดงหนังสือที่คล้ายกัน
 function renderPopupHTML(books) {
   return `
