@@ -10,6 +10,7 @@
         class="absolute top-[500px] bottom-0 left-0 right-0 bg-repeat-y"
         style="background-image: url('/images/bg_repeat.png')"
       ></div>
+
       <Header />
       <!-- Hero Section -->
       <section class="pt-16 md:pt-28">
@@ -56,6 +57,12 @@
         id="searchbook"
         class="scroll-mt-24 container mx-auto px-4 mt-8 rounded-3xl bg-white/50"
       >
+        <SimilarBooksPopup
+          :visible="showPopup"
+          :similarBooks="similarBooks"
+          @cancel="handlePopupCancel"
+          @confirm="handlePopupConfirm"
+        />
         <!-- Book Request Form (Above Search Bar) -->
         <div
           v-if="isLoggedIn"
@@ -457,86 +464,119 @@
         </div>
       </section>
 
-<!-- All Books Section -->
-<section id="all-books" class="py-6 md:py-12">
-  <div class="container mx-auto px-4">
-    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-8">
-      {{ selectedPublisher === 'All Books' ? 'All Books' : selectedPublisher }}
-    </h2>
-
-    <div
-      v-if="filteredBooksByPublisher.length > 0"
-      class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
-    >
-      <div
-        v-for="book in filteredBooksByPublisher"
-        :key="book.id"
-        class="text-center"
-      >
-        <div class="relative">
-          <router-link :to="`/book/${book.id}`">
-            <img
-              :src="validCoverImage(book.coverImage)"
-              alt="Book Cover"
-              class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
-            />
-          </router-link>
-          <!-- Heart Button -->
-          <button
-            @click="addToFavorite(book)"
-            :disabled="book.isFavorited || book.isLoading"
-            class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
-            :class="{
-              'text-red-500': book.isFavorited,
-              'text-gray-400 hover:text-red-300': !book.isFavorited && !book.isLoading,
-              'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
-            }"
+      <!-- All Books Section -->
+      <section id="all-books" class="py-6 md:py-12">
+        <div class="container mx-auto px-4">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-8">
+            {{
+              selectedPublisher === "All Books"
+                ? "All Books"
+                : selectedPublisher
+            }}
+          </h2>
+          <div
+            v-if="filteredBooksByPublisher.length > 0"
+            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6"
           >
-            <i :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"></i>
-          </button>
-        </div>
-        <router-link :to="`/book/${book.id}`" class="block">
-          <p class="text-gray-500 text-xs italic truncate mt-2">By {{ book.author }}</p>
-          <p class="mt-0 text-black-600 text-xs md:text-base font-bold truncate">{{ book.bookTitle }}</p>
-          <p class="text-gray-500 italic truncate text-xs">price {{ book.price?.toLocaleString() || 'N/A' }} THB</p>
-        </router-link>
-        <!-- Add to Favorite Button -->
-        <div class="flex justify-center mt-2">
-          <button
-            @click="addToFavorite(book)"
-            :disabled="book.isFavorited || book.isLoading"
-            class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
-            :class="{
-              'bg-purple-600 hover:bg-purple-700': !book.isFavorited && !book.isLoading,
-              'bg-gray-400': book.isFavorited,
-              'opacity-50 cursor-not-allowed': book.isLoading || book.isFavorited,
-            }"
-          >
-            <span class="text-xs">{{ book.isFavorited ? 'Added' : 'Add to Favorite' }}</span>
-            <svg
-              class="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+            <div
+              v-for="book in filteredBooksByPublisher"
+              :key="book.id"
+              class="text-center"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              ></path>
-            </svg>
-          </button>
+              <div class="relative">
+                <router-link :to="`/book/${book.id}`">
+                  <img
+                    :src="validCoverImage(book.coverImage)"
+                    alt="Book Cover"
+                    class="w-[120px] h-[180px] md:w-[160px] md:h-[240px] object-cover mx-auto rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                  />
+                </router-link>
+                <!-- 🎯 Ribbon Status -->
+                <div
+                  v-if="book.status === 'in_shelf' || book.status === 'ordered'"
+                  class="ribbon"
+                  :class="{ ordered: book.status === 'ordered' }"
+                >
+                  <span v-if="book.status === 'in_shelf'"
+                    ><i class="fa-solid fa-book-open-reader mr-2"></i
+                    >มีในชั้นหนังสือ</span
+                  >
+                  <span v-else-if="book.status === 'ordered'"
+                    ><i class="fa-solid fa-cart-plus mr-2"></i
+                    >กำลังสั่งซื้อ</span
+                  >
+                </div>
+                <!-- Heart Button -->
+                <button
+                  @click="addToFavorite(book)"
+                  :disabled="book.isFavorited || book.isLoading"
+                  class="absolute top-2 right-2 bg-white bg-opacity-80 text-l p-1 md:p-2 rounded-full shadow-lg"
+                  :class="{
+                    'text-red-500': book.isFavorited,
+                    'text-gray-400 hover:text-red-300':
+                      !book.isFavorited && !book.isLoading,
+                    'opacity-50 cursor-not-allowed':
+                      book.isLoading || book.isFavorited,
+                  }"
+                >
+                  <i
+                    :class="[book.isFavorited ? 'fas' : 'far', 'fa-heart']"
+                  ></i>
+                </button>
+              </div>
+              <router-link :to="`/book/${book.id}`" class="block">
+                <p class="text-gray-500 text-xs italic truncate mt-2">
+                  By {{ book.author }}
+                </p>
+                <p
+                  class="mt-0 text-black-600 text-xs md:text-base font-bold truncate"
+                >
+                  {{ book.bookTitle }}
+                </p>
+                <p class="text-gray-500 italic truncate text-xs">
+                  price {{ book.price.toLocaleString() }} THB
+                </p>
+              </router-link>
+              <!-- Add to Favorite Button -->
+              <div class="flex justify-center mt-2">
+                <button
+                  @click="addToFavorite(book)"
+                  :disabled="book.isFavorited || book.isLoading"
+                  class="px-2 md:px-4 py-1 text-white rounded-full flex items-center transition-all duration-200"
+                  :class="{
+                    'bg-purple-600 hover:bg-purple-700':
+                      !book.isFavorited && !book.isLoading,
+                    'bg-gray-400': book.isFavorited,
+                    'opacity-50 cursor-not-allowed':
+                      book.isLoading || book.isFavorited,
+                  }"
+                >
+                  <span class="text-xs">{{
+                    book.isFavorited ? "Added" : "Add to Favorite"
+                  }}</span>
+                  <svg
+                    class="ml-1 md:ml-2 w-3 h-3 md:w-4 md:h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-center text-gray-600">
+            <p>No books found for this publisher.</p>
+          </div>
         </div>
-      </div>
-    </div>
-
-    <div v-else class="text-center text-gray-600">
-      <p>No books found for this publisher.</p>
-    </div>
-  </div>
-</section>
+      </section>
 
       <!-- Why Shop with Us?? Section. -->
       <section id="why" class="bg-purple-100 w-full">
@@ -581,12 +621,28 @@ import dentdesign from "@/assets/dentdesign.svg";
 import { useFavouritesStore } from "@/stores/favourites";
 import axios from "axios";
 import { useAuthStore } from "@/stores/useAuthStore";
+import Fuse from "fuse.js";
+import SimilarBooksPopup from "./SimilarBooksPopup.vue";
+const showPopup = ref(false);
+const similarBooks = ref([]);
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 import { ElMessage } from "element-plus";
 const router = useRouter();
 const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isAuthenticated);
 const favouritesStore = useFavouritesStore(); // Initialize Pinia store
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+const pendingRequest = ref(null);
+function getStatusLabel(status) {
+  switch (status) {
+    case "in_shelf":
+      return " มีในชั้นหนังสือ";
+    case "ordered":
+      return "🛒 กำลังสั่งซื้อ";
+    default:
+      return "";
+  }
+}
+
 const scrollToSection = (sectionId) => {
   const element = document.getElementById(sectionId);
   if (element) {
@@ -858,8 +914,121 @@ watch(
   }
 );
 
-// submitRequest method
-const submitRequest = async () => {
+// ฟังก์ชันทำความสะอาดข้อความเพื่อการเปรียบเทียบที่แม่นยำยิ่งขึ้น
+function normalizeTextAdvanced(text) {
+  if (!text) return "";
+
+  return (
+    text
+      .toLowerCase()
+      .trim()
+      // ลบเครื่องหมายวรรคตอนและสัญลักษณ์พิเศษ
+      .replace(/[^\u0E00-\u0E7Fa-zA-Z0-9\s]/g, "")
+      // ลบคำที่ไม่สำคัญ (stop words)
+      .replace(
+        /\b(และ|หรือ|ใน|ของ|สำหรับ|เพื่อ|กับ|โดย|ที่|แล้ว|ไป|มา|ได้|จะ|ให้|ถึง|จาก|ตาม|about|for|and|or|the|a|an|in|on|at|to|from|by|with)\b/g,
+        ""
+      )
+      // ลบช่องว่างที่เกินมา
+      .replace(/\s+/g, " ")
+      .trim()
+  );
+}
+
+// ฟังก์ชันแยกคำหลักจากชื่อหนังสือ
+function extractKeywords(title) {
+  if (!title) return [];
+
+  const normalized = normalizeTextAdvanced(title);
+  // แยกคำและกรองคำที่มีความยาวอย่างน้อย 3 ตัวอักษร
+  return normalized.split(/\s+/).filter((word) => word.length >= 3);
+}
+
+// ฟังก์ชันคำนวณความคล้ายกันของคำหลัก
+function calculateKeywordSimilarity(keywords1, keywords2) {
+  if (keywords1.length === 0 || keywords2.length === 0) return 0;
+
+  let matchCount = 0;
+
+  keywords1.forEach((word1) => {
+    keywords2.forEach((word2) => {
+      // ตรวจสอบว่าคำนั้นเหมือนกันหรือมีส่วนที่เหมือนกัน
+      if (word1.includes(word2) || word2.includes(word1)) {
+        matchCount++;
+      }
+    });
+  });
+
+  // คำนวณเปอร์เซ็นต์ความคล้าย
+  return matchCount / Math.max(keywords1.length, keywords2.length);
+}
+
+// ฟังก์ชันตรวจสอบชื่อหนังสือที่คล้ายกัน (ปรับปรุงแล้ว)
+function advancedTitleSimilarity(inputTitle, libraryTitle) {
+  if (!inputTitle || !libraryTitle) return 0;
+
+  const input = normalizeTextAdvanced(inputTitle);
+  const library = normalizeTextAdvanced(libraryTitle);
+
+  // 1. ตรวจสอบความเหมือนกันโดยตรง
+  if (input === library) return 1.0;
+
+  // 2. ตรวจสอบว่าชื่อหนึ่งอยู่ในอีกชื่อหนึ่ง
+  if (input.includes(library) || library.includes(input)) {
+    return 0.8;
+  }
+
+  // 3. เปรียบเทียบคำหลัก
+  const inputKeywords = extractKeywords(inputTitle);
+  const libraryKeywords = extractKeywords(libraryTitle);
+
+  const keywordSimilarity = calculateKeywordSimilarity(
+    inputKeywords,
+    libraryKeywords
+  );
+
+  // 4. ใช้ Levenshtein distance สำหรับการเปรียบเทียบที่ละเอียดขึ้น
+  const levenshteinSimilarity =
+    1 -
+    levenshteinDistance(input, library) /
+      Math.max(input.length, library.length);
+
+  // รวมคะแนนด้วยน้ำหนักที่เหมาะสม
+  return keywordSimilarity * 0.7 + levenshteinSimilarity * 0.3;
+}
+
+// ฟังก์ชัน Levenshtein Distance
+function levenshteinDistance(str1, str2) {
+  const matrix = [];
+
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+
+  return matrix[str2.length][str1.length];
+}
+
+// ฟังก์ชันหลักสำหรับตรวจสอบหนังสือที่คล้ายกัน (แทนที่ส่วนเดิม)
+// ฟังก์ชันหลักสำหรับตรวจสอบหนังสือที่คล้ายกัน (แก้ไขแล้ว)
+async function submitRequest() {
   globalError.value = "";
 
   const trimmed = {
@@ -873,16 +1042,17 @@ const submitRequest = async () => {
     reason: request.value.reason.trim(),
   };
 
+  // ตรวจสอบ ISBN
   const rawISBN = trimmed.isbn.replace(/[^0-9Xx]/g, "");
   const isbn10 = /^\d{9}[\dXx]$/;
   const isbn13 = /^\d{13}$/;
 
   if (!isbn10.test(rawISBN) && !isbn13.test(rawISBN)) {
-  globalError.value =
-    "❌ Invalid ISBN: must be ISBN-10 or ISBN-13, with or without dashes";
-  return;
-}
+    globalError.value = "❌ Invalid ISBN: must be ISBN-10 or ISBN-13.";
+    return;
+  }
 
+  // ตรวจสอบฟิลด์ที่จำเป็น
   const missingFields = [];
   if (!trimmed.bookTitle) missingFields.push("Book Title");
   if (!trimmed.author) missingFields.push("Author");
@@ -899,21 +1069,14 @@ const submitRequest = async () => {
     return;
   }
 
-  const isbnRegex =
-    /^(\d{9}[\dXx]|\d{13}|\d{1,5}-\d{1,7}-\d{1,7}-[\dXx]|\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-[\dXx])$/;
-  if (!isbnRegex.test(trimmed.isbn)) {
-    globalError.value =
-      "❌ Invalid ISBN format (ISBN-10 or ISBN-13, with or without dashes)";
-    return;
-  }
-
+  // ตรวจสอบรูปแบบปีและราคา
   if (!/^\d+$/.test(trimmed.year)) {
     globalError.value = "❌ Year must be an integer.";
     return;
   }
 
   if (!/^\d+(\.\d+)?$/.test(trimmed.price)) {
-    globalError.value = "❌ Price must be a valid number (float).";
+    globalError.value = "❌ Price must be a valid number.";
     return;
   }
 
@@ -927,28 +1090,116 @@ const submitRequest = async () => {
       price: parseFloat(trimmed.price),
     };
 
+    // ถ้าเป็นการยืนยันจาก popup ให้ส่งคำขอทันที
+    if (showPopup.value && similarBooks.value.length > 0) {
+      await sendRequestDirectly(payload);
+      return;
+    }
+
+    // ดึงข้อมูลหนังสือที่คล้ายกัน
+    const res = await axios.get(`${baseURL}/api/library-books/similar-lite`, {
+      params: { title: payload.bookTitle },
+      headers: authStore.getAuthHeader(),
+    });
+
+    const shortlist = res.data;
+
+    // ตรวจสอบความคล้ายกันด้วยอัลกอริทึมที่ปรับปรุงแล้ว
+    const foundSimilarBooks = [];
+
+    shortlist.forEach((book) => {
+      const titleSimilarity = advancedTitleSimilarity(
+        payload.bookTitle,
+        book.title
+      );
+
+      // กำหนดเกณฑ์ความคล้ายที่เข้มงวดขึ้น
+      if (titleSimilarity >= 0.6) {
+        // ตรวจสอบผู้แต่งเพิ่มเติม (ถ้ามี)
+        let authorMatch = false;
+
+        if (book.author && payload.author) {
+          const normalizedInputAuthor = normalizeTextAdvanced(payload.author);
+          const normalizedLibraryAuthor = normalizeTextAdvanced(book.author);
+
+          // ตรวจสอบความคล้ายของผู้แต่ง
+          if (
+            normalizedInputAuthor.includes(normalizedLibraryAuthor) ||
+            normalizedLibraryAuthor.includes(normalizedInputAuthor)
+          ) {
+            authorMatch = true;
+          }
+        }
+
+        // เพิ่มในรายการหนังสือที่คล้ายกัน
+        // กรณีที่ชื่อคล้ายมากและไม่มีผู้แต่งในระบบ หรือผู้แต่งก็คล้ายกัน
+        if (
+          book.author === null ||
+          book.author === "" ||
+          authorMatch ||
+          titleSimilarity >= 0.8
+        ) {
+          foundSimilarBooks.push({
+            ...book,
+            similarity: titleSimilarity,
+            authorMatch: authorMatch,
+          });
+        }
+      }
+    });
+
+    // เรียงลำดับตามความคล้าย
+    foundSimilarBooks.sort((a, b) => b.similarity - a.similarity);
+
+    // แสดงคำเตือนถ้าพบหนังสือที่คล้ายกัน
+    if (foundSimilarBooks.length > 0) {
+      // เก็บข้อมูลสำหรับแสดงใน Vue component
+      similarBooks.value = foundSimilarBooks.slice(0, 5);
+      pendingRequest.value = payload; // เก็บ payload สำหรับใช้ภายหลัง
+      showPopup.value = true; // แสดง Vue component popup
+      return;
+    }
+
+    // ส่งคำขอถ้าไม่พบหนังสือที่คล้ายกัน
+    await sendRequestDirectly(payload);
+  } catch (err) {
+    globalError.value =
+      "❌ Failed to submit request: " +
+      (err.response?.data?.message ||
+        JSON.stringify(err.response?.data) ||
+        err.message);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// ฟังก์ชันส่งคำขอโดยตรง
+async function sendRequestDirectly(payload) {
+  try {
     await axios.post(`${baseURL}/api/requests`, payload, {
       headers: authStore.getAuthHeader(),
     });
 
-    ElMessage({
+   ElMessage({
     type: "success",
     message: "Request submitted successfully!",
   });
-
-  globalError.value = "";
-  request.value = {
-    bookTitle: "",
-    author: "",
-    publisher: "",
-    isbn: "",
-    year: "",
-    price: "",
-    description: "",
-    reason: "",
-  };
-
-} catch (err) {
+    globalError.value = "";
+    request.value = {
+      bookTitle: "",
+      author: "",
+      publisher: "",
+      isbn: "",
+      year: "",
+      price: "",
+      description: "",
+      reason: "",
+    };
+    // รีเซ็ต popup state
+    showPopup.value = false;
+    similarBooks.value = [];
+    pendingRequest.value = null;
+  } catch (err) {
   if (err.response?.status === 400 && err.response?.data?.errors) {
     const messages = err.response.data.errors
       .map((e) => `❌ ${e.field}: ${e.defaultMessage}`)
@@ -972,11 +1223,10 @@ const submitRequest = async () => {
       duration: 5000,
       showClose: true
     });
+    }
+  } finally {
+    isLoading.value = false;
   }
-
-} finally {
-  isLoading.value = false;
-}
 };
 
 const onISBNInput = (event) => {
@@ -1049,5 +1299,24 @@ img {
   border-radius: 0.375rem;
   margin-top: 0.25rem;
   background-color: white;
+}
+.ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #16db93; /* เขียว */
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ribbon.ordered {
+  background-color: #f29e4c; /* ส้ม */
 }
 </style>

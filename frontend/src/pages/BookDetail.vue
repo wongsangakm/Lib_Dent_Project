@@ -24,6 +24,19 @@
           <div
             class="w-full sm:w-1/3 sm:min-w-[260px] flex justify-center relative mb-4 sm:mb-0"
           >
+            <div
+              v-if="bookData.status === 'in_shelf' || bookData.status === 'ordered'"
+              class="ribbon"
+              :class="{ ordered: bookData.status === 'ordered' }"
+            >
+              <span v-if="bookData.status === 'in_shelf'"
+                ><i class="fa-solid fa-book-open-reader mr-2"></i
+                >มีในชั้นหนังสือ</span
+              >
+              <span v-else-if="bookData.status === 'ordered'"
+                ><i class="fa-solid fa-cart-plus mr-2"></i>กำลังสั่งซื้อ</span
+              >
+            </div>
             <!-- Heart Button -->
             <button
               @click="addToFavorite"
@@ -343,5 +356,25 @@ p {
 img {
   object-fit: cover;
   object-position: center;
+}
+
+.ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #16db93; /* เขียว */
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ribbon.ordered {
+  background-color: #f29e4c; /* ส้ม */
 }
 </style>

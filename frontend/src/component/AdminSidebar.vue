@@ -16,12 +16,16 @@
       }"
     >
       <!-- Header -->
-      <div class="mt-8 p-6 border-b border-gray-200 flex justify-between items-center">
+      <div
+        class="mt-8 p-6 border-b border-gray-200 flex justify-between items-center"
+      >
         <h1 class="text-xl font-bold text-purple-700">Book Request</h1>
       </div>
 
       <!-- Admin Name -->
-      <div class="px-6 py-4 border-b border-gray-200 text-gray-800 font-semibold">
+      <div
+        class="px-6 py-4 border-b border-gray-200 text-gray-800 font-semibold"
+      >
         {{ authStore.username }}
       </div>
 
@@ -30,7 +34,10 @@
         <RouterLink
           to="/admin/dashboard"
           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-          :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/dashboard') }"
+          :class="{
+            'text-purple-600 font-semibold':
+              $route.path.includes('/admin/dashboard'),
+          }"
         >
           <i class="fas fa-th-large"></i>
           Dashboard
@@ -39,7 +46,10 @@
         <RouterLink
           to="/admin/allbooks"
           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-          :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/allbooks') }"
+          :class="{
+            'text-purple-600 font-semibold':
+              $route.path.includes('/admin/allbooks'),
+          }"
         >
           <i class="fas fa-book"></i>
           Book
@@ -48,7 +58,11 @@
         <RouterLink
           to="/admin/request-table"
           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-          :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/request-table') }"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/request-table'
+            ),
+          }"
         >
           <i class="fas fa-user-friends"></i>
           Request
@@ -57,7 +71,11 @@
         <RouterLink
           to="/admin/round-export"
           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-          :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/round-export') }"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/round-export'
+            ),
+          }"
         >
           <i class="fa-solid fa-file-export"></i>
           Ordering Cycle
@@ -66,7 +84,11 @@
         <RouterLink
           to="/admin/AdminAddUser"
           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-          :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/AdminAddUser') }"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/AdminAddUser'
+            ),
+          }"
         >
           <i class="fa-solid fa-user-plus"></i>
           Add User
@@ -75,7 +97,11 @@
         <RouterLink
           to="/admin/reset-password"
           class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-          :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/reset-password') }"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/reset-password'
+            ),
+          }"
         >
           <i class="fa-solid fa-unlock-keyhole"></i>
           Reset Password
@@ -83,14 +109,29 @@
 
         <!-- ✅ New Change Email Menu -->
         <RouterLink
-  to="/admin/change-email"
-  class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
-  :class="{ 'text-purple-600 font-semibold': $route.path.includes('/admin/change-email') }"
->
-  <i class="fa-solid fa-envelope"></i>
-  Change Email
-</RouterLink>
+          to="/admin/change-email"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
+          :class="{
+            'text-purple-600 font-semibold': $route.path.includes(
+              '/admin/change-email'
+            ),
+          }"
+        >
+          <i class="fa-solid fa-envelope"></i>
+          Change Email
+        </RouterLink>
 
+        <RouterLink
+          to="/admin/LibraryBook"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-50"
+          :class="{
+            'text-purple-600 font-semibold':
+              $route.path.includes('/admin/LibraryBook'),
+          }"
+        >
+          <i class="fa-solid fa-address-book"></i>
+          Library Book
+        </RouterLink>
       </nav>
 
       <button

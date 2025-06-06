@@ -1,16 +1,23 @@
 <template>
   <header class="bg-white shadow-md fixed top-0 w-full z-20">
-    <nav class="container mx-auto px-2 py-2 flex justify-between items-center">
+    <nav
+      class="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center"
+    >
       <!-- Logo and Brand -->
       <div class="flex items-center space-x-2">
-        <Logo :size="'w-16 h-16'" />
+        <Logo :size="isMobile ? 'w-12 h-12' : 'w-16 h-16'" />
         <div class="flex flex-col leading-tight">
-          <span class="text-lg font-bold text-purple-600">Book Request</span>
-          <span class="text-base text-gray-600">ห้องสมุดสมนึก พูนทรัพย์</span>
+          <span class="text-sm sm:text-lg font-bold text-purple-600"
+            >Book Request</span
+          >
+          <span class="text-xs sm:text-base text-gray-600"
+            >ห้องสมุดสมนึก พูนทรัพย์</span
+          >
         </div>
       </div>
+
       <!-- Mobile Menu Button -->
-      <button @click="isMenuOpen = !isMenuOpen" class="md:hidden ml-auto mr-4">
+      <button @click="isMenuOpen = !isMenuOpen" class="md:hidden ml-auto mr-2">
         <svg
           class="w-6 h-6 text-purple-600"
           fill="none"
@@ -58,11 +65,10 @@
         >
       </div>
 
-      <!-- User Actions (Desktop and Mobile) -->
+      <!-- User Actions -->
       <div class="flex items-center space-x-2">
-        <!-- Favorites Link -->
+        <!-- Heart Dropdown -->
         <div class="relative dropdown-heart">
-          <!-- ปุ่มหัวใจ -->
           <button
             @click="toggleHeartDropdown"
             class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 relative"
@@ -80,8 +86,6 @@
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
-
-            <!-- Badge -->
             <span
               v-if="favouritesCount > 0"
               class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 bg-indigo-300 text-yellow-300 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
@@ -89,42 +93,38 @@
               {{ favouritesCount }}
             </span>
           </button>
-
-          <!-- Dropdown -->
           <transition name="fade">
             <div
               v-if="openHeartDropdown"
-              class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
+              class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 sm:right-0 right-[-80px]"
             >
               <router-link
                 to="/favbooks"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >❤️ รายการโปรด</router-link
               >
-                ❤️ รายการโปรด
-              </router-link>
               <router-link
                 to="/favorites-dashboard"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >📈 ภาพรวมและสถานะ</router-link
               >
-                📈 ภาพรวมและสถานะ
-              </router-link>
             </div>
           </transition>
         </div>
 
-        <!-- Sign In / Profile Button -->
+        <!-- Sign In / Profile -->
         <div class="relative" @click="toggleDropdown">
           <router-link
             v-if="!authStore.isAuthenticated"
             to="/login"
-            class="px-4 py-2 bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 transition-colors"
+            class="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200"
           >
             Sign In
           </router-link>
 
           <button
             v-else
-            class="px-4 py-2 bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 transition-colors flex items-center space-x-2"
+            class="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 flex items-center space-x-2"
           >
             <span>{{ authStore.username }}</span>
             <svg
@@ -134,13 +134,12 @@
             >
               <path
                 fill-rule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.353a.75.75 0 011.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
                 clip-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.353a.75.75 0 011.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
               />
             </svg>
           </button>
 
-          <!-- Dropdown Menu -->
           <div
             v-if="authStore.isAuthenticated && showDropdown"
             class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-30"
@@ -162,47 +161,42 @@
       </div>
     </nav>
 
-    <!-- Mobile Menu (Slide Down) -->
+    <!-- Mobile Menu -->
     <div
       v-if="isMenuOpen"
-      class="md:hidden bg-white px-2 pt-2 pb-4 shadow-lg border-t border-gray-200 absolute w-full z-20"
+      class="md:hidden bg-white px-2 pt-2 pb-4 shadow-lg border-t border-gray-200 absolute top-full w-full z-20"
     >
       <div class="flex flex-col space-y-3">
         <router-link
           to="/"
           @click="isMenuOpen = false"
           class="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md hover:bg-purple-50"
+          >Home</router-link
         >
-          Home
-        </router-link>
         <router-link
           to="/"
           @click="mobileScrollToSection('searchbook')"
           class="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md hover:bg-purple-50"
+          >Search Book</router-link
         >
-          Search Book
-        </router-link>
         <router-link
           to="/#Favbypub"
           @click="isMenuOpen = false"
           class="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md hover:bg-purple-50"
+          >Favourite By Publisher</router-link
         >
-          Favourite By Publisher
-        </router-link>
         <router-link
           to="/#all-books"
           @click="isMenuOpen = false"
           class="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md hover:bg-purple-50"
+          >All Books</router-link
         >
-          All Books
-        </router-link>
         <router-link
           to="/#why"
           @click="isMenuOpen = false"
           class="text-gray-600 hover:text-purple-600 px-3 py-2 rounded-md hover:bg-purple-50"
+          >Why</router-link
         >
-          Why
-        </router-link>
       </div>
     </div>
   </header>
