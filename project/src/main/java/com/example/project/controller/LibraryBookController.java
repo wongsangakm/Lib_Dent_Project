@@ -63,14 +63,7 @@ public ResponseEntity<?> deleteAllLibraryBooks() {
         // ลบข้อมูลก่อน
         repository.deleteAllBooksNative();
         
-        // **รอสักครู่ให้ transaction commit**
-        jdbcTemplate.execute("SELECT 1"); // dummy query
-        
-        // Reset sequence ให้เริ่มที่ 1
-        jdbcTemplate.execute("ALTER SEQUENCE library_book_id_seq RESTART WITH 1");
-        
-        // **ตั้งค่า next value ให้แน่ใจ**
-        jdbcTemplate.execute("SELECT setval('library_book_id_seq', 1, false)");
+         jdbcTemplate.execute("SELECT setval('library_book_id_seq', 1, false)");
         
         return ResponseEntity.ok("✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว");
     } catch (Exception e) {
