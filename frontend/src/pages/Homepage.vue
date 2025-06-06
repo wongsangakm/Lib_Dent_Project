@@ -534,7 +534,8 @@
                     >มีในชั้นหนังสือ</span
                   >
                   <span v-else-if="book.status === 'ordered'"
-                    ><i class="fa-solid fa-cart-plus mr-2"></i>กำลังสั่งซื้อ</span
+                    ><i class="fa-solid fa-cart-plus mr-2"></i
+                    >กำลังสั่งซื้อ</span
                   >
                 </div>
                 <!-- Heart Button -->
@@ -1392,7 +1393,7 @@ img {
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: #28965a; /* เขียว */
+  background-color: #16db93; /* เขียว */
   color: white;
   font-size: 12px;
   font-weight: 600;
@@ -1405,6 +1406,6 @@ img {
 }
 
 .ribbon.ordered {
-  background-color: #f59e0b; /* ส้ม */
+  background-color: #f29e4c; /* ส้ม */
 }
 </style>
