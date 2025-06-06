@@ -210,9 +210,6 @@ onUnmounted(() => {
   max-height: 80vh;
   overflow: hidden;
   animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  display: flex;
-  flex-direction: column;
 }
 
 .popup-header {
@@ -248,11 +245,8 @@ onUnmounted(() => {
 
 .popup-content {
   padding: 0;
-  max-height: none;
+  max-height: 400px;
   overflow-y: auto;
-  flex: 1 1 auto;
-  overflow-y: auto;
-  padding: 0;
 }
 
 .popup-content::-webkit-scrollbar {
@@ -358,16 +352,10 @@ onUnmounted(() => {
   }
 
   .popup {
-    display: flex;
-    flex-direction: column;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-    max-width: 900px;
-    width: 90%;
-    max-height: 80vh;
-    overflow: hidden;
-    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-width: 95%; /* ขยายให้เต็มหน้าจอมากขึ้น */
+    width: 95%;
+    padding: 16px; /* ลด padding */
+    max-height: 85vh; /* ลดความสูง */
   }
 
   .popup h2 {
@@ -466,7 +454,6 @@ onUnmounted(() => {
 }
 
 .popup-footer {
-  flex-shrink: 0;
   padding: 24px;
   background: #f8f9fa;
   display: flex;
