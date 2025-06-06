@@ -364,7 +364,7 @@
   </div>
 </section>
 
-      <!-- Favourite by Publisher -->
+      <!-- Favourite by Publisher. -->
       <section id="Favbypub" class="py-4 md:py-6 pt-3 md:pt-5">
         <div class="container mx-auto px-4">
           <!-- หัวข้อ + ปุ่ม Additional Request -->
