@@ -60,7 +60,7 @@ public class LibraryBookController {
 public ResponseEntity<?> deleteAllLibraryBooks() {
     try {
         repository.deleteAllBooksNative();
-        jdbcTemplate.execute("ALTER SEQUENCE library_book_id_seq RESTART WITH 1");
+                jdbcTemplate.execute("SELECT setval('library_book_id_seq', 1, false)");
         return ResponseEntity.ok("✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว");
     } catch (Exception e) {
         return ResponseEntity.badRequest().body("❌ ลบข้อมูลไม่สำเร็จ: " + e.getMessage());
