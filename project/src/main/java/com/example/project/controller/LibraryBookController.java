@@ -50,14 +50,19 @@ public class LibraryBookController {
     }
 
     @GetMapping("/similar-lite")
-    public List<LibraryBook> findSimilarLite(@RequestParam String title) {
+    public List<LibraryBook> findSLibraryBookControllerimilarLite(@RequestParam String title) {
         return repository.findTop100ByTitleContainingIgnoreCase(title);
     }
-    @DeleteMapping("/all")
-    public ResponseEntity<?> deleteAllLibraryBooks() {
-        repository.deleteAll();
-        return ResponseEntity.noContent().build();
+@DeleteMapping("/all")
+public ResponseEntity<?> deleteAllLibraryBooks() {
+    try {
+        repository.deleteAllBooksNative();
+        return ResponseEntity.ok("✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว");
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body("❌ ลบข้อมูลไม่สำเร็จ: " + e.getMessage());
     }
+}
+
 
 
 
