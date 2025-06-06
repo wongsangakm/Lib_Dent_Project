@@ -358,11 +358,16 @@ onUnmounted(() => {
   }
 
   .popup {
-    max-width: 95%; /* ขยายให้เต็มหน้าจอมากขึ้น */
-    width: 95%;
-    padding: 16px; /* ลด padding */
-    max-height: 80vh; /* ลดความสูง */
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    max-width: 900px;
+    width: 90%;
+    max-height: 80vh;
     overflow: hidden;
+    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .popup h2 {
