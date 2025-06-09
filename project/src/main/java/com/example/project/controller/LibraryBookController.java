@@ -66,13 +66,21 @@ public class LibraryBookController {
     @Transactional
     public ResponseEntity<Void> deleteAllLibraryBooks() {
         try {
-            // TRUNCATE จะลบข้อมูลและ reset sequence อัตโนมัติ
+            // เพิ่ม flush ก่อน truncate
+            entityManager.flush();
+            entityManager.clear();
+            
+            // ใช้คำสั่งเดียวกับที่ทดสอบใน SQL Console
             entityManager.createNativeQuery("TRUNCATE TABLE library_book RESTART IDENTITY CASCADE")
                         .executeUpdate();
+            
+            // Flush อีกครั้งเพื่อให้แน่ใจ
+            entityManager.flush();
             
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Error details: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
