@@ -1,7 +1,9 @@
+
 package com.example.project.controller;
 
 import java.util.List;
-import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,27 +14,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.jdbc.core.JdbcTemplate;
+
 import com.example.project.model.LibraryBook;
 import com.example.project.repository.LibraryBookRepository;
 import com.example.project.service.LibraryBookImportService;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 @RestController
 @RequestMapping("/api/library-books")
 public class LibraryBookController {
-     private final JdbcTemplate jdbcTemplate;
+
+        @PersistenceContext
+    private EntityManager entityManager;
  private final LibraryBookRepository repository;
     private final LibraryBookImportService importService;
 
     // ✅ รวม constructor เดียว
     public LibraryBookController(
         LibraryBookRepository repository,
-        LibraryBookImportService importService,
-        JdbcTemplate jdbcTemplate
+        LibraryBookImportService importService
     ) {
         this.repository = repository;
         this.importService = importService;
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @PostMapping( value = "/import",
@@ -53,20 +59,37 @@ public class LibraryBookController {
     }
 
     @GetMapping("/similar-lite")
-    public List<LibraryBook> findSLibraryBookControllerimilarLite(@RequestParam String title) {
+    public List<LibraryBook> findSimilarLite(@RequestParam String title) {
         return repository.findTop100ByTitleContainingIgnoreCase(title);
     }
 @DeleteMapping("/all")
 @Transactional
-public ResponseEntity<?> deleteAllLibraryBooks() {
- try {
-jdbcTemplate.execute("TRUNCATE TABLE library_book RESTART IDENTITY");
-        return ResponseEntity.ok("✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว");
+public ResponseEntity<Void> deleteAllLibraryBooks() {
+    try {
+        // ลบข้อมูลทั้งหมดด้วย JPA method
+        repository.deleteAll();
+        
+       // Reset auto-increment แบบยืดหยุ่น
+        entityManager.flush();
+        
+        // ตรวจสอบประเภทฐานข้อมูล
+        String databaseProductName = entityManager.getEntityManagerFactory()
+            .getProperties().get("hibernate.dialect").toString();
+            
+        if (databaseProductName.contains("PostgreSQL")) {
+            entityManager.createNativeQuery("ALTER SEQUENCE library_book_id_seq RESTART WITH 1")
+                        .executeUpdate();
+        } else if (databaseProductName.contains("MySQL")) {
+            entityManager.createNativeQuery("ALTER TABLE library_book AUTO_INCREMENT = 1")
+                        .executeUpdate();
+        }
+        
+        return ResponseEntity.noContent().build();
     } catch (Exception e) {
-        return ResponseEntity.badRequest().body("❌ ลบข้อมูลไม่สำเร็จ: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 }
-
 
 
 
