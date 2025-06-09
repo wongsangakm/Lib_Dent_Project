@@ -73,6 +73,11 @@ public class LibraryBookController {
             // ใช้คำสั่งเดียวกับที่ทดสอบใน SQL Console
             entityManager.createNativeQuery("TRUNCATE TABLE library_book RESTART IDENTITY CASCADE")
                         .executeUpdate();
+
+                             // Force reset sequence ให้กลับมาเริ่มที่ 1
+            entityManager.createNativeQuery("ALTER SEQUENCE library_book_id_seq RESTART WITH 1")
+                     .executeUpdate();
+
             
             // Flush อีกครั้งเพื่อให้แน่ใจ
             entityManager.flush();
