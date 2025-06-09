@@ -69,20 +69,14 @@ public ResponseEntity<Void> deleteAllLibraryBooks() {
         // ลบข้อมูลทั้งหมดด้วย JPA method
         repository.deleteAll();
         
-       // Reset auto-increment แบบยืดหยุ่น
-        entityManager.flush();
+        // entityManager.flush();
+        // entityManager.createNativeQuery("ALTER TABLE library_book AUTO_INCREMENT = 1")
+        //             .executeUpdate();
         
-        // ตรวจสอบประเภทฐานข้อมูล
-        String databaseProductName = entityManager.getEntityManagerFactory()
-            .getProperties().get("hibernate.dialect").toString();
-            
-        if (databaseProductName.contains("PostgreSQL")) {
-            entityManager.createNativeQuery("ALTER SEQUENCE library_book_id_seq RESTART WITH 1")
-                        .executeUpdate();
-        } else if (databaseProductName.contains("MySQL")) {
-            entityManager.createNativeQuery("ALTER TABLE library_book AUTO_INCREMENT = 1")
-                        .executeUpdate();
-        }
+        // Reset auto-increment ด้วย EntityManager (PostgreSQL)
+        entityManager.flush();
+        entityManager.createNativeQuery("ALTER SEQUENCE library_book_id_seq RESTART WITH 1")
+                    .executeUpdate();
         
         return ResponseEntity.noContent().build();
     } catch (Exception e) {
