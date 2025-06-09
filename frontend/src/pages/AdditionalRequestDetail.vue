@@ -513,45 +513,50 @@
       </div>
     </div>
     <!-- Reject Dialog -->
-<div
-  v-if="showRejectDialog"
-  class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm p-4"
->
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-    <div class="bg-gradient-to-r from-red-500 to-pink-600 p-6 text-white rounded-t-2xl">
-      <h2 class="text-xl font-bold">Reject Request</h2>
-      <p class="text-red-100 text-sm mt-1">Please provide a reason for rejecting this request.</p>
-    </div>
-    <div class="p-6 space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-slate-700 mb-2">Reason</label>
-        <textarea
-          v-model="rejectReason"
-          rows="4"
-          class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
-          placeholder="เช่น ซ้ำกับที่มีอยู่แล้ว, ไม่เหมาะสม, ฯลฯ"
-        ></textarea>
-      </div>
-
-      <div class="flex gap-3 pt-4">
-        <button
-          @click="showRejectDialog = false"
-          class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
+    <div
+      v-if="showRejectDialog"
+      class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm p-4"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div
+          class="bg-gradient-to-r from-red-500 to-pink-600 p-6 text-white rounded-t-2xl"
         >
-          Cancel
-        </button>
-        <button
-          @click="confirmReject"
-          :disabled="!rejectReason"
-          class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
-        >
-          Reject
-        </button>
+          <h2 class="text-xl font-bold">Reject Request</h2>
+          <p class="text-red-100 text-sm mt-1">
+            Please provide a reason for rejecting this request.
+          </p>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2"
+              >Reason</label
+            >
+            <textarea
+              v-model="rejectReason"
+              rows="4"
+              class="w-full border border-slate-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+              placeholder="เช่น ซ้ำกับที่มีอยู่แล้ว, ไม่เหมาะสม, ฯลฯ"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button
+              @click="showRejectDialog = false"
+              class="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="confirmReject"
+              :disabled="!rejectReason"
+              class="flex-1 px-4 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              Reject
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
   </div>
 </template>
 
@@ -580,7 +585,6 @@ const showRejectDialog = ref(false);
 const loadRequest = async () => {
   try {
     const res = await fetch(`${baseURL}/api/admin/request-table/${requestId}`, {
-
       headers: authStore.getAuthHeader(),
     });
     if (!res.ok) throw new Error("Request not found");
@@ -596,15 +600,18 @@ const loadRequest = async () => {
 const confirmApprove = async () => {
   isUpdating.value = true;
   try {
-    const res = await fetch(`${baseURL}/api/admin/request-table/${requestId}/approve`, {
-      method: 'PUT',
+    const res = await fetch(
+      `${baseURL}/api/admin/request-table/${requestId}/approve`,
+      {
+        method: "PUT",
 
-      headers: {
-        ...authStore.getAuthHeader(),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ finalStatus: finalStatus.value })
-    });
+        headers: {
+          ...authStore.getAuthHeader(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ finalStatus: finalStatus.value }),
+      }
+    );
 
     if (!res.ok) throw new Error("Approval failed");
 
@@ -617,22 +624,20 @@ const confirmApprove = async () => {
     await loadRequest();
 
     // แสดงข้อความสำเร็จแบบ El
-  ElMessage({
-    type: "success",
-    message: "Request updated successfully!",
-  });
+    ElMessage({
+      type: "success",
+      message: "Request updated successfully!",
+    });
+  } catch (err) {
+    console.error("❌ Approval error:", err);
 
-} catch (err) {
-  console.error("❌ Approval error:", err);
-
-  ElMessage({
-    type: "error",
-    message: "Update failed. Please try again.",
-  });
-
-} finally {
-  isUpdating.value = false;
-}
+    ElMessage({
+      type: "error",
+      message: "Update failed. Please try again.",
+    });
+  } finally {
+    isUpdating.value = false;
+  }
 };
 
 // ปฏิเสธคำขอ
@@ -640,49 +645,53 @@ const confirmReject = async () => {
   if (!rejectReason.value) return;
 
   try {
-    const res = await fetch(`${baseURL}/api/admin/request-table/${requestId}/reject`, {
-      method: 'PUT',
-      headers: {
-        ...authStore.getAuthHeader(),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ reason: rejectReason.value }),
-    });
+    const res = await fetch(
+      `${baseURL}/api/admin/request-table/${requestId}/reject`,
+      {
+        method: "PUT",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          ...authStore.getAuthHeader(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason: rejectReason.value }),
+      }
+    );
 
     if (!res.ok) throw new Error("Reject failed");
 
     ElMessage({
-    type: "success",
-    message: "Request rejected successfully.",
-  });
+      type: "success",
+      message: "Request rejected successfully.",
+    });
 
-  await loadRequest();
-  showRejectDialog.value = false;
-  rejectReason.value = "";
+    await loadRequest();
+    showRejectDialog.value = false;
+    rejectReason.value = "";
+  } catch (err) {
+    console.error("❌ Reject error:", err);
 
-} catch (err) {
-  console.error("❌ Reject error:", err);
-
-  ElMessage({
-    type: "error",
-    message: "Reject failed. Please try again.",
-  });
+    ElMessage({
+      type: "error",
+      message: "Reject failed. Please try again.",
+    });
+  }
 };
-}
 
 // แสดงสถานะในภาษาไทย
 const displayStatus = (status) => {
   switch (status) {
-    case 'in_shelf':
-      return 'มีในชั้นหนังสือแล้ว';
-    case 'ordered':
-      return 'กำลังสั่งซื้อ';
-    case 'popular_request':
-      return 'กำลังพิจารณาจัดซื้อ';
-    case 'PENDING':
-      return 'รอการอนุมัติ';
-    case 'REJECTED':
-      return 'ถูกปฏิเสธ';
+    case "in_shelf":
+      return "มีในชั้นหนังสือแล้ว";
+    case "ordered":
+      return "กำลังสั่งซื้อ";
+    case "popular_request":
+      return "กำลังพิจารณาจัดซื้อ";
+    case "PENDING":
+      return "รอการอนุมัติ";
+    case "REJECTED":
+      return "ถูกปฏิเสธ";
     default:
       return status;
   }
@@ -691,18 +700,18 @@ const displayStatus = (status) => {
 // คำอธิบายสถานะ
 const getStatusDescription = (status) => {
   switch (status) {
-    case 'in_shelf':
-      return 'หนังสือเล่มนี้พร้อมให้บริการแล้ว';
-    case 'ordered':
-      return 'กำลังดำเนินการสั่งซื้อหนังสือเล่มนี้';
-    case 'popular_request':
-      return 'อยู่ระหว่างการพิจารณาจัดซื้อ';
-    case 'PENDING':
-      return 'รอการพิจารณาจากผู้ดูแลระบบ';
-    case 'REJECTED':
-      return 'คำขอนี้ถูกปฏิเสธแล้ว';
+    case "in_shelf":
+      return "หนังสือเล่มนี้พร้อมให้บริการแล้ว";
+    case "ordered":
+      return "กำลังดำเนินการสั่งซื้อหนังสือเล่มนี้";
+    case "popular_request":
+      return "อยู่ระหว่างการพิจารณาจัดซื้อ";
+    case "PENDING":
+      return "รอการพิจารณาจากผู้ดูแลระบบ";
+    case "REJECTED":
+      return "คำขอนี้ถูกปฏิเสธแล้ว";
     default:
-      return 'สถานะไม่ทราบ';
+      return "สถานะไม่ทราบ";
   }
 };
 
@@ -715,7 +724,7 @@ const formatDate = (dateStr) => {
     month: "short",
     day: "2-digit",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 };
 
