@@ -25,6 +25,9 @@ public class BudgetService {
     @Autowired
     private AdditionalRequestRepository additionalRequestRepository;
 
+    @Autowired
+    private ReportExportService reportExportService;
+
     private String normalizeStatus(String status) {
         if (status == null) return null;
         return switch (status.trim()) {
@@ -35,6 +38,7 @@ public class BudgetService {
         };
     }
 
+    // เมธอดหลักสำหรับสร้างรายงานงบประมาณ
     public BudgetReportDTO generateReport(Integer year, Integer term, Integer month, String status) {
         List<BookFavorite> favorites = favoriteRepository.findAll();
         List<AdditionalRequest> additionalRequests = additionalRequestRepository.findAll();
@@ -201,4 +205,22 @@ public class BudgetService {
     private int calculateBudgetYear(LocalDateTime created) {
         return (created.getMonthValue() >= 10) ? created.getYear() + 1 : created.getYear();
     }
+
+    // แก้ไขลำดับพารามิเตอร์ให้ตรงกัน (year, term, month, status)
+    public byte[] generateExcel(Integer year, Integer term, Integer month, String status) {
+        List<BudgetReportDTO> data = getBudgetReportData(year, term, month, status);
+        return reportExportService.exportToExcel(data);
+    }
+
+    public byte[] generatePdf(Integer year, Integer term, Integer month, String status) {
+        List<BudgetReportDTO> data = getBudgetReportData(year, term, month, status);
+        return reportExportService.exportToPdf(data);
+    }
+
+    // Implement getBudgetReportData โดยเรียก generateReport แล้ว return List
+    private List<BudgetReportDTO> getBudgetReportData(Integer year, Integer term, Integer month, String status) {
+        BudgetReportDTO dto = generateReport(year, term, month, status);
+        return List.of(dto);
+    }
+
 }

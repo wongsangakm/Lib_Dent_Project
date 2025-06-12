@@ -23,6 +23,10 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ContentDisposition;
+
 
 @RestController
 @RequestMapping("/api/admin") 
@@ -312,5 +316,34 @@ public ResponseEntity<BudgetReportDTO> getBudgetReport(
     BudgetReportDTO report = budgetService.generateReport(year, term, month, status);
     return ResponseEntity.ok(report);
 }
+
+@GetMapping("/budget-report/export/excel")
+public ResponseEntity<byte[]> exportExcel(
+        @RequestParam(required = false) Integer month,
+        @RequestParam(required = false) Integer term,
+        @RequestParam Integer year,
+        @RequestParam(required = false) String status) {
+    
+    byte[] excelFile = budgetService.generateExcel(month, term, year, status);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.setContentDisposition(ContentDisposition.attachment().filename("budget-report.xlsx").build());
+    return new ResponseEntity<>(excelFile, headers, HttpStatus.OK);
+}
+
+@GetMapping("/budget-report/export/pdf")
+public ResponseEntity<byte[]> exportPdf(
+        @RequestParam(required = false) Integer month,
+        @RequestParam(required = false) Integer term,
+        @RequestParam Integer year,
+        @RequestParam(required = false) String status) {
+
+    byte[] pdfFile = budgetService.generatePdf(month, term, year, status);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDisposition(ContentDisposition.attachment().filename("budget-report.pdf").build());
+    return new ResponseEntity<>(pdfFile, headers, HttpStatus.OK);
+}
+
 
 }

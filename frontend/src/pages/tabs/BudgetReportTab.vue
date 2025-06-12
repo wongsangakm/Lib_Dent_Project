@@ -48,6 +48,21 @@
       >
         ดูรายงาน
       </button>
+
+      <template v-if="reportFetched">
+        <button
+          @click="exportToExcel"
+          class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-transform duration-300 text-sm"
+        >
+          Export Excel
+        </button>
+        <button
+          @click="exportToPDF"
+          class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-transform duration-300 text-sm"
+        >
+          Export PDF
+        </button>
+      </template>
     </div>
 
     <!-- รายงานสรุป -->
@@ -158,14 +173,21 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { ElMessage } from "element-plus";
-const authStore = useAuthStore();
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import "@/utils/jsPDF-thsarabun";
+
+const baseURL = import.meta.env.VITE_API_BASE_URL;
+
 const selectedMonth = ref("");
 const selectedYear = ref(new Date().getFullYear());
 const selectedStatus = ref("");
 const selectedTerm = ref("");
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+const reportFetched = ref(false);
+
 const reportData = ref({
   totalBooks: 0,
   totalAmount: 0,
@@ -210,12 +232,30 @@ const displayStatus = (status) => {
     case "rejected":
       return "ถูกปฏิเสธ";
     default:
-      return status;
+      return status || "-";
   }
 };
 
+const displayStatusEn = (status) => {
+  const normalized = status?.toLowerCase();
+  switch (normalized) {
+    case "in_shelf":
+      return "In Library";
+    case "ordered":
+      return "Ordering";
+    case "popular_request":
+      return "Pending Review";
+    case "pending":
+      return "Pending Approval";
+    case "rejected":
+      return "Rejected";
+    default:
+      return status || "-";
+  }
+};
+
+
 const fetchReport = async () => {
-  console.log("🔍 เรียก fetchReport แล้ว");
   try {
     const res = await axios.get(`${baseURL}/api/admin/budget-report`, {
       params: {
@@ -227,7 +267,6 @@ const fetchReport = async () => {
       withCredentials: true,
     });
 
-    console.log("✅ ได้ข้อมูลจาก API", res.data);
     const data = res.data;
     reportData.value = {
       totalBooks: data.totalBooks,
@@ -237,9 +276,128 @@ const fetchReport = async () => {
         (req) => req.status?.toLowerCase() !== "rejected"
       ),
     };
+    reportFetched.value = true;
   } catch (err) {
-  ElMessage.error("เกิดข้อผิดพลาดในการดึงรายงานงบประมาณ");
-  console.error(err);
-}
+    ElMessage.error("เกิดข้อผิดพลาดในการดึงรายงานงบประมาณ");
+    console.error(err);
+  }
 };
+
+const exportToExcel = () => {
+  const wb = XLSX.utils.book_new();
+
+  // --- Sheet 1: รวมทุกอย่าง ---
+  const summary = [
+    ["สรุปยอดรวม"],
+    ["จำนวนเล่มรวม", reportData.value.totalBooks],
+    ["ยอดรวม", reportData.value.totalAmount],
+  ];
+
+  const booksSection = [
+    ["รายการหนังสือ"],
+    ["ชื่อหนังสือ", "ISBN", "ราคา", "สำนักพิมพ์", "สถานะ"],
+    ...reportData.value.books.map((book) => [
+      book.title || "",
+      book.isbn || "",
+      book.price != null ? `${book.price} บาท` : "0 บาท",
+      book.publisher || "",
+      displayStatus(book.status),
+    ]),
+  ];
+
+  const requestsSection = [
+    ["คำร้องเพิ่มเติม"],
+    ["ชื่อหนังสือ", "ISBN", "ราคา", "สำนักพิมพ์", "สถานะ"],
+    ...reportData.value.additionalRequests.map((req) => [
+      req.title || "",
+      req.isbn || "",
+      req.price != null ? `${req.price} บาท` : "0 บาท",
+      req.publisher || "",
+      displayStatus(req.status),
+    ]),
+  ];
+
+  const combinedData = [...summary, [], ...booksSection, [], ...requestsSection];
+  const combinedSheet = XLSX.utils.aoa_to_sheet(combinedData);
+  XLSX.utils.book_append_sheet(wb, combinedSheet, "รายงาน");
+
+  // --- Sheet 2: รายการหนังสือ ---
+  const bookSheet = XLSX.utils.aoa_to_sheet([
+    ["ชื่อหนังสือ", "ISBN", "ราคา", "สำนักพิมพ์", "สถานะ"],
+    ...reportData.value.books.map((book) => [
+      book.title || "",
+      book.isbn || "",
+      book.price != null ? `${book.price} บาท` : "0 บาท",
+      book.publisher || "",
+      displayStatus(book.status),
+    ]),
+  ]);
+  XLSX.utils.book_append_sheet(wb, bookSheet, "รายการหนังสือ");
+
+  // --- Sheet 3: คำร้องเพิ่มเติม ---
+  const requestSheet = XLSX.utils.aoa_to_sheet([
+    ["ชื่อหนังสือ", "ISBN", "ราคา", "สำนักพิมพ์", "สถานะ"],
+    ...reportData.value.additionalRequests.map((req) => [
+      req.title || "",
+      req.isbn || "",
+      req.price != null ? `${req.price} บาท` : "0 บาท",
+      req.publisher || "",
+      displayStatus(req.status),
+    ]),
+  ]);
+  XLSX.utils.book_append_sheet(wb, requestSheet, "คำร้องเพิ่มเติม");
+
+  // --- บันทึกไฟล์ ---
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  saveAs(
+    new Blob([wbout], { type: "application/octet-stream" }),
+    `รายงานงบประมาณ_${new Date().toISOString().slice(0, 10)}.xlsx`
+  );
+};
+
+
+const exportToPDF = () => {
+  const doc = new jsPDF();
+  doc.setFont("helvetica"); // ฟอนต์มาตรฐาน รองรับอังกฤษ 100%
+  doc.setFontSize(18);
+  doc.text("Budget Report", 14, 20);
+
+  doc.setFontSize(14);
+  doc.text(`Total Books: ${reportData.value.totalBooks}`, 14, 30);
+  doc.text(`Total Amount: ${reportData.value.totalAmount.toLocaleString()} Baht`, 14, 38);
+
+  // Table: Books
+  autoTable(doc, {
+    startY: 50,
+    head: [["Title", "ISBN", "Price", "Publisher", "Status"]],
+    body: reportData.value.books.map((book) => [
+      book.title || "",
+      book.isbn || "",
+      `${book.price?.toLocaleString() || "0"} Baht`,
+      book.publisher || "",
+      displayStatusEn(book.status),
+    ]),
+    styles: { font: "helvetica", fontSize: 12 },
+    headStyles: { fillColor: [100, 100, 255] },
+  });
+
+  // Table: Additional Requests
+  autoTable(doc, {
+    startY: doc.lastAutoTable.finalY + 10,
+    head: [["Title", "ISBN", "Price", "Publisher", "Status"]],
+    body: reportData.value.additionalRequests.map((req) => [
+      req.title || "",
+      req.isbn || "",
+      `${req.price?.toLocaleString() || "0"} Baht`,
+      req.publisher || "",
+      displayStatusEn(req.status),
+    ]),
+    styles: { font: "helvetica", fontSize: 12 },
+    headStyles: { fillColor: [255, 100, 100] },
+  });
+
+  doc.save(`budget_report_${new Date().toISOString().slice(0, 10)}.pdf`);
+};
+
 </script>
+
