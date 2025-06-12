@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <!-- Error State -->
+      <!-- Error. State -->
       <div v-else-if="!request" class="text-center py-20">
         <div
           class="bg-white/80 backdrop-blur-sm border border-red-200 rounded-2xl p-8 max-w-md mx-auto shadow-lg"

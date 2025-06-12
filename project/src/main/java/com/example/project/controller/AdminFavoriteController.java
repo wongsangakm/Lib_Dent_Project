@@ -44,7 +44,7 @@ public class AdminFavoriteController {
 
     /**
      * นับจำนวนผู้ที่ favorite หนังสือแต่ละเล่ม (เฉพาะเล่มที่มีคนกด)
-     * @return List of bookId, bookTitle, favoriteCount
+     * @return List of bookId, bookTitle, favoriteCount.
      */
     @GetMapping("/favorite-counts")
     public ResponseEntity<?> getFavoriteCounts() {
