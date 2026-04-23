@@ -8,7 +8,7 @@
     <div class="w-full">
       <div
         class="absolute top-[500px] bottom-0 left-0 right-0 bg-repeat-y"
-        style="background-image: url('/images/bg_repeat.png')"
+        style="background-image: url(&quot;/images/bg_repeat.png&quot;)"
       ></div>
 
       <Header />
@@ -222,7 +222,9 @@
                 <div class="md:col-span-2 lg:col-span-3 flex justify-end pt-4">
                   <button
                     type="submit"
+                    @click.prevent="submitRequest"
                     :disabled="isLoading"
+                    
                     class="bg-purple-600 text-white px-5 py-3 rounded-full transition-all flex items-center gap-2 hover:bg-purple-700 hover:shadow-lg transform hover:scale-105"
                     :class="{ 'opacity-60 cursor-not-allowed': isLoading }"
                   >
@@ -603,25 +605,42 @@
           <div v-else class="text-center text-gray-600">
             <p>No books found for this publisher.</p>
           </div>
-          <div v-if="showFavoriteDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
-        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-4 rounded-t-2xl">
-          <h2 class="text-lg font-semibold">ยืนยันการเพิ่มรายการโปรด</h2>
-          <p class="text-sm text-indigo-100">คุณต้องการเพิ่มหนังสือเล่มนี้เข้าสู่รายการโปรดใช่หรือไม่?</p>
-        </div>
+          <div
+            v-if="showFavoriteDialog"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm"
+          >
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+              <div
+                class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-4 rounded-t-2xl"
+              >
+                <h2 class="text-lg font-semibold">ยืนยันการเพิ่มรายการโปรด</h2>
+                <p class="text-sm text-indigo-100">
+                  คุณต้องการเพิ่มหนังสือเล่มนี้เข้าสู่รายการโปรดใช่หรือไม่?
+                </p>
+              </div>
 
-        <div class="p-6 space-y-4">
-          <p class="text-slate-700 text-center">
-            <strong>{{ bookData?.bookTitle }}</strong>
-          </p>
+              <div class="p-6 space-y-4">
+                <p class="text-slate-700 text-center">
+                  <strong>{{ bookData?.bookTitle }}</strong>
+                </p>
 
-          <div class="flex justify-end gap-3">
-            <button @click="showFavoriteDialog = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl">ยกเลิก</button>
-            <button @click="confirmAddToFavorite" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl">ยืนยัน</button>
+                <div class="flex justify-end gap-3">
+                  <button
+                    @click="showFavoriteDialog = false"
+                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl"
+                  >
+                    ยกเลิก
+                  </button>
+                  <button
+                    @click="confirmAddToFavorite"
+                    class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl"
+                  >
+                    ยืนยัน
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
         </div>
       </section>
 
@@ -776,7 +795,9 @@ const updatePublisherCounts = () => {
       publisher.name === "All Books"
         ? favouritesStore.allBooks.length
         : favouritesStore.allBooks.filter((book) =>
-            book.publisher?.toLowerCase().includes(publisher.name.toLowerCase())
+            book.publisher
+              ?.toLowerCase()
+              .includes(publisher.name.toLowerCase()),
           ).length,
   }));
 };
@@ -823,7 +844,6 @@ const addToFavorite = (book) => {
   showFavoriteDialog.value = true;
 };
 
-
 const confirmAddToFavorite = async () => {
   showFavoriteDialog.value = false;
   if (!bookData.value) return;
@@ -831,13 +851,16 @@ const confirmAddToFavorite = async () => {
   bookData.value.isLoading = true;
 
   try {
-    const response = await fetch(`${baseURL}/api/auth/favorites/${bookData.value.id}`, {
-      method: "POST",
-      headers: {
-        ...authStore.getAuthHeader(),
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${baseURL}/api/auth/favorites/${bookData.value.id}`,
+      {
+        method: "POST",
+        headers: {
+          ...authStore.getAuthHeader(),
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     const result = await response.json();
 
@@ -855,8 +878,6 @@ const confirmAddToFavorite = async () => {
   }
 };
 
-
-
 // Computed property to filter books by selected publisher
 const filteredBooksByPublisher = computed(() => {
   if (!allBooks.value) return [];
@@ -866,7 +887,7 @@ const filteredBooksByPublisher = computed(() => {
   return allBooks.value.filter((book) =>
     book.publisher
       ?.toLowerCase()
-      .includes(selectedPublisher.value.toLowerCase())
+      .includes(selectedPublisher.value.toLowerCase()),
   );
 });
 
@@ -875,7 +896,7 @@ const filteredBooks = computed(() => {
   if (!allBooks.value) return [];
   if (!searchQuery.value.trim()) return [];
   return allBooks.value.filter((book) =>
-    book.bookTitle.toLowerCase().includes(searchQuery.value.toLowerCase())
+    book.bookTitle.toLowerCase().includes(searchQuery.value.toLowerCase()),
   );
 });
 
@@ -923,13 +944,13 @@ watch(
       /^\d{9}[\dXx]$/.test(cleaned) || /^\d{13}$/.test(cleaned)
         ? ""
         : "❌ Invalid ISBN (must be 10 or 13 digits)";
-  }
+  },
 );
 watch(
   () => request.value.year,
   (val) => {
     yearError.value = /^\d*$/.test(val) ? "" : "❌ Year must be an integer.";
-  }
+  },
 );
 watch(
   () => request.value.price,
@@ -937,32 +958,32 @@ watch(
     priceError.value = /^\d*\.?\d*$/.test(val)
       ? ""
       : "❌ Price must be a valid number (float).";
-  }
+  },
 );
 watch(
   () => request.value.bookTitle,
   (val) => {
     bookTitleError.value =
       val.trim() === "" ? "❌ Book Title is required." : "";
-  }
+  },
 );
 watch(
   () => request.value.author,
   (val) => {
     authorError.value = val.trim() === "" ? "❌ Author is required." : "";
-  }
+  },
 );
 watch(
   () => request.value.publisher,
   (val) => {
     publisherError.value = val.trim() === "" ? "❌ Publisher is required." : "";
-  }
+  },
 );
 watch(
   () => request.value.reason,
   (val) => {
     reasonError.value = val.trim() === "" ? "❌ Reason is required." : "";
-  }
+  },
 );
 
 // ฟังก์ชันทำความสะอาดข้อความเพื่อการเปรียบเทียบที่แม่นยำยิ่งขึ้น
@@ -978,7 +999,7 @@ function normalizeTextAdvanced(text) {
       // ลบคำที่ไม่สำคัญ (stop words)
       .replace(
         /\b(และ|หรือ|ใน|ของ|สำหรับ|เพื่อ|กับ|โดย|ที่|แล้ว|ไป|มา|ได้|จะ|ให้|ถึง|จาก|ตาม|about|for|and|or|the|a|an|in|on|at|to|from|by|with)\b/g,
-        ""
+        "",
       )
       // ลบช่องว่างที่เกินมา
       .replace(/\s+/g, " ")
@@ -1035,7 +1056,7 @@ function advancedTitleSimilarity(inputTitle, libraryTitle) {
 
   const keywordSimilarity = calculateKeywordSimilarity(
     inputKeywords,
-    libraryKeywords
+    libraryKeywords,
   );
 
   // 4. ใช้ Levenshtein distance สำหรับการเปรียบเทียบที่ละเอียดขึ้น
@@ -1068,7 +1089,7 @@ function levenshteinDistance(str1, str2) {
         matrix[i][j] = Math.min(
           matrix[i - 1][j - 1] + 1,
           matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
+          matrix[i - 1][j] + 1,
         );
       }
     }
@@ -1161,7 +1182,7 @@ async function submitRequest() {
     shortlist.forEach((book) => {
       const titleSimilarity = advancedTitleSimilarity(
         payload.bookTitle,
-        book.title
+        book.title,
       );
 
       // กำหนดเกณฑ์ความคล้ายที่เข้มงวดขึ้น
@@ -1337,7 +1358,7 @@ function renderPopupHTML(books) {
             }<br>
             ความคล้าย: ${(book.similarity * 100).toFixed(0)}%
           </div>
-        `
+        `,
           )
           .join("")}
       </div>
@@ -1356,14 +1377,14 @@ const onISBNInput = (event) => {
   if (raw.length >= 13) {
     formatted = `${raw.slice(0, 3)}-${raw.slice(3, 4)}-${raw.slice(
       4,
-      7
+      7,
     )}-${raw.slice(7, 12)}-${raw.slice(12, 13)}`;
   }
   // ISBN-10 Format: 0-306-40615-2
   else if (raw.length === 10) {
     formatted = `${raw.slice(0, 1)}-${raw.slice(1, 4)}-${raw.slice(
       4,
-      9
+      9,
     )}-${raw.slice(9, 10)}`;
   } else {
     formatted = raw;
